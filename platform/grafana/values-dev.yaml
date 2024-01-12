@@ -1,0 +1,8 @@
+grafana:
+  ingress:
+    hosts:
+      - &host grafana.127-0-0-1.nip.io
+    tls:
+      - secretName: grafana-general-tls
+        hosts:
+          - *host
