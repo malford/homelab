@@ -9,5 +9,6 @@ helm template \
     --include-crds \
     --namespace argocd \
     --values "${VALUES}" \
+    --values "values-${ENV}.yaml" \
     argocd . \
     | kubectl apply -n argocd -f -

@@ -2,7 +2,9 @@
 .PHONY: *
 .EXPORT_ALL_VARIABLES:
 
-KUBECONFIG = $(shell pwd)/metal/kubeconfig.yaml
+env ?= prod
+
+KUBECONFIG = $(shell pwd)/metal/kubeconfig-${env}.yaml
 KUBE_CONFIG_PATH = $(KUBECONFIG)
 
 default: metal bootstrap external smoke-test post-install clean
@@ -12,10 +14,10 @@ configure:
 	git status
 
 metal:
-	make -C metal
+	make -C metal env=${env}
 
 bootstrap:
-	make -C bootstrap
+	make -C bootstrap env=${env}
 
 external:
 	make -C external

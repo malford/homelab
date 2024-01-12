@@ -2,6 +2,8 @@
 
 default: namespace argocd root
 
+env ?= prod
+
 namespace:
 	kubectl create namespace argocd --dry-run=client --output=yaml \
 		| kubectl apply -f -
@@ -12,4 +14,4 @@ argocd:
 
 .PHONY: root
 root:
-	cd root && ./apply.sh
+	cd root && ENV=${env} ./apply.sh
