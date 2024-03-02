@@ -52,11 +52,8 @@ app-template:
           cardBlur: md
           theme: dark
           headerStyle: boxed
-          hideVersion: true
+          hideVersion: false
         widgets.yaml: |
-          - search:
-              provider: duckduckgo
-              target: _blank
           - kubernetes:
               cluster:
                 show: true
