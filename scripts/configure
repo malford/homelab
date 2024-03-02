@@ -15,10 +15,10 @@ from rich.prompt import Confirm, Prompt
 
 upstream_config = {
     "seed_repo": "https://github.com/malford/homelab",
-    "domain": "mmalford.com",
+    "domain": "malford.io",
     "timezone": "America/New_York",
     "terraform_workspace": "homelab-external",
-    "loadbalancer_ip_range": "192.168.3.224/27",
+    "loadbalancer_ip_range": "192.168.5.224/27",
 }
 
 
