@@ -1,4 +1,0 @@
-nfs.csi.k8s.io/csidriver
-  ignoreDifferences: |
-    jsonPointers:
-      - /spec/seLinuxMount
