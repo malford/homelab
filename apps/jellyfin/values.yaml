@@ -106,7 +106,7 @@ app-template:
               service:
                 name: main
                 port: sonarr
-        - host: &sonarrHost jackett.malford.io
+        - host: &jackettHost jackett.malford.io
           paths:
             - path: /
               pathType: Prefix
