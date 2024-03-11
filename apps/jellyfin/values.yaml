@@ -113,7 +113,7 @@ app-template:
               service:
                 name: main
                 port: jackett
-        - host: &sonarrHost sabnzbd.malford.io
+        - host: &sabnzbdHost sabnzbd.malford.io
           paths:
             - path: /
               pathType: Prefix
