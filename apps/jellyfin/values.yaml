@@ -13,6 +13,12 @@ app-template:
           image:
             repository: docker.io/haugene/transmission-openvpn
             tag: 5.3.1
+          env:
+            OPENVPN_PROVIDER: TORGUARD
+            OPENVPN_CONFIG: USA-NEW-YORK
+            OPENVPN_USERNAME: matthew.alford@gmail.com
+            TRANSMISSION_DOWNLOAD_DIR: /downloads
+            LOCAL_NETWORK: 192.168.0.0/16
         prowlarr:
           image:
             repository: lscr.io/linuxserver/prowlarr
