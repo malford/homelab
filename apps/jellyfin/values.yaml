@@ -142,7 +142,7 @@ app-template:
     config:
       enabled: true
       type: persistentVolumeClaim
-      existingClaim: config-volume
+      existingClaim: media-nfs-config-volume
       size: 2Gi
       advancedMounts:
         main:
