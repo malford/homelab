@@ -1,4 +1,4 @@
-module git.malford.io/khuedoan/homelab/platform/secret-generator
+module git.malford.io/malford/homelab/platform/secret-generator
 
 go 1.19
 

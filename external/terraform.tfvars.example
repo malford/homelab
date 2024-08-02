@@ -5,14 +5,17 @@ cloudflare_account_id = "foobarid"
 # https://dash.cloudflare.com/profile/api-tokens
 cloudflare_api_key = "foobarkey"
 
-# https://my.zerotier.com/account
-zerotier_central_token = "foobartoken"
-
 ntfy = {
-  # https://ntfy.sh/app or your own instance
-  url = "https://ntfy.sh/random_topic_name_here_a8sd7fkjxlkcjasdw33813"
-  # Optional, required if the ntfy instance has access control enabled
-  username = ""
-  # Optional, required if the ntfy instance has access control enabled
-  password = ""
+  # https://ntfy.sh or your own instance
+  url = "https://ntfy.sh"
+  # Your topic name
+  topic = "random_topic_name_here_a8sd7fkjxlkcjasdw33813"
+}
+
+extra_secrets = {
+  # Try to keep this to a minimum with third-party secrets
+  # Consider using the secret generator if possible
+  # ../platform/global-secrets/files/secret-generator/config.yaml
+  #
+  # key = "value"
 }
