@@ -9,7 +9,7 @@ resource "random_password" "tunnel_secret" {
   special = false
 }
 
-resource "cloudflare_argo_tunnel" "homelab" {
+resource "cloudflare_tunnel" "homelab" {
   account_id = var.cloudflare_account_id
   name       = "homelab"
   secret     = base64encode(random_password.tunnel_secret.result)
@@ -20,7 +20,7 @@ resource "cloudflare_record" "tunnel" {
   zone_id = data.cloudflare_zone.zone.id
   type    = "CNAME"
   name    = "homelab-tunnel"
-  value   = "${cloudflare_argo_tunnel.homelab.id}.cfargotunnel.com"
+  value   = "${cloudflare_tunnel.homelab.id}.cfargotunnel.com"
   proxied = false
   ttl     = 1 # Auto
 }
@@ -38,8 +38,8 @@ resource "kubernetes_secret" "cloudflared_credentials" {
   data = {
     "credentials.json" = jsonencode({
       AccountTag   = var.cloudflare_account_id
-      TunnelName   = cloudflare_argo_tunnel.homelab.name
-      TunnelID     = cloudflare_argo_tunnel.homelab.id
+      TunnelName   = cloudflare_tunnel.homelab.name
+      TunnelID     = cloudflare_tunnel.homelab.id
       TunnelSecret = base64encode(random_password.tunnel_secret.result)
     })
   }
@@ -50,8 +50,8 @@ resource "cloudflare_api_token" "external_dns" {
 
   policy {
     permission_groups = [
-      data.cloudflare_api_token_permission_groups.all.permissions["Zone Read"],
-      data.cloudflare_api_token_permission_groups.all.permissions["DNS Write"]
+      data.cloudflare_api_token_permission_groups.all.zone["Zone Read"],
+      data.cloudflare_api_token_permission_groups.all.zone["DNS Write"]
     ]
     resources = {
       "com.cloudflare.api.account.zone.*" = "*"
@@ -79,8 +79,8 @@ resource "cloudflare_api_token" "cert_manager" {
 
   policy {
     permission_groups = [
-      data.cloudflare_api_token_permission_groups.all.permissions["Zone Read"],
-      data.cloudflare_api_token_permission_groups.all.permissions["DNS Write"]
+      data.cloudflare_api_token_permission_groups.all.zone["Zone Read"],
+      data.cloudflare_api_token_permission_groups.all.zone["DNS Write"]
     ]
     resources = {
       "com.cloudflare.api.account.zone.*" = "*"

@@ -48,7 +48,7 @@ More information can be found in [the roadmap](#roadmap) below.
 - [x] Modular architecture, easy to add or remove features/components
 - [x] Automated certificate management
 - [x] Automatically update DNS records for exposed services
-- [x] VPN without port forwarding
+- [x] VPN (Tailscale or Wireguard)
 - [x] Expose services to the internet securely with [Cloudflare Tunnel](https://www.cloudflare.com/products/tunnel/)
 - [x] CI/CD platform
 - [x] Private container registry
@@ -62,36 +62,42 @@ More information can be found in [the roadmap](#roadmap) below.
 Some demo videos and screenshots are shown here.
 They can't capture all the project's features, but they are sufficient to get a concept of it.
 
-| Demo                                                                                        |
-| :--:                                                                                        |
-| [![][deploy-demo]](https://asciinema.org/a/xkBRkwC6e9RAzVuMDXH3nGHp7)                       |
-| Deploy with a single command (after updating the configuration files)                       |
-| [![][pxe-demo]](https://www.youtube.com/watch?v=y-d7btNNAT8)                                |
-| PXE boot                                                                                    |
-| [![][homepage-demo]][homepage-demo]                                                         |
-| Homepage powered by... [Homepage](https://gethomepage.dev)                                  |
-| [![][grafana-demo]][grafana-demo]                                                           |
-| Monitoring dashboard powered by [Grafana](https://grafana.com)                              |
-| [![][gitea-demo]][gitea-demo]                                                               |
-| Git server powered by [Gitea](https://gitea.io/en-us)                                       |
-| [![][matrix-demo]][matrix-demo]                                                             |
-| [Matrix](https://matrix.org/) chat server                                                   |
-| [![][woodpecker-demo]][woodpecker-demo]                                                     |
-| Continuous integration with [Woodpecker CI](https://woodpecker-ci.org)                      |
-| [![][argocd-demo]][argocd-demo]                                                             |
-| Continuous deployment with [ArgoCD](https://argoproj.github.io/cd)                          |
-| [![][lens-demo]][lens-demo]                                                                 |
-| Cluster management using [Lens](https://k8slens.dev)                                        |
+| Demo                                                                                                            |
+| :--:                                                                                                            |
+| [![][deploy-demo]](https://asciinema.org/a/xkBRkwC6e9RAzVuMDXH3nGHp7)                                           |
+| Deploy with a single command (after updating the configuration files)                                           |
+| [![][pxe-demo]](https://www.youtube.com/watch?v=y-d7btNNAT8)                                                    |
+| PXE boot                                                                                                        |
+| [![][hubble-demo]][hubble-demo]                                                                                 |
+| Observe network traffic with Hubble, built on top of [Cilium](https://cilium.io) and eBPF                       |
+| [![][homepage-demo]][homepage-demo]                                                                             |
+| Homepage powered by... [Homepage](https://gethomepage.dev)                                                      |
+| [![][grafana-demo]][grafana-demo]                                                                               |
+| Monitoring dashboard powered by [Grafana](https://grafana.com)                                                  |
+| [![][gitea-demo]][gitea-demo]                                                                                   |
+| Git server powered by [Gitea](https://gitea.io/en-us)                                                           |
+| [![][matrix-demo]][matrix-demo]                                                                                 |
+| [Matrix](https://matrix.org/) chat server                                                                       |
+| [![][woodpecker-demo]][woodpecker-demo]                                                                         |
+| Continuous integration with [Woodpecker CI](https://woodpecker-ci.org)                                          |
+| [![][argocd-demo]][argocd-demo]                                                                                 |
+| Continuous deployment with [ArgoCD](https://argoproj.github.io/cd)                                              |
+| [![][alert-demo]][alert-demo]                                                                                   |
+| [ntfy](https://ntfy.sh) displaying received alerts                                                              |
+| [![][ai-demo]][ai-demo]                                                                                         |
+| Self-hosted AI powered by [Ollama](https://ollama.com) (experimental, not very fast because I don't have a GPU) |
 
 [deploy-demo]: https://asciinema.org/a/xkBRkwC6e9RAzVuMDXH3nGHp7.svg
 [pxe-demo]: https://user-images.githubusercontent.com/27996771/157303477-df2e7410-8f02-4648-a86c-71e6b7e89e35.png
+[hubble-demo]: https://github.com/khuedoan/homelab/assets/27996771/9c6677d0-3564-47c0-852b-24b6a554b4a3
 [homepage-demo]: https://github.com/khuedoan/homelab/assets/27996771/d0eaf620-be08-48d8-8420-40bcaa86093b
 [grafana-demo]: https://github.com/khuedoan/homelab/assets/27996771/ad937b26-e9bc-4761-83ae-1c7f512ea97f
 [gitea-demo]: https://github.com/khuedoan/homelab/assets/27996771/c245534f-88d9-4565-bde8-b39f60ccee9e
 [matrix-demo]: https://user-images.githubusercontent.com/27996771/149448510-7163310c-2049-4ccd-901d-f11f605bfc32.png
 [woodpecker-demo]: https://github.com/khuedoan/homelab/assets/27996771/5d887688-d20a-44c8-8f77-0c625527dfe4
 [argocd-demo]: https://github.com/khuedoan/homelab/assets/27996771/527e2529-4fe1-4664-ab8a-b9eb3c492d20
-[lens-demo]: https://user-images.githubusercontent.com/27996771/149448896-9d79947d-468c-45c6-a81d-b43654e8ab6b.png
+[alert-demo]: https://github.com/khuedoan/homelab/assets/27996771/c922f755-e911-4ca0-9d4a-6e552d387f18
+[ai-demo]: https://github.com/khuedoan/homelab/assets/27996771/d77ba511-00b7-47c3-9032-55679a099e70
 
 ### Tech stack
 
@@ -130,11 +136,6 @@ They can't capture all the project's features, but they are sufficient to get a 
         <td><img width="32" src="https://www.docker.com/wp-content/uploads/2022/03/Moby-logo.png"></td>
         <td><a href="https://www.docker.com">Docker</a></td>
         <td>Ephemeral PXE server and convenient tools container</td>
-    </tr>
-    <tr>
-        <td><img width="32" src="https://github.com/distribution/distribution/raw/main/distribution-logo.svg"></td>
-        <td><a href="https://github.com/distribution/distribution">Docker Registry</a></td>
-        <td>Private container registry</td>
     </tr>
     <tr>
         <td><img width="32" src="https://github.com/kubernetes-sigs/external-dns/raw/master/docs/img/external-dns.png"></td>
@@ -182,11 +183,6 @@ They can't capture all the project's features, but they are sufficient to get a 
         <td>Log aggregation system</td>
     </tr>
     <tr>
-        <td><img width="32" src="https://longhorn.io/img/logos/longhorn-icon-white.png"></td>
-        <td><a href="https://longhorn.io">Longhorn</a></td>
-        <td>Cloud native distributed block storage for Kubernetes</td>
-    </tr>
-    <tr>
         <td><img width="32" src="https://avatars.githubusercontent.com/u/1412239?s=200&v=4"></td>
         <td><a href="https://www.nginx.com">NGINX</a></td>
         <td>Kubernetes Ingress Controller</td>
@@ -207,14 +203,29 @@ They can't capture all the project's features, but they are sufficient to get a 
         <td>Automatically update dependencies</td>
     </tr>
     <tr>
+        <td><img width="32" src="https://raw.githubusercontent.com/rook/artwork/master/logo/blue.svg"></td>
+        <td><a href="https://rook.io">Rook Ceph</a></td>
+        <td>Cloud-Native Storage for Kubernetes</td>
+    </tr>
+    <tr>
+        <td><img width="32" src="https://avatars.githubusercontent.com/u/48932923?s=200&v=4"></td>
+        <td><a href="https://tailscale.com">Tailscale</a></td>
+        <td>VPN without port forwarding</td>
+    </tr>
+    <tr>
+        <td><img width="32" src="https://avatars.githubusercontent.com/u/13991055?s=200&v=4"></td>
+        <td><a href="https://www.wireguard.com">Wireguard</a></td>
+        <td>Fast, modern, secure VPN tunnel</td>
+    </tr>
+    <tr>
         <td><img width="32" src="https://avatars.githubusercontent.com/u/84780935?s=200&v=4"></td>
         <td><a href="https://woodpecker-ci.org">Woodpecker CI</a></td>
         <td>Simple yet powerful CI/CD engine with great extensibility</td>
     </tr>
     <tr>
-        <td><img width="32" src="https://docs.zerotier.com/img/ZeroTierIcon.png"></td>
-        <td><a href="https://zerotier.com">ZeroTier</a></td>
-        <td>VPN without port forwarding</td>
+        <td><img width="32" src="https://zotregistry.dev/v2.0.2/assets/images/logo.svg"></td>
+        <td><a href="https://zotregistry.dev">Zot Registry</a></td>
+        <td>Private container registry</td>
     </tr>
 </table>
 
@@ -235,7 +246,7 @@ Please see [contributing guide](https://homelab.malford.io/reference/contributin
 
 ## License
 
-Copyright &copy; 2020 - 2022 Khue Doan
+Copyright &copy; 2020 - 2024 Khue Doan
 
 Distributed under the GPLv3 License.
 See [license page](https://homelab.malford.io/reference/license) or `LICENSE.md` file for more information.
@@ -274,8 +285,12 @@ Big shout-out to them!
 - ![](https://github.com/Bourne-ID.png?size=24) [@Bourne-ID](https://github.com/Bourne-ID)
 - ![](https://github.com/akwan.png?size=24) [@akwan](https://github.com/akwan)
 - ![](https://github.com/trangmaiq.png?size=24) [@trangmaiq](https://github.com/trangmaiq)
+- ![](https://github.com/tangowithfoxtrot.png?size=24) [@tangowithfoxtrot](https://github.com/tangowithfoxtrot)
+- ![](https://github.com/raedkit.png?size=24) [@raedkit](https://github.com/raedkit)
+- ![](https://github.com/ClashTheBunny.png?size=24) [@ClashTheBunny](https://github.com/ClashTheBunny)
+- ![](https://github.com/retX0.png?size=24) [@retX0](https://github.com/retX0)
 
-If you feel you're missing from this list, feel free to add yourself in a PR.
+If you feel you're missing from this list, please feel free to add yourself in a PR.
 
 ## Stargazers over time
 
