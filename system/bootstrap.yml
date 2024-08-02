@@ -34,3 +34,4 @@
         apply: true
         server_side_apply:
           field_manager: argocd-controller
+          force_conflicts: true
