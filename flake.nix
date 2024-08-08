@@ -45,6 +45,7 @@
             pre-commit
             shellcheck
             terraform # TODO replace with OpenTofu, Terraform is no longer FOSS
+	    tmux
             yamllint
 
             (python3.withPackages (p: with p; [
