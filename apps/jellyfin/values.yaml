@@ -16,7 +16,16 @@ app-template:
           env:
             OPENVPN_PROVIDER: TORGUARD
             OPENVPN_CONFIG: USA-NEW-YORK
-            OPENVPN_USERNAME: matthew.alford@gmail.com
+            OPENVPN_USERNAME:
+              valueFrom:
+                secretKeyRef:
+                  name: openvpn
+                  key: OPENVPN_USERNAME
+            OPENVPN_PASSWORD:
+              valueFrom:
+                secretKeyRef:
+                  name: openvpn
+                  key: OPENVPN_PASSWORD
             TRANSMISSION_DOWNLOAD_DIR: /downloads
             LOCAL_NETWORK: 192.168.0.0/16
         prowlarr:
@@ -148,8 +157,9 @@ app-template:
     config:
       enabled: true
       type: persistentVolumeClaim
-      existingClaim: media-nfs-config-volume
-      size: 2Gi
+      size: 1Gi
+      accessMode: ReadWriteMany
+      retain: true
       advancedMounts:
         main:
           main:
