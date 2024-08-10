@@ -171,6 +171,9 @@ app-template:
           transmission:
             - path: /config
               subPath: transmission-openvpn
+            - name: "dev-tun"
+              hostPath:
+                path: "/dev/net/tun"
           prowlarr:
             - path: /config
               subPath: prowlarr
