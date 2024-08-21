@@ -157,8 +157,11 @@ app-template:
             - *sabnzbdHost
             - *jellyseerrHost
   persistence:
-    config:
+    devnettun:
+      type: hostPath
       enabled: true
+      hostPath: /dev/net/tun
+    config:
       type: persistentVolumeClaim
       accessMode: ReadWriteOnce
       size: 1Gi
@@ -171,9 +174,6 @@ app-template:
           transmission:
             - path: /config
               subPath: transmission-openvpn
-            - name: "dev-tun"
-              hostPath:
-                path: "/dev/net/tun"
           prowlarr:
             - path: /config
               subPath: prowlarr
