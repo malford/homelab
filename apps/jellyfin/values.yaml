@@ -13,6 +13,9 @@ app-template:
             repository: docker.io/jellyfin/jellyfin
             tag: 10.8.13
         transmission:
+          securityContext:
+            capabilities:
+              add: ["NET_ADMIN"]
           image:
             repository: docker.io/haugene/transmission-openvpn
             tag: 5.3.1
