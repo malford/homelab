@@ -30,7 +30,7 @@ app-template:
                   name: openvpn
                   key: OPENVPN_PASSWORD
             TRANSMISSION_DOWNLOAD_DIR: /downloads
-            LOCAL_NETWORK: 192.168.0.0/32
+            LOCAL_NETWORK: 192.168.5.0/32
         prowlarr:
           image:
             repository: lscr.io/linuxserver/prowlarr
