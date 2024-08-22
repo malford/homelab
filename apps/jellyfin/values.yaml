@@ -157,10 +157,6 @@ app-template:
             - *sabnzbdHost
             - *jellyseerrHost
   persistence:
-    devnettun:
-      type: hostPath
-      enabled: true
-      hostPath: /dev/net/tun
     config:
       type: persistentVolumeClaim
       accessMode: ReadWriteOnce
