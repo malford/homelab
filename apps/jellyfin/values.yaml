@@ -6,9 +6,9 @@ app-template:
     securityContext:
       fsGroup: 1000
   controllers:
-    jellyfin:
+    main:
       containers:
-        jellyfin:
+        main:
           image:
             repository: docker.io/jellyfin/jellyfin
             tag: 10.8.13
@@ -59,56 +59,36 @@ app-template:
             repository: docker.io/fallenbagel/jellyseerr
             tag: 1.7.0
   service:
-    jellyfin:
-      controller: jellyfin
+    main:
+      controller: main
       ports:
         http:
           port: 8096
           protocol: HTTP
-    transmission:
-      controller: jellyfin
-      ports:
-        http:
+        transmission:
           port: 9091
           protocol: HTTP
-    prowlarr:
-      controller: jellyfin
-      ports:
-        http:
+        prowlarr:
           port: 9696
           protocol: HTTP
-    radarr:
-      controller: jellyfin
-      ports:
-        http:
+        radarr:
           port: 7878
           protocol: HTTP
-    sonarr:
-      controller: jellyfin
-      ports:
-        http:
+        sonarr:
           port: 8989
           protocol: HTTP
-    jackett:
-      controller: jellyfin
-      ports:
-        http:
+        jackett:
           port: 9117
           protocol: HTTP
-    sabnzbd:
-      controller: jellyfin
-      ports:
-        http:
+        sabnzbd:
           port: 8080
           protocol: HTTP
-    jellyseerr:
-      controller: jellyfin
-      ports:
-        http:
+        jellyseerr:
           port: 5055
           protocol: HTTP
   ingress:
-    jellyfin:
+    main:
+      enabled: true
       className: nginx
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt-prod
@@ -118,57 +98,57 @@ app-template:
             - path: /
               pathType: Prefix
               service:
-                identifier: jellyfin
-                port: http
+                name: main
+                port: 8096
         - host: &transmissionHost transmission.malford.io
           paths:
             - path: /
               pathType: Prefix
               service:
-                identifier: jellyfin
-                port: transmission
+                name: main
+                port: 9091
         - host: &prowlarrHost prowlarr.malford.io
           paths:
             - path: /
               pathType: Prefix
               service:
-                identifier: jellyfin
-                port: prowlarr
+                name: main
+                port: 9696
         - host: &radarrHost radarr.malford.io
           paths:
             - path: /
               pathType: Prefix
               service:
-                identifier: jellyfin
-                port: radarr
+                name: main
+                port: 7878
         - host: &sonarrHost sonarr.malford.io
           paths:
             - path: /
               pathType: Prefix
               service:
-                identifier: jellyfin
-                port: sonarr
+                name: main
+                port: 8989
         - host: &jackettHost jackett.malford.io
           paths:
             - path: /
               pathType: Prefix
               service:
-                identifier: jellyfin
-                port: jackett
+                name: main
+                port: 9117
         - host: &sabnzbdHost sabnzbd.malford.io
           paths:
             - path: /
               pathType: Prefix
               service:
-                identifier: jellyfin
-                port: sabnzbd
+                name: main
+                port: 8080
         - host: &jellyseerrHost jellyseerr.malford.io
           paths:
             - path: /
               pathType: Prefix
               service:
-                identifier: jellyfin
-                port: jellyseerr
+                name: main
+                port: 5055
       tls:
         - secretName: jellyfin-tls-certificate
           hosts:
@@ -187,8 +167,8 @@ app-template:
       size: 1Gi
       retain: true
       advancedMounts:
-        jellyfin:
-          jellyfin:
+        main:
+          main:
             - path: /config
               subPath: jellyfin
           transmission:
