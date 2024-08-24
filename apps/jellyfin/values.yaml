@@ -65,25 +65,46 @@ app-template:
         http:
           port: 8096
           protocol: HTTP
-        transmission:
+    transmission:
+      controller: jellyfin
+      ports:
+        http:
           port: 9091
           protocol: HTTP
-        prowlarr:
+    prowlarr:
+      controller: jellyfin
+      ports:
+        http:
           port: 9696
           protocol: HTTP
-        radarr:
+    radarr:
+      controller: jellyfin
+      ports:
+        http:
           port: 7878
           protocol: HTTP
-        sonarr:
+    sonarr:
+      controller: jellyfin
+      ports:
+        http:
           port: 8989
           protocol: HTTP
-        jackett:
+    jackett:
+      controller: jellyfin
+      ports:
+        http:
           port: 9117
           protocol: HTTP
-        sabnzbd:
+    sabnzbd:
+      controller: jellyfin
+      ports:
+        http:
           port: 8080
           protocol: HTTP
-        jellyseerr:
+    jellyseerr:
+      controller: jellyfin
+      ports:
+        http:
           port: 5055
           protocol: HTTP
   ingress:
