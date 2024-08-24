@@ -99,7 +99,7 @@ app-template:
               pathType: Prefix
               service:
                 name: main
-                port: http
+                port: 8096
         - host: &transmissionHost transmission.malford.io
           paths:
             - path: /
