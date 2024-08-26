@@ -99,56 +99,56 @@ app-template:
               pathType: Prefix
               service:
                 name: main
-                port: 8096
+                port: http
         - host: &transmissionHost transmission.malford.io
           paths:
             - path: /
               pathType: Prefix
               service:
-                name: transmission
-                port: 9091
+                name: main
+                port: transmission
         - host: &prowlarrHost prowlarr.malford.io
           paths:
             - path: /
               pathType: Prefix
               service:
-                name: prowlarr
-                port: 9696
+                name: main
+                port: prowlarr
         - host: &radarrHost radarr.malford.io
           paths:
             - path: /
               pathType: Prefix
               service:
-                name: radarr
-                port: 7878
+                name: main
+                port: radarr
         - host: &sonarrHost sonarr.malford.io
           paths:
             - path: /
               pathType: Prefix
               service:
-                name: sonarr
-                port: 8989
+                name: main
+                port: sonarr
         - host: &jackettHost jackett.malford.io
           paths:
             - path: /
               pathType: Prefix
               service:
-                name: jackett
-                port: 9117
+                name: main
+                port: jackett
         - host: &sabnzbdHost sabnzbd.malford.io
           paths:
             - path: /
               pathType: Prefix
               service:
-                name: sabnzbd
-                port: 8080
+                name: main
+                port: jackett
         - host: &jellyseerrHost jellyseerr.malford.io
           paths:
             - path: /
               pathType: Prefix
               service:
-                name: jellyseerr
-                port: 5055
+                name: main
+                port: jellyseerr
       tls:
         - secretName: jellyfin-tls-certificate
           hosts:
