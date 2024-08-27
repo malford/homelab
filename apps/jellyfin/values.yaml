@@ -98,56 +98,56 @@ app-template:
             - path: /
               pathType: Prefix
               service:
-                name: main
+                identifier: main
                 port: http
         - host: &transmissionHost transmission.malford.io
           paths:
             - path: /
               pathType: Prefix
               service:
-                name: main
+                identifier: main
                 port: transmission
         - host: &prowlarrHost prowlarr.malford.io
           paths:
             - path: /
               pathType: Prefix
               service:
-                name: main
+                identifier: main
                 port: prowlarr
         - host: &radarrHost radarr.malford.io
           paths:
             - path: /
               pathType: Prefix
               service:
-                name: main
+                identifier: main
                 port: radarr
         - host: &sonarrHost sonarr.malford.io
           paths:
             - path: /
               pathType: Prefix
               service:
-                name: main
+                identifier: main
                 port: sonarr
         - host: &jackettHost jackett.malford.io
           paths:
             - path: /
               pathType: Prefix
               service:
-                name: main
+                identifier: main
                 port: jackett
         - host: &sabnzbdHost sabnzbd.malford.io
           paths:
             - path: /
               pathType: Prefix
               service:
-                name: main
-                port: jackett
+                identifier: main
+                port: sabnzbd
         - host: &jellyseerrHost jellyseerr.malford.io
           paths:
             - path: /
               pathType: Prefix
               service:
-                name: main
+                identifier: main
                 port: jellyseerr
       tls:
         - secretName: jellyfin-tls-certificate
