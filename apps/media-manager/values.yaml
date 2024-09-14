@@ -1,0 +1,68 @@
+app-template:
+  serviceAccount:
+    name: media-manager
+  defaultPodOptions:
+    enableServiceLinks: true
+    securityContext:
+      fsGroup: 1000
+  controllers:
+    main:
+      containers:
+        transmission:
+          securityContext:
+            capabilities:
+              add: ["NET_ADMIN"]
+          image:
+            repository: docker.io/haugene/transmission-openvpn
+            tag: 5.3.1
+          env:
+            OPENVPN_PROVIDER: TORGUARD
+            OPENVPN_CONFIG: USA-NEW-YORK
+            OPENVPN_USERNAME:
+              valueFrom:
+                secretKeyRef:
+                  name: openvpn
+                  key: OPENVPN_USERNAME
+            OPENVPN_PASSWORD:
+              valueFrom:
+                secretKeyRef:
+                  name: openvpn
+                  key: OPENVPN_PASSWORD
+            TRANSMISSION_DOWNLOAD_DIR: /downloads
+            LOCAL_NETWORK: 192.168.0.0/16
+  service:
+    main:
+      controller: main
+      ports:
+        transmission:
+          port: 9091
+          protocol: HTTP
+  ingress:
+    main:
+      enabled: true
+      className: nginx
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+      hosts:
+        - host: &transmissionHost media-manager.malford.io
+          paths:
+            - path: /
+              pathType: Prefix
+              service:
+                identifier: main
+                port: transmission
+      tls:
+        - secretName: media-manager-tls-certificate
+          hosts:
+            - *transmissionHost
+  persistence:
+    config:
+      type: persistentVolumeClaim
+      accessMode: ReadWriteOnce
+      size: 1Gi
+      retain: true
+      advancedMounts:
+        main:
+          transmission:
+            - path: /config
+              subPath: transmission-openvpn
