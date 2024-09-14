@@ -34,7 +34,7 @@ app-template:
     main:
       controller: main
       ports:
-        transmission:
+        http:
           port: 9091
           protocol: HTTP
   ingress:
@@ -50,7 +50,7 @@ app-template:
               pathType: Prefix
               service:
                 identifier: main
-                port: transmission
+                port: http
       tls:
         - secretName: media-manager-tls-certificate
           hosts:
