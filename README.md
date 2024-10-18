@@ -1,11 +1,13 @@
-# Khue's Homelab
+# Malford's Homelab
+
+This project has been inspired by and forked from [Khue's homelab](https://github.com/khuedoan/homelab). If this repo interests you I recommend checking out and support their [repo](https://github.com/khuedoan/homelab).
 
 **[Features](#features) • [Get Started](#get-started) • [Documentation](https://homelab.malford.io)**
 
-[![tag](https://img.shields.io/github/v/tag/khuedoan/homelab?style=flat-square&logo=semver&logoColor=white)](https://github.com/khuedoan/homelab/tags)
+[![tag](https://img.shields.io/github/v/tag/malford/malford-homelab?style=flat-square&logo=semver&logoColor=white)](https://github.com/malford/malford-homelab/tags)
 [![document](https://img.shields.io/website?label=document&logo=gitbook&logoColor=white&style=flat-square&url=https%3A%2F%2Fhomelab.malford.io)](https://homelab.malford.io)
-[![license](https://img.shields.io/github/license/khuedoan/homelab?style=flat-square&logo=gnu&logoColor=white)](https://www.gnu.org/licenses/gpl-3.0.html)
-[![stars](https://img.shields.io/github/stars/khuedoan/homelab?logo=github&logoColor=white&color=gold&style=flat-square)](https://github.com/khuedoan/homelab)
+[![license](https://img.shields.io/github/license/malford/malford-homelab?style=flat-square&logo=gnu&logoColor=white)](https://www.gnu.org/licenses/gpl-3.0.html)
+[![stars](https://img.shields.io/github/stars/malford/malford-homelab?logo=github&logoColor=white&color=gold&style=flat-square)](https://github.com/malford/malford-homelab)
 
 This project utilizes [Infrastructure as Code](https://en.wikipedia.org/wiki/Infrastructure_as_code) and [GitOps](https://www.weave.works/technologies/gitops) to automate provisioning, operating, and updating self-hosted services in my homelab.
 It can be used as a highly customizable framework to build your own homelab.
@@ -26,16 +28,6 @@ A proper upgrade path is planned for the stable release.
 More information can be found in [the roadmap](#roadmap) below.
 
 ### Hardware
-
-![Hardware](https://user-images.githubusercontent.com/27996771/98970963-25137200-2543-11eb-8f2d-f9a2d45756ef.JPG)
-
-- 4 × NEC SFF `PC-MK26ECZDR` (Japanese version of the ThinkCentre M700):
-    - CPU: `Intel Core i5-6600T @ 2.70GHz`
-    - RAM: `16GB`
-    - SSD: `128GB`
-- TP-Link `TL-SG108` switch:
-    - Ports: `8`
-    - Speed: `1000Mbps`
 
 ### Features
 
@@ -89,15 +81,15 @@ They can't capture all the project's features, but they are sufficient to get a 
 
 [deploy-demo]: https://asciinema.org/a/xkBRkwC6e9RAzVuMDXH3nGHp7.svg
 [pxe-demo]: https://user-images.githubusercontent.com/27996771/157303477-df2e7410-8f02-4648-a86c-71e6b7e89e35.png
-[hubble-demo]: https://github.com/khuedoan/homelab/assets/27996771/9c6677d0-3564-47c0-852b-24b6a554b4a3
-[homepage-demo]: https://github.com/khuedoan/homelab/assets/27996771/d0eaf620-be08-48d8-8420-40bcaa86093b
-[grafana-demo]: https://github.com/khuedoan/homelab/assets/27996771/ad937b26-e9bc-4761-83ae-1c7f512ea97f
-[gitea-demo]: https://github.com/khuedoan/homelab/assets/27996771/c245534f-88d9-4565-bde8-b39f60ccee9e
+[hubble-demo]: https://github.com/malford/malford-homelab/assets/27996771/9c6677d0-3564-47c0-852b-24b6a554b4a3
+[homepage-demo]: https://github.com/malford/malford-homelab/assets/27996771/d0eaf620-be08-48d8-8420-40bcaa86093b
+[grafana-demo]: https://github.com/malford/malford-homelab/assets/27996771/ad937b26-e9bc-4761-83ae-1c7f512ea97f
+[gitea-demo]: https://github.com/malford/malford-homelab/assets/27996771/c245534f-88d9-4565-bde8-b39f60ccee9e
 [matrix-demo]: https://user-images.githubusercontent.com/27996771/149448510-7163310c-2049-4ccd-901d-f11f605bfc32.png
-[woodpecker-demo]: https://github.com/khuedoan/homelab/assets/27996771/5d887688-d20a-44c8-8f77-0c625527dfe4
-[argocd-demo]: https://github.com/khuedoan/homelab/assets/27996771/527e2529-4fe1-4664-ab8a-b9eb3c492d20
-[alert-demo]: https://github.com/khuedoan/homelab/assets/27996771/c922f755-e911-4ca0-9d4a-6e552d387f18
-[ai-demo]: https://github.com/khuedoan/homelab/assets/27996771/d77ba511-00b7-47c3-9032-55679a099e70
+[woodpecker-demo]: https://github.com/malford/malford-homelab/assets/27996771/5d887688-d20a-44c8-8f77-0c625527dfe4
+[argocd-demo]: https://github.com/malford/malford-homelab/assets/27996771/527e2529-4fe1-4664-ab8a-b9eb3c492d20
+[alert-demo]: https://github.com/malford/malford-homelab/assets/27996771/c922f755-e911-4ca0-9d4a-6e552d387f18
+[ai-demo]: https://github.com/malford/malford-homelab/assets/27996771/d77ba511-00b7-47c3-9032-55679a099e70
 
 ### Tech stack
 
@@ -236,7 +228,7 @@ They can't capture all the project's features, but they are sufficient to get a 
 
 ## Roadmap
 
-See [roadmap](https://homelab.malford.io/reference/roadmap) and [open issues](https://github.com/khuedoan/homelab/issues) for a list of proposed features and known issues.
+See [roadmap](https://homelab.malford.io/reference/roadmap) and [open issues](https://github.com/malford/malford-homelab/issues) for a list of proposed features and known issues.
 
 ## Contributing
 
@@ -270,28 +262,3 @@ References:
 - [Self-host an automated Jellyfin media streaming stack](https://zerodya.net/self-host-jellyfin-media-streaming-stack)
 - [App Template Helm chart by bjw-s](https://bjw-s.github.io/helm-charts/docs/app-template)
 - [Various application configurations in onedr0p/home-ops](https://github.com/onedr0p/home-ops)
-
-Here is a list of the contributors who have helped to improve this project.
-Big shout-out to them!
-
-- ![](https://github.com/locmai.png?size=24) [@locmai](https://github.com/locmai)
-- ![](https://github.com/MatthewJohn.png?size=24) [@MatthewJohn](https://github.com/MatthewJohn)
-- ![](https://github.com/karpfediem.png?size=24) [@karpfediem](https://github.com/karpfediem)
-- ![](https://github.com/linhng98.png?size=24) [@linhng98](https://github.com/linhng98)
-- ![](https://github.com/BlueHatbRit.png?size=24) [@BlueHatbRit](https://github.com/BlueHatbRit)
-- ![](https://github.com/dotdiego.png?size=24) [@dotdiego](https://github.com/dotdiego)
-- ![](https://github.com/Crimrose.png?size=24) [@Crimrose](https://github.com/Crimrose)
-- ![](https://github.com/eventi.png?size=24) [@eventi](https://github.com/eventi)
-- ![](https://github.com/Bourne-ID.png?size=24) [@Bourne-ID](https://github.com/Bourne-ID)
-- ![](https://github.com/akwan.png?size=24) [@akwan](https://github.com/akwan)
-- ![](https://github.com/trangmaiq.png?size=24) [@trangmaiq](https://github.com/trangmaiq)
-- ![](https://github.com/tangowithfoxtrot.png?size=24) [@tangowithfoxtrot](https://github.com/tangowithfoxtrot)
-- ![](https://github.com/raedkit.png?size=24) [@raedkit](https://github.com/raedkit)
-- ![](https://github.com/ClashTheBunny.png?size=24) [@ClashTheBunny](https://github.com/ClashTheBunny)
-- ![](https://github.com/retX0.png?size=24) [@retX0](https://github.com/retX0)
-
-If you feel you're missing from this list, please feel free to add yourself in a PR.
-
-## Stargazers over time
-
-[![Stargazers over time](https://starchart.cc/khuedoan/homelab.svg)](https://starchart.cc/khuedoan/homelab)
