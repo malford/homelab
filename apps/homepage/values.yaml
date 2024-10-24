@@ -8,8 +8,8 @@ app-template:
             tag: v0.9.11
           enableRbac: true
           serviceAccount:
-            name: "homepage"
-            create: false
+            name: "homepage-svc"
+            create: true
   service:
     main:
       ports:
