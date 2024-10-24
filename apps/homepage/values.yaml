@@ -6,6 +6,10 @@ app-template:
           image:
             repository: ghcr.io/gethomepage/homepage
             tag: v0.9.11
+          enableRbac: true
+          serviceAccount:
+            name: "homepage"
+            create: false
   service:
     main:
       ports:
@@ -69,7 +73,7 @@ app-template:
                 memory: true
                 showLabel: true
         kubernetes.yaml: |
-          mode: default
+          mode: cluster
         services.yaml: |
           - Popular:
             - Matrix:
