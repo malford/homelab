@@ -12,6 +12,10 @@ app-template:
           image:
             repository: docker.io/jellyfin/jellyfin
             tag: 10.8.13
+        plex:
+          image:
+            repository: docker.io/plexinc/pms-docker
+            tag: 1.41.4.9463-630c9f557
         transmission:
           securityContext:
             capabilities:
@@ -37,27 +41,27 @@ app-template:
         prowlarr:
           image:
             repository: lscr.io/linuxserver/prowlarr
-            tag: 1.13.3
+            tag: 1.31.2
         radarr:
           image:
             repository: lscr.io/linuxserver/radarr
-            tag: 5.3.6
+            tag: 5.18.4
         sonarr:
           image:
             repository: lscr.io/linuxserver/sonarr
-            tag: 4.0.2
+            tag: 4.0.13
         jackett:
           image:
             repository: lscr.io/linuxserver/jackett
-            tag: 0.21.1981
+            tag: 0.22.1452
         sabnzbd:
           image:
             repository: lscr.io/linuxserver/sabnzbd
-            tag: 4.2.2
+            tag: 4.4.1
         jellyseerr:
           image:
             repository: docker.io/fallenbagel/jellyseerr
-            tag: 1.7.0
+            tag: 2.3.0
   service:
     main:
       controller: main
@@ -161,6 +165,7 @@ app-template:
             - *sabnzbdHost
             - *jellyseerrHost
   persistence:
+    videos:
     config:
       type: persistentVolumeClaim
       accessMode: ReadWriteOnce
@@ -185,7 +190,7 @@ app-template:
               subPath: sonarr
           jackett:
             - path: /config
-              subPath: jackett
+              subPath: Jackett
           jellyseerr:
             - path: /app/config
               subPath: jellyseerr
