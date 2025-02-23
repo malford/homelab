@@ -36,7 +36,7 @@ app-template:
                 secretKeyRef:
                   name: openvpn
                   key: OPENVPN_PASSWORD
-            TRANSMISSION_DOWNLOAD_DIR: /downloads
+            TRANSMISSION_DOWNLOAD_DIR: /media/downloads
             LOCAL_NETWORK: 192.168.0.0/16,10.0.0.0/8
         prowlarr:
           image:
@@ -165,7 +165,12 @@ app-template:
             - *sabnzbdHost
             - *jellyseerrHost
   persistence:
-    videos:
+    media:
+      type: persistentVolumeClaim
+      accessMode: ReadWriteMany
+      size: 400Gi
+      retain: true
+      volumeName: jellyfin-media
     config:
       type: persistentVolumeClaim
       accessMode: ReadWriteOnce
@@ -173,7 +178,7 @@ app-template:
       retain: true
       advancedMounts:
         main:
-          main:
+          jellyfin:
             - path: /config
               subPath: jellyfin
           transmission:
