@@ -4,7 +4,7 @@ app-template:
   defaultPodOptions:
     enableServiceLinks: true
     securityContext:
-      fsGroup: 1000
+      fsGroup: 100
   controllers:
     main:
       containers:
@@ -69,8 +69,17 @@ app-template:
         http:
           port: 8096
           protocol: HTTP
+        plex:
+          port: 32400
+          protocol: HTTP
+        sabnzbd:
+          port: 8080
+          protocol: HTTP
         transmission:
           port: 9091
+          protocol: HTTP
+        jackett:
+          port: 9117
           protocol: HTTP
         prowlarr:
           port: 9696
@@ -80,12 +89,6 @@ app-template:
           protocol: HTTP
         sonarr:
           port: 8989
-          protocol: HTTP
-        jackett:
-          port: 9117
-          protocol: HTTP
-        sabnzbd:
-          port: 8080
           protocol: HTTP
         jellyseerr:
           port: 5055
@@ -104,6 +107,13 @@ app-template:
               service:
                 identifier: main
                 port: http
+        - host: &plexHost plex.malford.io
+          paths:
+            - path: /
+              pathType: Prefix
+              service:
+                identifier: main
+                port: plex
         - host: &transmissionHost transmission.malford.io
           paths:
             - path: /
@@ -157,6 +167,7 @@ app-template:
         - secretName: jellyfin-tls-certificate
           hosts:
             - *jellyfinHost
+            - *plexHost
             - *transmissionHost
             - *prowlarrHost
             - *radarrHost
