@@ -24,8 +24,8 @@ app-template:
             repository: docker.io/haugene/transmission-openvpn
             tag: 5.3.1
           env:
-            OPENVPN_PROVIDER: TORGUARD
-            OPENVPN_CONFIG: USA-NEW-YORK
+            OPENVPN_PROVIDER: custom
+            OPENVPN_CONFIG: torguard-USA-NEW-YORK
             OPENVPN_USERNAME:
               valueFrom:
                 secretKeyRef:

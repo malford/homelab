@@ -238,8 +238,6 @@ Please see [contributing guide](https://homelab.malford.io/reference/contributin
 
 ## License
 
-Copyright &copy; 2020 - 2024 Khue Doan
-
 Distributed under the GPLv3 License.
 See [license page](https://homelab.malford.io/reference/license) or `LICENSE.md` file for more information.
 
