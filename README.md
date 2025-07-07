@@ -258,5 +258,5 @@ References:
 - [Diátaxis technical documentation framework](https://diataxis.fr)
 - [Official Terratest examples](https://github.com/gruntwork-io/terratest/tree/master/test)
 - [Self-host an automated Jellyfin media streaming stack](https://zerodya.net/self-host-jellyfin-media-streaming-stack)
-- [App Template Helm chart by bjw-s](https://bjw-s.github.io/helm-charts/docs/app-template)
+- [App Template Helm chart by bjw-s-labs](https://bjw-s-labs.github.io/helm-charts/docs/app-template)
 - [Various application configurations in onedr0p/home-ops](https://github.com/onedr0p/home-ops)
