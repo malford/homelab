@@ -179,9 +179,8 @@ app-template:
     media:
       type: persistentVolumeClaim
       accessMode: ReadWriteMany
-      size: 200Gi
+      size: 400Gi
       retain: true
-      volumeName: jellyfin-media
     config:
       type: persistentVolumeClaim
       accessMode: ReadWriteOnce
