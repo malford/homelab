@@ -182,6 +182,16 @@ app-template:
       storageClass: standard-rwx
       size: 400Gi
       retain: true
+    openvpn:
+      type: persistentVolumeClaim
+      accessMode: ReadWriteOnce
+      size: 10Mb
+      retain: true
+      advancedMounts:
+        main:
+          transmission:
+            - path: /etc/openvpn/
+              subPath: config
     config:
       type: persistentVolumeClaim
       accessMode: ReadWriteOnce
