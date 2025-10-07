@@ -185,7 +185,7 @@ app-template:
     openvpn:
       type: persistentVolumeClaim
       accessMode: ReadWriteOnce
-      size: 10Mb
+      size: 10M
       retain: true
       advancedMounts:
         main:
