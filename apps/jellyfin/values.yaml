@@ -216,7 +216,7 @@ app-template:
       advancedMounts:
         main:
           transmission:
-            - path: /etc/openvpn/config/torguard-USA-NEW-YORK.ovpn
+            - path: /etc/openvpn/custom/torguard-USA-NEW-YORK.ovpn
               subPath: torguard-USA-NEW-YORK.ovpn
               readOnly: true
 
