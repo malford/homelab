@@ -127,7 +127,7 @@ app-template:
             - ArgoCD:
                 href: https://argocd.malford.io
                 description: Continuous deployment
-                icon: argocd.svg
+                icon: argo-cd.svg
             - Registry:
                 href: https://registry.malford.io
                 description: Container registry
