@@ -10,7 +10,7 @@ app-template:
             HOMEPAGE_ALLOWED_HOSTS: "*"
           enableRbac: true
           serviceAccount:
-            name: "homepage-svc"
+            name: homepage
             create: true
   service:
     main:

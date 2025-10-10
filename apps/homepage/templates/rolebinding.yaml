@@ -1,11 +1,11 @@
-{{- if .Values.controllers.main.containers.app.env.HOMEPAGE_VAR_ENABLE_KUBERNETES_API -}}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: {{ include "app-template.fullname" . }}
+  name: homepage
+  namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "app-template.labels" . | nindent 4 }}
+    app.kubernetes.io/name: homepage
 rules:
   - apiGroups:
       - ""
@@ -48,15 +48,15 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: {{ include "app-template.fullname" . }}
+  name: homepage
+  namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "app-template.labels" . | nindent 4 }}
+    app.kubernetes.io/name: homepage
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: {{ include "app-template.fullname" . }}
+  name: homepage
 subjects:
   - kind: ServiceAccount
-    name: {{ .Values.serviceAccount.name }}
+    name: homepage
     namespace: {{ .Release.Namespace }}
-{{- end }}
