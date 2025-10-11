@@ -1,0 +1,18 @@
+# system/nfs-csi-driver/values.yaml
+csi-driver-nfs:
+  driver:
+    name: nfs.csi.k8s.io
+  controller:
+    replicas: 1
+  storageClass:
+    create: true
+    name: nfs-csi
+    parameters:
+      server: 192.168.3.20  # Your NFS server IP
+      share: /volume1/clusterStorage
+    reclaimPolicy: Retain
+    volumeBindingMode: Immediate
+    mountOptions:
+      - hard
+      - nfsvers=4.1
+      - noatime
