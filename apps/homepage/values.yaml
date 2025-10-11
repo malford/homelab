@@ -1,4 +1,8 @@
 app-template:
+  serviceAccount:
+    name: homepage
+    create: true
+    enableRbac: true
   controllers:
     main:
       containers:
@@ -8,10 +12,6 @@ app-template:
             tag: v1.5.0
           env:
             HOMEPAGE_ALLOWED_HOSTS: "*"
-          enableRbac: true
-          serviceAccount:
-            name: homepage
-            create: true
   service:
     main:
       ports:
