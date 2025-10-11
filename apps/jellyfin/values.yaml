@@ -15,14 +15,14 @@ app-template:
         plex:
           image:
             repository: docker.io/plexinc/pms-docker
-            tag: 1.41.4.9463-630c9f557
+            tag: 1.42.2.10156-f737b826c
         transmission:
           securityContext:
             capabilities:
               add: ["NET_ADMIN"]
           image:
             repository: docker.io/haugene/transmission-openvpn
-            tag: 5.3.1
+            tag: 5.3.2
           env:
             OPENVPN_PROVIDER: custom
             OPENVPN_CONFIG: torguard-USA-NEW-YORK
@@ -41,27 +41,27 @@ app-template:
         prowlarr:
           image:
             repository: lscr.io/linuxserver/prowlarr
-            tag: 1.31.2
+            tag: 2.0.5
         radarr:
           image:
             repository: lscr.io/linuxserver/radarr
-            tag: 5.18.4
+            tag: 5.28.0
         sonarr:
           image:
             repository: lscr.io/linuxserver/sonarr
-            tag: 4.0.13
+            tag: 4.0.15
         jackett:
           image:
             repository: lscr.io/linuxserver/jackett
-            tag: 0.22.1452
+            tag: 0.24.111
         sabnzbd:
           image:
             repository: lscr.io/linuxserver/sabnzbd
-            tag: 4.4.1
+            tag: 4.5.3
         jellyseerr:
           image:
             repository: docker.io/fallenbagel/jellyseerr
-            tag: 2.3.0
+            tag: 2.7.3
   service:
     main:
       controller: main
