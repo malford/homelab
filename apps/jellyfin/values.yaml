@@ -15,7 +15,7 @@ app-template:
         plex:
           image:
             repository: docker.io/plexinc/pms-docker
-            tag: 1.42.2.10156
+            tag: 1.42.2.10156-f737b826c
         transmission:
           securityContext:
             capabilities:
