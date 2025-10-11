@@ -45,7 +45,7 @@ app-template:
         radarr:
           image:
             repository: lscr.io/linuxserver/radarr
-            tag: 5.28.0
+            tag: 5.27.5
         sonarr:
           image:
             repository: lscr.io/linuxserver/sonarr
