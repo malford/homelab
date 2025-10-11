@@ -202,6 +202,9 @@ app-template:
           prowlarr:
             - path: /config
               subPath: prowlarr
+          plex:
+            - path: /config
+              subPath: plex
           radarr:
             - path: /config
               subPath: radarr
@@ -211,6 +214,9 @@ app-template:
           jackett:
             - path: /config
               subPath: Jackett
+          sabnzbd:
+            - path: /config
+              subPath: sabnzbd
           jellyseerr:
             - path: /app/config
               subPath: jellyseerr
