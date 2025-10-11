@@ -15,7 +15,7 @@ app-template:
         plex:
           image:
             repository: docker.io/plexinc/pms-docker
-            tag: 1.42.2.10156-f737b826c
+            tag: 1.42.2.10156
         transmission:
           securityContext:
             capabilities:
@@ -179,12 +179,16 @@ app-template:
     media:
       type: persistentVolumeClaim
       accessMode: ReadWriteMany
-      storageClass: standard-rwx
-      size: 400Gi
+      storageClass: nfs-csi
+      size: 1Ti
       retain: true
+      globalMounts:
+        - path: /media
+          subPath: media
     config:
       type: persistentVolumeClaim
-      accessMode: ReadWriteOnce
+      accessMode: ReadWriteMany
+      storageClass: nfs-csi
       size: 1Gi
       retain: true
       advancedMounts:
