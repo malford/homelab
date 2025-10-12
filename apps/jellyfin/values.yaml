@@ -1,6 +1,6 @@
 app-template:
   serviceAccount:
-    media:
+    jellyfin:
       enabled: true
   defaultPodOptions:
     enableServiceLinks: true
@@ -9,7 +9,7 @@ app-template:
   controllers:
     main:
       serviceAccount:
-        identifier: media
+        identifier: jellyfin
       containers:
         jellyfin:
           image:
