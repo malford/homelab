@@ -19,6 +19,8 @@ app-template:
           env:
             HOSTNAME: "plex-k8s-server"
             TZ: "America/New_York"
+            PLEX_UID: "1027"
+            PLEX_GID: "100"
             ALLOWED_NETWORKS: 192.168.0.0/16,10.0.0.0/8
         transmission:
           securityContext:
