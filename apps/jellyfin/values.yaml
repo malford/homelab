@@ -1,7 +1,4 @@
 app-template:
-  serviceAccount:
-    jellyfin:
-      enabled: true
   defaultPodOptions:
     enableServiceLinks: true
     securityContext:
