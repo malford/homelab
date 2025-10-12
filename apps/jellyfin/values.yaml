@@ -1,12 +1,15 @@
 app-template:
   serviceAccount:
-    name: jellyfin
+    media:
+      enabled: true
   defaultPodOptions:
     enableServiceLinks: true
     securityContext:
       fsGroup: 100
   controllers:
     main:
+      serviceAccount:
+        identifier: media
       containers:
         jellyfin:
           image:
