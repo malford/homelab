@@ -5,8 +5,6 @@ app-template:
       fsGroup: 100
   controllers:
     main:
-      serviceAccount:
-        identifier: jellyfin
       containers:
         jellyfin:
           image:
