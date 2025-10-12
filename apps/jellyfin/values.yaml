@@ -17,7 +17,7 @@ app-template:
             repository: docker.io/plexinc/pms-docker
             tag: 1.42.2.10156-f737b826c
           env:
-            HOSTNAME: "plex-k8s-server"
+            HOSTNAME: "plex.malford.io"
             TZ: "America/New_York"
             PLEX_UID: "1027"
             PLEX_GID: "100"
