@@ -224,9 +224,9 @@ app-template:
           jellyseerr:
             - path: /app/config
               subPath: jellyseerr
-    openvpn-config:
+    openvpn:
       type: configMap
-      name: jellyfin-openvpn
+      name: jellyfin
       advancedMounts:
         main:
           transmission:
@@ -234,7 +234,8 @@ app-template:
               readOnly: true
 
   configMaps:
-    openvpn:
+    config:
+      enabled: true
       data:
         torguard-USA-NEW-YORK.ovpn: |
           client
