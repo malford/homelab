@@ -137,6 +137,10 @@ app-template:
                 description: Observability dashboards
                 icon: grafana.svg
           - Utilities:
+            - Chatbot:
+                href: https://ai.malford.io
+                description: Ollama agentic chatbot
+                icon: ollama-dark.svg
             - Excalidraw:
                 href: https://draw.malford.io
                 description: Virtual whiteboard
