@@ -7,6 +7,7 @@ app-template:
             repository: ghcr.io/paperless-ngx/paperless-ngx
             tag: 2.5.4
           env:
+            PAPERLESS_AUDIT_LOG_ENABLED: true
             PAPERLESS_PORT: 8000
             PAPERLESS_ADMIN_USER: admin
             PAPERLESS_URL: https://paperless.malford.io
