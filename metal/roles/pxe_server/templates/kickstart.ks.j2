@@ -12,8 +12,19 @@ lang en_US.UTF-8
 clearpart --all --drives={{ hostvars[item]['disk'] }}
 # Partitioning
 ignoredisk --only-use={{ hostvars[item]['disk'] }}
+
+# Boot partitions (minimal)
 partition /boot/efi --fstype=vfat --size=512
-partition / --fstype=ext4 --size=231424
+partition /boot --fstype=ext4 --size=1024
+
+# LVM physical volume using all remaining space
+partition pv.01 --size=1 --grow
+volgroup system pv.01
+
+# Logical volumes
+logvol / --vgname=system --name=root --fstype=ext4 --size=20000
+logvol /var/lib/rancher --vgname=system --name=rancher --fstype=xfs --size=100000
+logvol /var/lib/kubelet --vgname=system --name=kubelet --fstype=xfs --size=1 --grow
 
 # Network information
 network --bootproto=static --device={{ hostvars[item]['network_interface'] }} --ip={{ hostvars[item]['ansible_host'] }} --gateway={{ ansible_default_ipv4.gateway }} --nameserver={{ dns_server }} --netmask={{ ansible_default_ipv4.netmask }} --ipv6=auto --hostname={{ hostvars[item]['inventory_hostname'] }} --activate
@@ -48,20 +59,17 @@ firewall --disabled
 openssh-server
 %end
 
-# Create a raw partition for Ceph using the remaining space
-# Using a post script because there is no built-in feature in Kickstart
-# The three empty lines are equivalent to pressing Enter to use the default values for:
-# - Partition number
-# - First sector
-# - Last sector
 %post
-fdisk /dev/{{ hostvars[item]['disk'] }} << EOF
-new
+# Optimize XFS for SSDs/NVMe
+sed -i 's/defaults/defaults,noatime,nodiratime,discard/g' /etc/fstab
 
+# Create mount options for better performance
+echo "# Performance optimizations" >> /etc/fstab
+echo "/dev/system/rancher /var/lib/rancher xfs defaults,noatime,nodiratime,discard 0 0" >> /etc/fstab
+echo "/dev/system/kubelet /var/lib/kubelet xfs defaults,noatime,nodiratime,discard 0 0" >> /etc/fstab
 
-
-write
-EOF
+# Enable periodic TRIM for NVMe health
+systemctl enable fstrim.timer
 %end
 
 reboot
