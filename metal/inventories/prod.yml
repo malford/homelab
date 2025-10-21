@@ -10,6 +10,4 @@ metal:
         metal0: {ansible_host: 192.168.5.110, mac: '6c:4b:90:58:aa:7c', disk: nvme0n1, network_interface: enp0s31f6}
         metal1: {ansible_host: 192.168.5.111, mac: '6c:4b:90:5c:26:7f', disk: nvme0n1, network_interface: enp0s31f6}
         metal2: {ansible_host: 192.168.5.112, mac: '6c:4b:90:5c:16:9f', disk: nvme0n1, network_interface: enp0s31f6}
-    workers:
-      hosts:
-        metal3: {ansible_host: 192.168.5.113, mac: '6c:4b:90:5c:26:f4', disk: nvme0n1, network_interface: enp0s31f6}
+        metal0v2: {ansible_host: 192.168.5.113, mac: 'c8:53:09:49:51:98', disk: nvme0n1, network_interface: enp0s31f6}
