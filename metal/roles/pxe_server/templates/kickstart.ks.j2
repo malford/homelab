@@ -24,7 +24,7 @@ volgroup system pv.01
 # Logical volumes
 logvol / --vgname=system --name=root --fstype=ext4 --size=20000
 logvol /var/lib/rancher --vgname=system --name=rancher --fstype=xfs --size=100000
-logvol /var/lib/kubelet --vgname=system --name=kubelet --fstype=xfs --size=1 --grow
+logvol /var/lib/kubelet --vgname=system --name=kubelet --fstype=xfs --size=100000
 
 # Network information
 network --bootproto=static --device={{ hostvars[item]['network_interface'] }} --ip={{ hostvars[item]['ansible_host'] }} --gateway={{ ansible_default_ipv4.gateway }} --nameserver={{ dns_server }} --netmask={{ ansible_default_ipv4.netmask }} --ipv6=auto --hostname={{ hostvars[item]['inventory_hostname'] }} --activate
