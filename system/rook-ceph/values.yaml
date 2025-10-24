@@ -6,6 +6,11 @@ rook-ceph-cluster:
     enabled: true
     createPrometheusRules: true
   cephClusterSpec:
+    storage:
+      useAllNodes: true
+      useAllDevices: false
+      devices:
+        - name: "/dev/mapper/system-ceph--storage"
     mon:
       count: 3
     mgr:
