@@ -14,6 +14,7 @@ clearpart --all --drives={{ hostvars[item]['disk'] }}
 ignoredisk --only-use={{ hostvars[item]['disk'] }}
 
 # Boot partitions (minimal)
+partition /boot/efi --fstype=vfat --size=512
 partition /boot --fstype=ext4 --size=512
 
 # LVM physical volume using all remaining space
