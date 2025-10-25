@@ -24,7 +24,10 @@ volgroup system pv.01
 logvol / --vgname=system --name=root --fstype=ext4 --size=20480
 logvol /var/lib/rancher --vgname=system --name=rancher --fstype=xfs --size=32768
 logvol /var/lib/kubelet --vgname=system --name=kubelet --fstype=xfs --size=65536
-logvol --vgname=system --name=ceph --fstype=xfs --size=1 --grow --noformat
+
+%post
+lvcreate -l 100%FREE -n ceph system
+%end
 
 # Network information
 network --bootproto=static --device={{ hostvars[item]['network_interface'] }} --ip={{ hostvars[item]['ansible_host'] }} --gateway={{ ansible_default_ipv4.gateway }} --nameserver={{ dns_server }} --netmask={{ ansible_default_ipv4.netmask }} --ipv6=auto --hostname={{ hostvars[item]['inventory_hostname'] }} --activate
