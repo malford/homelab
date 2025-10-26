@@ -11,6 +11,7 @@ rook-ceph-cluster:
       useAllDevices: false
       devices:
         - name: "/dev/mapper/system-ceph--storage"
+        - name: "/dev/mapper/system-ceph"
     mon:
       count: 3
     mgr:
