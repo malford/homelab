@@ -56,7 +56,6 @@ grafana:
     grafana-dashboards-storage:
       ceph-dashboard:
         gnetId: 2842
-        revision: 19
     grafana-dashboards-kubernetes:
       k8s-system-api-server:
         url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-system-api-server.json
