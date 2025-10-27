@@ -38,13 +38,25 @@ grafana:
       providers:
       - name: 'grafana-dashboards-kubernetes'
         orgId: 1
-        folder: 'Kubernetes'
+        folder: 'kubernetes'
         type: file
         disableDeletion: true
         editable: true
         options:
           path: /var/lib/grafana/dashboards/grafana-dashboards-kubernetes
+      - name: 'grafana-dashboards-storage'
+        orgId: 1
+        folder: 'rook-ceph'
+        type: file
+        disableDeletion: true
+        editable: true
+        options:
+          path: /var/lib/grafana/dashboards/grafana-dashboards-storage
   dashboards:
+    grafana-dashboards-storage:
+      ceph-dashboard:
+        gnetId: 2842
+        revision: 19
     grafana-dashboards-kubernetes:
       k8s-system-api-server:
         url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-system-api-server.json
@@ -67,7 +79,3 @@ grafana:
       synology-dashboard:
         url: https://raw.githubusercontent.com/wozniakpawel/synology-grafana-prometheus-overly-comprehensive-dashboard/refs/heads/main/Synology_Dashboard.json
         token: ''
-      rook-ceph-cluster:
-        grafana_com:
-          id: 2842
-          revision: 19
