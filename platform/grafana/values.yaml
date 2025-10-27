@@ -67,3 +67,7 @@ grafana:
       synology-dashboard:
         url: https://raw.githubusercontent.com/wozniakpawel/synology-grafana-prometheus-overly-comprehensive-dashboard/refs/heads/main/Synology_Dashboard.json
         token: ''
+      rook-ceph-cluster:
+        grafana_com:
+          id: 2842
+          revision: 19
