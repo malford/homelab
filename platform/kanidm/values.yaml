@@ -27,6 +27,10 @@ app-template:
           tls_key = "/data/tls.key"
           domain = "auth.malford.io"
           origin = "https://auth.malford.io"
+
+          [[oauth2_clients]]
+          name = "dex"
+          redirect_uris = [ "https://dex.malford.io/callback" ]
   service:
     main:
       ports:
