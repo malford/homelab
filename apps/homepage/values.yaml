@@ -78,10 +78,6 @@ app-template:
           mode: cluster
         services.yaml: |
           - Popular:
-            - Matrix:
-                href: https://chat.malford.io
-                description: Chat client
-                icon: element.svg
             - Jellyfin:
                 href: https://jellyfin.malford.io
                 description: Media system (movies, music, etc.)
