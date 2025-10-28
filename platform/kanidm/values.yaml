@@ -6,7 +6,7 @@ app-template:
         main:
           image:
             repository: docker.io/kanidm/server
-            tag: 1.4.6
+            tag: 1.3.3
       statefulset:
         volumeClaimTemplates:
           - name: data
@@ -27,10 +27,6 @@ app-template:
           tls_key = "/data/tls.key"
           domain = "auth.malford.io"
           origin = "https://auth.malford.io"
-
-          [[oauth2_clients]]
-          name = "dex"
-          redirect_uris = [ "https://dex.malford.io/callback" ]
   service:
     main:
       ports:
