@@ -7,13 +7,9 @@ app-template:
     main:
       containers:
         jellyfin:
-          image:
-            repository: docker.io/jellyfin/jellyfin
-            tag: 10.8.13
+          image: { repository: docker.io/jellyfin/jellyfin, tag: 10.8.13 }
         plex:
-          image:
-            repository: docker.io/plexinc/pms-docker
-            tag: 1.42.2.10156-f737b826c
+          image: { repository: docker.io/plexinc/pms-docker, tag: 1.42.2.10156-f737b826c }
           env:
             HOSTNAME: "plex.malford.io"
             TZ: "America/New_York"
@@ -24,9 +20,7 @@ app-template:
           securityContext:
             capabilities:
               add: ["NET_ADMIN"]
-          image:
-            repository: docker.io/haugene/transmission-openvpn
-            tag: 5.3.2
+          image: { repository: docker.io/haugene/transmission-openvpn, tag: 5.3.2 }
           env:
             OPENVPN_PROVIDER: custom
             OPENVPN_CONFIG: torguard-USA-NEW-YORK
@@ -50,29 +44,17 @@ app-template:
                   - -c
                   - "cp /vpn-config-ro/*.ovpn /etc/openvpn/custom/"
         prowlarr:
-          image:
-            repository: lscr.io/linuxserver/prowlarr
-            tag: 2.0.5
+          image: { repository: docker.io/prowlarr/prowlarr, tag: 0.4.0.2504 }
         radarr:
-          image:
-            repository: lscr.io/linuxserver/radarr
-            tag: 5.27.5
+          image: { repository: docker.io/linuxserver/radarr, tag: 5.27.5 }
         sonarr:
-          image:
-            repository: lscr.io/linuxserver/sonarr
-            tag: 4.0.15
+          image: { repository: docker.io/linuxserver/sonarr, tag: 4.0.15 }
         jackett:
-          image:
-            repository: lscr.io/linuxserver/jackett
-            tag: 0.24.111
+          image: { repository: docker.io/linuxserver/jackett, tag: 0.24.111 }
         sabnzbd:
-          image:
-            repository: lscr.io/linuxserver/sabnzbd
-            tag: 4.5.3
+          image: { repository: docker.io/linuxserver/sabnzbd, tag: 4.5.3 }
         jellyseerr:
-          image:
-            repository: docker.io/fallenbagel/jellyseerr
-            tag: 2.7.3
+          image: { repository: docker.io/fallenbagel/jellyseerr, tag: 2.7.3 }
   service:
     main:
       controller: main
@@ -188,20 +170,15 @@ app-template:
             - *jellyseerrHost
   persistence:
     media:
-      type: persistentVolumeClaim
-      accessMode: ReadWriteMany
-      storageClass: nfs-csi
-      size: 1Ti
-      retain: true
+      type: nfs
+      server: 192.168.3.20
+      path: /volume1/media
       globalMounts:
         - path: /media
-          subPath: media
     config:
-      type: persistentVolumeClaim
-      accessMode: ReadWriteMany
-      storageClass: nfs-csi
-      size: 1Gi
-      retain: true
+      type: nfs
+      server: 192.168.3.20
+      path: /volume1/clusterStorage/config
       advancedMounts:
         main:
           jellyfin:
