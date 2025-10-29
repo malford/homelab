@@ -42,6 +42,13 @@ app-template:
                   key: OPENVPN_PASSWORD
             TRANSMISSION_DOWNLOAD_DIR: /media/downloads
             LOCAL_NETWORK: 192.168.0.0/16,10.0.0.0/8
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - "cp /vpn-config-ro/*.ovpn /etc/openvpn/custom/"
         prowlarr:
           image:
             repository: lscr.io/linuxserver/prowlarr
@@ -224,19 +231,26 @@ app-template:
           jellyseerr:
             - path: /app/config
               subPath: jellyseerr
-    openvpn:
-      type: configMap
-      name: jellyfin
+    openvpn-config-rw:
+      type: emptyDir
       advancedMounts:
         main:
           transmission:
             - path: /etc/openvpn/custom
-              readOnly: false
+    openvpn-config-ro:
+      type: configMap
+      name: transmission-vpn-config
+      advancedMounts:
+        main:
+          transmission:
+            - path: /vpn-config-ro
+              readOnly: true
 
   configMaps:
     config:
       enabled: true
       data:
+        name: transmission-vpn-config
         torguard-USA-NEW-YORK.ovpn: |
           client
           dev tun
