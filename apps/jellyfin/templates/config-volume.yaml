@@ -9,10 +9,12 @@ spec:
   accessModes:
     - ReadWriteMany
   storageClassName: nfs-csi
-  nfs:
-    server: 192.168.3.20
-    path: /volume1/clusterStorage/config
-    readOnly: false
+  csi:
+    driver: nfs.csi.k8s.io
+    volumeHandle: jellyfin-config-pv
+    volumeAttributes:
+      server: 192.168.3.20
+      share: /volume1/clusterStorage/config
 
 ---
 apiVersion: v1

@@ -10,10 +10,12 @@ spec:
     - ReadWriteMany
   storageClassName: nfs-csi
   persistentVolumeReclaimPolicy: Retain
-  nfs:
-    path: /volume1/media
-    server: 192.168.3.20
-    readOnly: false
+  csi:
+    driver: nfs.csi.k8s.io
+    volumeHandle: jellyfin-media-pv
+    volumeAttributes:
+      server: 192.168.3.20
+      share: /volume1/media
 
 ---
 apiVersion: v1
