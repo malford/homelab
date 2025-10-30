@@ -170,15 +170,13 @@ app-template:
             - *jellyseerrHost
   persistence:
     media:
-      type: nfs
-      server: 192.168.3.20
-      path: /volume1/media
+      type: persistentVolumeClaim
+      name: jellyfin-media
       globalMounts:
         - path: /media
     config:
-      type: nfs
-      server: 192.168.3.20
-      path: /volume1/clusterStorage/config
+      type: persistentVolumeClaim
+      name: jellyfin-config
       advancedMounts:
         main:
           jellyfin:
