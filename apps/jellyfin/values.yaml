@@ -169,7 +169,7 @@ app-template:
         - path: /media
     config:
       type: persistentVolumeClaim
-      existingclaim: jellyfin-config
+      existingClaim: jellyfin-config
       advancedMounts:
         main:
           jellyfin:
@@ -201,6 +201,7 @@ app-template:
               subPath: jellyseerr
     openvpn:
       type: configMap
+      name: openvpn-config
       advancedMounts:
         main:
           transmission:
@@ -208,7 +209,7 @@ app-template:
               readOnly: true
 
   configMaps:
-    config:
+    openvpn-config:
       enabled: true
       data:
         torguard-USA-NEW-YORK.ovpn: |
