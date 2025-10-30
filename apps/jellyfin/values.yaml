@@ -206,26 +206,18 @@ app-template:
           jellyseerr:
             - path: /app/config
               subPath: jellyseerr
-    openvpn-config-rw:
-      type: emptyDir
+    openvpn:
+      type: configMap
       advancedMounts:
         main:
           transmission:
             - path: /etc/openvpn/custom
-    openvpn-config-ro:
-      type: configMap
-      name: transmission-vpn-config
-      advancedMounts:
-        main:
-          transmission:
-            - path: /vpn-config-ro
               readOnly: true
 
   configMaps:
     config:
       enabled: true
       data:
-        name: transmission-vpn-config
         torguard-USA-NEW-YORK.ovpn: |
           client
           dev tun
