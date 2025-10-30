@@ -16,6 +16,17 @@ app-template:
             PLEX_UID: "1027"
             PLEX_GID: "100"
             ALLOWED_NETWORKS: 192.168.0.0/16,10.0.0.0/8
+            TRANSCODE_DIR: /transcode
+          resources:
+            requests:
+              cpu: 1000m
+              memory: 2Gi
+            limits:
+              cpu: 8000m
+              memory: 8Gi
+          securityContext:
+            privileged: true
+
         transmission:
           securityContext:
             capabilities:
@@ -162,6 +173,22 @@ app-template:
             - *sabnzbdHost
             - *jellyseerrHost
   persistence:
+    transcode:
+      enabled: true
+      type: emptyDir
+      medium: Memory
+      advancedMounts:
+        main:
+          plex:
+            - path: /transcode
+    dri:
+      enabled: true
+      type: hostPath
+      hostPath: /dev/dri
+      advancedMounts:
+        main:
+          plex:
+            - path: /dev/dri
     media:
       type: persistentVolumeClaim
       existingClaim: jellyfin-media
