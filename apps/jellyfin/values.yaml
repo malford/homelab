@@ -36,13 +36,6 @@ app-template:
                   key: OPENVPN_PASSWORD
             TRANSMISSION_DOWNLOAD_DIR: /media/downloads
             LOCAL_NETWORK: 192.168.0.0/16,10.0.0.0/8
-          lifecycle:
-            postStart:
-              exec:
-                command:
-                  - /bin/sh
-                  - -c
-                  - "cp /vpn-config-ro/*.ovpn /etc/openvpn/custom/"
         prowlarr:
           image: { repository: docker.io/prowlarr/prowlarr, tag: 0.4.0.2504 }
         radarr:
@@ -171,12 +164,12 @@ app-template:
   persistence:
     media:
       type: persistentVolumeClaim
-      name: jellyfin-media
+      existingClaim: jellyfin-media
       globalMounts:
         - path: /media
     config:
       type: persistentVolumeClaim
-      name: jellyfin-config
+      existingclaim: jellyfin-config
       advancedMounts:
         main:
           jellyfin:
