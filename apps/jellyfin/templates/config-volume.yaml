@@ -1,5 +1,3 @@
-# In apps/jellyfin/templates/config-volume.yaml
-
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -10,30 +8,23 @@ spec:
     storage: 50Gi
   accessModes:
     - ReadWriteMany
-  storageClassName: ""
-  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs-csi
   nfs:
     server: 192.168.3.20
     path: /volume1/clusterStorage/config
     readOnly: false
-  mountOptions:
-    - hard
-    - nfsvers=4.1
 
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  # This name must match what you use in values.yaml
   name: jellyfin-config
-  namespace: {{ .Release.Namespace }} # This ensures it's created in the 'jellyfin' namespace
+  namespace: {{ .Release.Namespace }}
 spec:
-  # Use an empty storageClassName to match the PV
-  storageClassName: ""
+  storageClassName: nfs-csi
   accessModes:
     - ReadWriteMany
   resources:
     requests:
-      storage: 50Gi # Must be <= the PV capacity
-  # This explicitly binds this PVC to our manually created PV
+      storage: 50Gi
   volumeName: jellyfin-config-pv
