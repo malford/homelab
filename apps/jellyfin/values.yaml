@@ -168,8 +168,11 @@ app-template:
       globalMounts:
         - path: /media
     config:
+      enabled: true
       type: persistentVolumeClaim
-      existingClaim: jellyfin-config
+      storageClass: standard-rwo
+      accessMode: ReadWriteOnce
+      size: 20Gi
       advancedMounts:
         main:
           jellyfin:
