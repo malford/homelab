@@ -246,6 +246,10 @@ app-template:
             - path: /downloads
             - path: /incomplete-downloads
               subPath: incomplete
+          radarr:
+            - path: /downloads
+          sonarr:
+            - path: /downloads
     openvpn:
       type: configMap
       name: jellyfin
