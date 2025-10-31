@@ -2,6 +2,8 @@ app-template:
   defaultPodOptions:
     enableServiceLinks: true
     securityContext:
+      runAsUser: 1000
+      runAsGroup: 100
       fsGroup: 100
   controllers:
     main:
@@ -48,15 +50,15 @@ app-template:
             TRANSMISSION_DOWNLOAD_DIR: /media/downloads
             LOCAL_NETWORK: 192.168.0.0/16,10.0.0.0/8
         prowlarr:
-          image: { repository: lscr.io/linuxserver/prowlarr, tag: 2.0.5 }
+          image: { repository: lscr.io/linuxserver/prowlarr, tag: 2.1.5 }
         radarr:
-          image: { repository: docker.io/linuxserver/radarr, tag: 5.27.5 }
+          image: { repository: docker.io/linuxserver/radarr, tag: 5.28.0 }
         sonarr:
           image: { repository: docker.io/linuxserver/sonarr, tag: 4.0.15 }
         jackett:
-          image: { repository: docker.io/linuxserver/jackett, tag: 0.24.111 }
+          image: { repository: docker.io/linuxserver/jackett, tag: 0.24.234 }
         sabnzbd:
-          image: { repository: docker.io/linuxserver/sabnzbd, tag: 4.5.3 }
+          image: { repository: docker.io/linuxserver/sabnzbd, tag: 4.5.4 }
         jellyseerr:
           image: { repository: docker.io/fallenbagel/jellyseerr, tag: 2.7.3 }
   service:
