@@ -229,6 +229,20 @@ app-template:
           jellyseerr:
             - path: /app/config
               subPath: jellyseerr
+    downloads:
+      enabled: true
+      type: persistentVolumeClaim
+      storageClass: standard-rwo
+      accessMode: ReadWriteOnce
+      size: 200Gi
+      advancedMounts:
+        main:
+          transmission:
+            - path: /downloads
+          sabnzbd:
+            - path: /downloads
+            - path: /incomplete-downloads
+              subPath: incomplete
     openvpn:
       type: configMap
       name: jellyfin
