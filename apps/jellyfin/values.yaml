@@ -31,6 +31,7 @@ app-template:
 
         transmission:
           securityContext:
+            runAsUser: 0
             capabilities:
               add: ["NET_ADMIN"]
           image: { repository: docker.io/haugene/transmission-openvpn, tag: 5.3.2 }
