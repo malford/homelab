@@ -12,6 +12,9 @@ app-template:
           image: { repository: docker.io/jellyfin/jellyfin, tag: 10.8.13 }
         plex:
           image: { repository: docker.io/plexinc/pms-docker, tag: 1.42.2.10156-f737b826c }
+          securityContext:
+            runAsUser: 0
+            privileged: true
           env:
             HOSTNAME: "plex.malford.io"
             TZ: "America/New_York"
@@ -26,15 +29,12 @@ app-template:
             limits:
               cpu: 8000m
               memory: 8Gi
-          securityContext:
-            privileged: true
-
         transmission:
+          image: { repository: docker.io/haugene/transmission-openvpn, tag: 5.3.2 }
           securityContext:
             runAsUser: 0
             capabilities:
               add: ["NET_ADMIN"]
-          image: { repository: docker.io/haugene/transmission-openvpn, tag: 5.3.2 }
           env:
             OPENVPN_PROVIDER: custom
             OPENVPN_CONFIG: torguard-USA-NEW-YORK
