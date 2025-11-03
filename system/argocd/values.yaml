@@ -41,16 +41,25 @@ argocd-apps:
               - path: system/*
               - path: platform/*
               - path: apps/*
+              # Exclude apps that are manually managed in media-stack.yaml
+              - path: apps/jackett
                 exclude: true
-                items:
-                  - jackett
-                  - jellyseerr
-                  - plex
-                  - prowlarr
-                  - radarr
-                  - sabnzbd
-                  - sonarr
-                  - transmission
+              - path: apps/jellyfin
+                exclude: true
+              - path: apps/jellyseeerr
+                exclude: true
+              - path: apps/plex
+                exclude: true
+              - path: apps/prowlarr
+                exclude: true
+              - path: apps/radarr
+                exclude: true
+              - path: apps/sabnzbd
+                exclude: true
+              - path: apps/sonarr
+                exclude: true
+              - path: apps/transmission
+                exclude: true
       Template:
         metadata:
           name: '{{path.basename}}'
