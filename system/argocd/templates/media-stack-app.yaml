@@ -1,3 +1,4 @@
+# In system/argocd/templates/media-stack-app.yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -8,8 +9,8 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: {{ .Values.argocd-apps.applicationsets.root.generators[0].git.repoURL | quote }}
-    targetRevision: {{ .Values.argocd-apps.applicationsets.root.generators[0].git.revision | quote }}
+    repoURL: {{ (index .Values "argocd-apps").applicationsets.root.generators[0].git.repoURL | quote }}
+    targetRevision: {{ (index .Values "argocd-apps").applicationsets.root.generators[0].git.revision | quote }}
     path: apps
     directory:
       include: "media-stack.yaml"
