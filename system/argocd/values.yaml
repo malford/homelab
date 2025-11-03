@@ -60,7 +60,7 @@ argocd-apps:
                 exclude: true
               - path: apps/transmission
                 exclude: true
-      Template:
+      template:
         metadata:
           name: '{{path.basename}}'
         spec:
