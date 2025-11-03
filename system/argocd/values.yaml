@@ -41,7 +41,17 @@ argocd-apps:
               - path: system/*
               - path: platform/*
               - path: apps/*
-      template:
+                exclude: true
+                items:
+                  - jackett
+                  - jellyseerr
+                  - plex
+                  - prowlarr
+                  - radarr
+                  - sabnzbd
+                  - sonarr
+                  - transmission
+      Template:
         metadata:
           name: '{{path.basename}}'
         spec:
