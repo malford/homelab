@@ -8,15 +8,14 @@ app-template:
   controllers:
     main:
       containers:
-        jellyfin:
-          image: { repository: docker.io/jellyfin/jellyfin, tag: 10.8.13 }
+        sonarr:
+          image: { repository: docker.io/linuxserver/sonarr, tag: 4.0.15 }
   service:
     main:
       controller: main
       ports:
-        http:
-          port: 8096
-          protocol: HTTP
+        sonarr:
+          port: 8989
           protocol: HTTP
   ingress:
     main:
@@ -25,17 +24,17 @@ app-template:
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt-prod
       hosts:
-        - host: &jellyfinHost jellyfin.malford.io
+        - host: &sonarrHost sonarr.malford.io
           paths:
             - path: /
               pathType: Prefix
               service:
                 identifier: main
-                port: http
+                port: sonarr
       tls:
         - secretName: jellyfin-tls-certificate
           hosts:
-            - *jellyfinHost
+            - *sonarrHost
   persistence:
     media:
       type: persistentVolumeClaim
@@ -50,6 +49,16 @@ app-template:
       size: 20Gi
       advancedMounts:
         main:
-          jellyfin:
+          sonarr:
             - path: /config
-              subPath: jellyfin
+              subPath: sonarr
+    downloads:
+      enabled: true
+      type: persistentVolumeClaim
+      storageClass: standard-rwo
+      accessMode: ReadWriteOnce
+      size: 200Gi
+      advancedMounts:
+        main:
+          sonarr:
+            - path: /downloads

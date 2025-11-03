@@ -1,0 +1,87 @@
+app-template:
+  defaultPodOptions:
+    enableServiceLinks: true
+    securityContext:
+      runAsUser: 1000
+      runAsGroup: 100
+      fsGroup: 100
+  controllers:
+    main:
+      containers:
+        plex:
+          image: { repository: docker.io/plexinc/pms-docker, tag: 1.42.2.10156-f737b826c }
+          securityContext:
+            runAsUser: 0
+            privileged: true
+          env:
+            HOSTNAME: "plex.malford.io"
+            TZ: "America/New_York"
+            PLEX_UID: "1027"
+            PLEX_GID: "100"
+            ALLOWED_NETWORKS: 192.168.0.0/16,10.0.0.0/8
+            TRANSCODE_DIR: /transcode
+          resources:
+            requests:
+              cpu: 1000m
+              memory: 2Gi
+            limits:
+              cpu: 8000m
+              memory: 8Gi
+  service:
+    main:
+      controller: main
+      ports:
+        plex:
+          port: 32400
+          protocol: TCP
+  ingress:
+    main:
+      enabled: true
+      className: nginx
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+      hosts:
+        - host: &plexHost plex.malford.io
+          paths:
+            - path: /
+              pathType: Prefix
+              service:
+                identifier: main
+                port: plex
+      tls:
+        - secretName: jellyfin-tls-certificate
+          hosts:
+            - *plexHost
+  persistence:
+    transcode:
+      enabled: true
+      type: emptyDir
+      medium: Memory
+      advancedMounts:
+        main:
+          plex:
+            - path: /transcode
+    dri:
+      enabled: true
+      type: hostPath
+      hostPath: /dev/dri
+      advancedMounts:
+        main:
+          plex:
+            - path: /dev/dri
+    media:
+      type: persistentVolumeClaim
+      existingClaim: jellyfin-media
+      globalMounts:
+        - path: /media
+    config:
+      enabled: true
+      type: persistentVolumeClaim
+      storageClass: standard-rwo
+      accessMode: ReadWriteOnce
+      size: 20Gi
+      advancedMounts:
+        main:
+          plex:
+            - path: /config
+              subPath: plex
