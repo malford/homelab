@@ -9,7 +9,7 @@ app-template:
     main:
       containers:
         flaresolverr:
-          image: { repository: ghcr.io/flaresolverr/flaresolverr, tag: 3.4.3 }
+          image: { repository: ghcr.io/flaresolverr/flaresolverr, tag: v3.4.3 }
   service:
     main:
       controller: main
