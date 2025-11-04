@@ -74,6 +74,8 @@ app-template:
                 cpu: true
                 memory: true
                 showLabel: true
+          - ceph:
+              url: http://rook-ceph-mgr-dashboard.rook-ceph.svc.cluster.local:8443
         kubernetes.yaml: |
           mode: cluster
         services.yaml: |
@@ -82,10 +84,10 @@ app-template:
                 href: https://jellyfin.malford.io
                 description: Media system (movies, music, etc.)
                 icon: jellyfin.svg
-            - Jellyseerr:
-                href: https://jellyseerr.malford.io
-                description: Request media
-                icon: jellyseerr.svg
+            - Plex:
+                href: https://plex.malford.io
+                description: Alternate media system
+                icon: plex.svg
             - Paperless:
                 href: https://paperless.malford.io
                 description: Document management system
@@ -95,6 +97,14 @@ app-template:
                 href: https://transmission.malford.io
                 description: Bittorrent client
                 icon: transmission.svg
+            - SABnzbd:
+                href: https://sabnzbd.malford.io
+                description: Usenet download client
+                icon: sabnzbd.svg
+            - Jackett:
+                href: https://jackett.malford.io
+                description: Indexer proxy
+                icon: jackett.svg
             - Prowlarr:
                 href: https://prowlarr.malford.io
                 description: Indexer manager
@@ -116,6 +126,7 @@ app-template:
                 href: https://git.malford.io
                 description: Git forge
                 icon: gitea.svg
+                ping: https://git.malford.io
             - Woodpecker:
                 href: https://ci.malford.io
                 description: Continuous integration
@@ -161,9 +172,6 @@ app-template:
             - Router:
               - href: https://unifi.local.mmalford.com/
                 icon: ubiquiti.svg
-            - Proxmox:
-              - href: https://proxmox:8006
-                icon: proxmox.svg
             - Google Cloud:
               - href: https://console.cloud.google.com
                 icon: google-cloud-platform.svg
