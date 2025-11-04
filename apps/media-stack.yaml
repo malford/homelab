@@ -101,7 +101,7 @@ spec:
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: jellyseeerr # The name of this specific app
+  name: jellyseerr # The name of this specific app
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io

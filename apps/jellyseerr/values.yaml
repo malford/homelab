@@ -32,7 +32,7 @@ app-template:
                 identifier: main
                 port: jellyseerr
       tls:
-        - secretName: jellyseeerr-tls-certificate
+        - secretName: jellyseerr-tls-certificate
           hosts:
             - *jellyseerrHost
   persistence:
