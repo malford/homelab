@@ -49,7 +49,7 @@ app-template:
                 identifier: main
                 port: plex
       tls:
-        - secretName: jellyfin-tls-certificate
+        - secretName: plex-tls-certificate
           hosts:
             - *plexHost
   persistence:

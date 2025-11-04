@@ -32,7 +32,7 @@ app-template:
                 identifier: main
                 port: prowlarr
       tls:
-        - secretName: jellyfin-tls-certificate
+        - secretName: prowlarr-tls-certificate
           hosts:
             - *prowlarrHost
   persistence:

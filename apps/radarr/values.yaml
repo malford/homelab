@@ -32,7 +32,7 @@ app-template:
                 identifier: main
                 port: radarr
       tls:
-        - secretName: jellyfin-tls-certificate
+        - secretName: radarr-tls-certificate
           hosts:
             - *radarrHost
   persistence:

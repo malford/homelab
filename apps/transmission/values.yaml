@@ -58,7 +58,7 @@ app-template:
                 identifier: main
                 port: transmission
       tls:
-        - secretName: jellyfin-tls-certificate
+        - secretName: transmission-tls-certificate
           hosts:
             - *transmissionHost
   persistence:

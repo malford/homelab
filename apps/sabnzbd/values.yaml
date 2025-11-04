@@ -44,7 +44,7 @@ app-template:
                 identifier: main
                 port: sabnzbd
       tls:
-        - secretName: jellyfin-tls-certificate
+        - secretName: sabnzbd-tls-certificate
           hosts:
             - *sabnzbdHost
   persistence:
