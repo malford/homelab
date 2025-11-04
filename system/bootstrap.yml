@@ -35,3 +35,9 @@
         server_side_apply:
           field_manager: argocd-controller
           force_conflicts: true
+
+    - name: Apply media stack application definitions
+      kubernetes.core.k8s:
+        src: ../apps/media-stack.yaml
+        state: present
+        apply: true
