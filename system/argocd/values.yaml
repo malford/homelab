@@ -42,6 +42,8 @@ argocd-apps:
               - path: platform/*
               - path: apps/*
               # Exclude apps that are manually managed in media-stack.yaml
+              - path: apps/flaresolverr
+                exclude: true
               - path: apps/jackett
                 exclude: true
               - path: apps/jellyfin
