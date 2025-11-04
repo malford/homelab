@@ -98,7 +98,7 @@ app-template:
             - path: /downloads
     openvpn:
       type: configMap
-      name: jellyfin
+      name: transmission
       advancedMounts:
         main:
           transmission:
