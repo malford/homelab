@@ -48,7 +48,7 @@ argocd-apps:
                 exclude: true
               - path: apps/jellyfin
                 exclude: true
-              - path: apps/jellyseeerr
+              - path: apps/jellyseerr
                 exclude: true
               - path: apps/plex
                 exclude: true
