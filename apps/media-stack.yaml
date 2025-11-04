@@ -139,6 +139,25 @@ spec:
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
+  name: flaresolverr # The name of this specific app
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: 'https://git.malford.io/ops/homelab'
+    path: apps/flaresolverr # Path to this app's values
+    targetRevision: HEAD
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: media # All apps go to the same namespace
+  syncPolicy:
+    automated: { prune: true, selfHeal: true }
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
   name: transmission # The name of this specific app
   namespace: argocd
   finalizers:

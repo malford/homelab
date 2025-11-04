@@ -1,0 +1,49 @@
+app-template:
+  defaultPodOptions:
+    enableServiceLinks: true
+    securityContext:
+      runAsUser: 1000
+      runAsGroup: 100
+      fsGroup: 100
+  controllers:
+    main:
+      containers:
+        flaresolverr:
+          image: { repository: ghcr.io/flaresolverr/flaresolverr, tag: 3.4.3 }
+  service:
+    main:
+      controller: main
+      ports:
+        flaresolverr:
+          port: 8191
+          protocol: TCP
+  ingress:
+    main:
+      enabled: true
+      className: nginx
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+      hosts:
+        - host: &flaresolverrHost flaresolverr.malford.io
+          paths:
+            - path: /
+              pathType: Prefix
+              service:
+                identifier: main
+                port: flaresolverr
+      tls:
+        - secretName: flaresolverr-tls-certificate
+          hosts:
+            - *flaresolverrHost
+  persistence:
+    config:
+      enabled: true
+      type: persistentVolumeClaim
+      storageClass: standard-rwo
+      accessMode: ReadWriteOnce
+      size: 20Gi
+      advancedMounts:
+        main:
+          flaresolverr:
+            - path: /config
+              subPath: flaresolverr
