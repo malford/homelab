@@ -10,6 +10,8 @@ app-template:
       containers:
         prowlarr:
           image: { repository: lscr.io/linuxserver/prowlarr, tag: 2.1.5 }
+          securityContext:
+            runAsUser: 0
   service:
     main:
       controller: main

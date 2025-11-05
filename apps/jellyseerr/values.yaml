@@ -3,8 +3,8 @@ app-template:
     enableServiceLinks: true
     securityContext:
       runAsUser: 1000
-      runAsGroup: 100
-      fsGroup: 100
+      runAsGroup: 1000
+      fsGroup: 1001
   controllers:
     main:
       containers:

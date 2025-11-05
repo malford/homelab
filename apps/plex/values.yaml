@@ -3,7 +3,7 @@ app-template:
     enableServiceLinks: true
     securityContext:
       runAsUser: 1027
-      runAsGroup: 100
+      runAsGroup: 1001
       fsGroup: 1001
   controllers:
     main:
@@ -16,8 +16,8 @@ app-template:
           env:
             HOSTNAME: "plex.malford.io"
             TZ: "America/New_York"
-            PLEX_UID: "1027"
-            PLEX_GID: "100"
+            PLEX_UID: 1027
+            PLEX_GID: 1001
             ALLOWED_NETWORKS: 192.168.0.0/16,10.0.0.0/8
             TRANSCODE_DIR: /transcode
           resources:

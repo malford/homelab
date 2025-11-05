@@ -10,6 +10,8 @@ app-template:
       containers:
         radarr:
           image: { repository: docker.io/linuxserver/radarr, tag: 5.28.0 }
+        securityContext:
+          runAsUser: 0
   service:
     main:
       controller: main
