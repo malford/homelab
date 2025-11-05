@@ -126,7 +126,7 @@ app-template:
                 href: https://git.malford.io
                 description: Git forge
                 icon: gitea.svg
-                ping: https://git.malford.io
+                ping: http://gitea-http.gitea
             - Woodpecker:
                 href: https://ci.malford.io
                 description: Continuous integration
