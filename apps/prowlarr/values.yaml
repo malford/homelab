@@ -4,7 +4,7 @@ app-template:
     securityContext:
       runAsUser: 911
       runAsGroup: 1001
-      fsGroup: 1000
+      fsGroup: 1001
   controllers:
     main:
       containers:
