@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: downloads-shared
+  namespace: media
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: standard-rwx # Use the RWX storage class from Rook/Ceph
+  resources:
+    requests:
+      storage: 200Gi # Or your desired size

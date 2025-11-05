@@ -67,9 +67,7 @@ app-template:
     downloads:
       enabled: true
       type: persistentVolumeClaim
-      storageClass: standard-rwo
-      accessMode: ReadWriteOnce
-      size: 200Gi
+      existingClaim: downloads-shared
       advancedMounts:
         main:
           sabnzbd:
