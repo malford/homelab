@@ -56,7 +56,6 @@ app-template:
       enabled: true
       type: persistentVolumeClaim
       existingClaim: downloads-shared
-      size: 200Gi
       advancedMounts:
         main:
           sonarr:
