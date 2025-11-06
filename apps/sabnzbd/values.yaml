@@ -9,7 +9,7 @@ app-template:
     main:
       containers:
         sabnzbd:
-          image: { repository: docker.io/linuxserver/sabnzbd, tag: 4.5.4 }
+          image: { repository: docker.io/linuxserver/sabnzbd, tag: 4.5.5 }
           securityContext:
             runAsUser: 0
           env:
