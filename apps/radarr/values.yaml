@@ -2,9 +2,9 @@ app-template:
   defaultPodOptions:
     enableServiceLinks: true
     securityContext:
-      runAsUser: 911
-      runAsGroup: 1001
-      fsGroup: 1001
+      runAsUser: 1029
+      runAsGroup: 100
+      fsGroup: 100
   controllers:
     main:
       containers:

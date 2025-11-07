@@ -1,15 +1,17 @@
 app-template:
   defaultPodOptions:
     enableServiceLinks: true
+    securityContext:
+      runAsUser: 1029
+      runAsGroup: 100
+      fsGroup: 100
   controllers:
     main:
       containers:
         sabnzbd:
           image: { repository: docker.io/linuxserver/sabnzbd, tag: 4.5.5 }
           securityContext:
-            runAsUser: 1000
-            runAsGroup: 1001
-            fsGroup: 1000
+            runAsUser: 0
           env:
             PUID: 1000
             PGID: 1001

@@ -1,15 +1,17 @@
 app-template:
   defaultPodOptions:
     enableServiceLinks: true
+    securityContext:
+      runAsUser: 1029
+      runAsGroup: 100
+      fsGroup: 100
   controllers:
     main:
       containers:
         sonarr:
           image: { repository: docker.io/linuxserver/sonarr, tag: 4.0.16 }
           securityContext:
-            runAsUser: 911
-            runAsGroup: 1000
-            fsGroup: 1000
+            runAsUser: 0
   service:
     main:
       controller: main
