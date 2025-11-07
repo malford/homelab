@@ -10,6 +10,10 @@ app-template:
       containers:
         jellyseerr:
           image: { repository: docker.io/fallenbagel/jellyseerr, tag: 2.7.3 }
+          env:
+            PUID: 1029
+            PGID: 100
+            UMASK: 002
   service:
     main:
       controller: main

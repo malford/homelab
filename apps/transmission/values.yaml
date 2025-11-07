@@ -15,6 +15,9 @@ app-template:
             capabilities:
               add: ["NET_ADMIN"]
           env:
+            PUID: 1029
+            PGID: 100
+            UMASK: 002
             OPENVPN_PROVIDER: custom
             OPENVPN_CONFIG: torguard-USA-NEW-YORK
             OPENVPN_USERNAME:
