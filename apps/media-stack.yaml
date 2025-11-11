@@ -6,6 +6,25 @@ metadata:
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
+  name: lidarr # The name of this specific app
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: 'https://git.malford.io/ops/homelab'
+    path: apps/lidarr # Path to this app's values
+    targetRevision: HEAD
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: media # All apps go to the same namespace
+  syncPolicy:
+    automated: { prune: true, selfHeal: true }
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
   name: radarr # The name of this specific app
   namespace: argocd
   finalizers:
