@@ -8,8 +8,8 @@ app-template:
   controllers:
     main:
       containers:
-        radarr:
-          image: { repository: docker.io/linuxserver/radarr, tag: 6.0.4 }
+        lidarr:
+          image: { repository: docker.io/linuxserver/lidarr, tag: 3.0.1 }
           securityContext:
             runAsUser: 0
           env:
@@ -20,8 +20,8 @@ app-template:
     main:
       controller: main
       ports:
-        radarr:
-          port: 7878
+        lidarr:
+          port: 8686
           protocol: HTTP
   ingress:
     main:
@@ -30,17 +30,17 @@ app-template:
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt-prod
       hosts:
-        - host: &radarrHost radarr.malford.io
+        - host: &lidarrHost lidarr.malford.io
           paths:
             - path: /
               pathType: Prefix
               service:
                 identifier: main
-                port: radarr
+                port: lidarr
       tls:
-        - secretName: radarr-tls-certificate
+        - secretName: lidarr-tls-certificate
           hosts:
-            - *radarrHost
+            - *lidarrHost
   persistence:
     media:
       type: persistentVolumeClaim
@@ -55,14 +55,14 @@ app-template:
       size: 20Gi
       advancedMounts:
         main:
-          radarr:
+          lidarr:
             - path: /config
-              subPath: radarr
+              subPath: lidarr
     downloads:
       enabled: true
       type: persistentVolumeClaim
       existingClaim: downloads-shared
       advancedMounts:
         main:
-          radarr:
+          lidarr:
             - path: /downloads

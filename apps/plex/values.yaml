@@ -14,12 +14,13 @@ app-template:
             runAsUser: 0
             privileged: true
           env:
-            HOSTNAME: "plex.malford.io"
-            TZ: "America/New_York"
-            PLEX_UID: 1027
-            PLEX_GID: 100
+            ADVERTISE_IP: "http://192.168.5.230:32400/"
             ALLOWED_NETWORKS: 192.168.0.0/16,10.0.0.0/8
+            HOSTNAME: "plex.malford.io"
+            PLEX_GID: 100
+            PLEX_UID: 1027
             TRANSCODE_DIR: /transcode
+            TZ: "America/New_York"
           resources:
             requests:
               cpu: 1000m
@@ -30,6 +31,9 @@ app-template:
   service:
     main:
       controller: main
+      type: LoadBalancer
+      externalTrafficPolicy: Cluster
+      loadBalancerIP: 192.168.5.230
       ports:
         plex:
           port: 32400
