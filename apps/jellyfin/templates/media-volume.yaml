@@ -10,6 +10,14 @@ spec:
     - ReadWriteMany
   storageClassName: nfs-csi
   persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - hard
+    - nfsvers=4.1
+    - rsize=1048576
+    - wsize=1048576
+    - async
+    - noatime
+    - nodiratime
   csi:
     driver: nfs.csi.k8s.io
     volumeHandle: jellyfin-media-pv
