@@ -14,13 +14,13 @@ spec:
     - soft
     - timeo=50
     - retrans=3
-    - nfsvers=4.1
+    - nfsvers=3
     - rsize=131072
     - wsize=131072
     - noatime
     - nodiratime
     - tcp
-    - nconnect=2
+    - async
 
   csi:
     driver: nfs.csi.k8s.io
