@@ -94,7 +94,7 @@ app-template:
         main:
           transmission:
             - path: /etc/openvpn/custom
-              readOnly: true
+              readOnly: false
   configMaps:
     config:
       enabled: true
