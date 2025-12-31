@@ -17,6 +17,14 @@ app-template:
             PUID: 1029
             PGID: 100
             UMASK: 002
+      statefulset:
+        volumeClaimTemplates:
+          - name: config
+            storageClass: standard-rwo
+            accessMode: ReadWriteOnce
+            size: 20Gi
+            globalMounts:
+              - path: /config
   service:
     main:
       controller: main
@@ -49,14 +57,6 @@ app-template:
       existingClaim: jellyfin-media
       globalMounts:
         - path: /media
-    config:
-      enabled: true
-      type: persistentVolumeClaim
-      storageClass: standard-rwo
-      accessMode: ReadWriteOnce
-      size: 20Gi
-      globalMounts:
-        - path: /config
     downloads:
       enabled: true
       type: persistentVolumeClaim
