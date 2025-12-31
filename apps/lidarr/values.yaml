@@ -7,6 +7,7 @@ app-template:
       fsGroup: 100
   controllers:
     main:
+      type: statefulset
       containers:
         lidarr:
           image: { repository: docker.io/linuxserver/lidarr, tag: 3.0.1 }
@@ -41,6 +42,7 @@ app-template:
         - secretName: lidarr-tls-certificate
           hosts:
             - *lidarrHost
+
   persistence:
     media:
       type: persistentVolumeClaim
@@ -53,11 +55,8 @@ app-template:
       storageClass: standard-rwo
       accessMode: ReadWriteOnce
       size: 20Gi
-      advancedMounts:
-        main:
-          lidarr:
-            - path: /config
-              subPath: lidarr
+      globalMounts:
+        - path: /config
     downloads:
       enabled: true
       type: persistentVolumeClaim
