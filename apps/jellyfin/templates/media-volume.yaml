@@ -21,6 +21,7 @@ spec:
     - nodiratime
     - tcp
     - async
+    - nolock
 
   csi:
     driver: nfs.csi.k8s.io
