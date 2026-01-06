@@ -9,7 +9,7 @@ app-template:
     main:
       containers:
         prowlarr:
-          image: { repository: lscr.io/linuxserver/prowlarr, tag: 2.1.5 }
+          image: { repository: lscr.io/linuxserver/prowlarr, tag: 2.3.0 }
           securityContext:
             runAsUser: 0
           env:
