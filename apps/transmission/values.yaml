@@ -29,6 +29,7 @@ app-template:
                   name: openvpn
                   key: OPENVPN_PASSWORD
             TRANSMISSION_DOWNLOAD_DIR: /media/downloads
+            TRANSMISSION_INCOMPLETE_DIR: /media/downloads/incomplete
             LOCAL_NETWORK: 192.168.0.0/16,10.0.0.0/8
           resources:
             requests:
