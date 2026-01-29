@@ -41,6 +41,9 @@ argocd-apps:
               - path: system/*
               - path: platform/*
               - path: apps/*
+              # Exclude argocd because of serversidediff keeps failing
+              - path: system/argocd
+                exclude: true
               # Exclude apps that are manually managed in media-stack.yaml
               - path: apps/flaresolverr
                 exclude: true
