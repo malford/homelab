@@ -15,8 +15,6 @@ app-template:
             capabilities:
               add: ["NET_ADMIN"]
           env:
-            PUID: 1029
-            PGID: 100
             UMASK: 002
             OPENVPN_PROVIDER: custom
             OPENVPN_CONFIG: torguard-USA-NEW-YORK
@@ -31,6 +29,7 @@ app-template:
                   name: openvpn
                   key: OPENVPN_PASSWORD
             TRANSMISSION_DOWNLOAD_DIR: /media/downloads
+            TRANSMISSION_INCOMPLETE_DIR: /media/downloads/incomplete
             LOCAL_NETWORK: 192.168.0.0/16,10.0.0.0/8
           resources:
             requests:
@@ -96,7 +95,7 @@ app-template:
         main:
           transmission:
             - path: /etc/openvpn/custom
-              readOnly: true
+              readOnly: false
   configMaps:
     config:
       enabled: true

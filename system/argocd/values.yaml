@@ -1,6 +1,7 @@
 argo-cd:
   global:
     domain: argocd.malford.io
+    serverSideapply: false
   configs:
     params:
       server.insecure: true
@@ -10,6 +11,8 @@ argo-cd:
       resource.customizations.ignoreResourceUpdates.all: |
         jsonPointers:
           - /status
+  crds:
+    install: false
   server:
     ingress:
       enabled: true
@@ -41,6 +44,9 @@ argocd-apps:
               - path: system/*
               - path: platform/*
               - path: apps/*
+              # Exclude argocd because of serversidediff keeps failing
+              - path: system/argocd
+                exclude: true
               # Exclude apps that are manually managed in media-stack.yaml
               - path: apps/flaresolverr
                 exclude: true
@@ -89,4 +95,3 @@ argocd-apps:
             syncOptions:
               - CreateNamespace=true
               - ApplyOutOfSyncOnly=true
-              - ServerSideApply=true

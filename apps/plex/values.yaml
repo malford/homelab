@@ -24,10 +24,10 @@ app-template:
           resources:
             requests:
               cpu: 1000m
-              memory: 2Gi
+              memory: 4Gi
             limits:
               cpu: 8000m
-              memory: 8Gi
+              memory: 12Gi
   service:
     main:
       controller: main

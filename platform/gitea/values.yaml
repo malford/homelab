@@ -37,3 +37,21 @@ gitea:
         ENABLED: false
       webhook:
         ALLOWED_HOST_LIST: private
+
+  postgresql-ha:
+    postgresql:
+      resources:
+        limits:
+          memory: 768Mi
+          cpu: 500m
+        requests:
+          memory: 512Mi
+          cpu: 250m
+    pgpool:
+      resources:
+        limits:
+          memory: 256Mi
+          cpu: 250m
+        requests:
+          memory: 128Mi
+          cpu: 100m
