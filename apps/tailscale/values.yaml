@@ -13,6 +13,7 @@ app-template:
             TS_USERSPACE: false
             TS_KUBE_SECRET: tailscale
             TS_ROUTES: 192.168.5.224/32
+            TS_EXTRA_ARGS: '--advertise-tags=tag:container'
             TS_AUTHKEY:
               valueFrom:
                 secretKeyRef:
