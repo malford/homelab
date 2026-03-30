@@ -7,6 +7,15 @@ app-template:
           runAsGroup: 1000
           fsGroup: 1000
           fsGroupChangePolicy: OnRootMismatch
+      initContainers:
+        config:
+          image:
+            repository: docker.io/library/busybox
+            tag: latest
+          command:
+            - sh
+            - -c
+            - cp /tmp/openclaw-config/openclaw.json /home/node/.openclaw/openclaw.json
       containers:
         main:
           image:
@@ -16,7 +25,7 @@ app-template:
             OPENCLAW_GATEWAY_PORT: "18789"
             NODE_ENV: "production"
           envFrom:
-            - secret: "{{ .Release.Name }}-secret"
+            - secret: openclaw-secret
   service:
     main:
       ports:
@@ -49,12 +58,12 @@ app-template:
         main:
           main:
             - path: /home/node/.openclaw
+          config:
+            - path: /home/node/.openclaw
     config:
       type: configMap
       name: openclaw-config
       advancedMounts:
         main:
-          main:
-            - path: /home/node/.openclaw/openclaw.json
-              subPath: openclaw.json
-              readOnly: true
+          config:
+            - path: /tmp/openclaw-config
