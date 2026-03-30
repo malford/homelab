@@ -51,7 +51,7 @@ app-template:
             - path: /home/node/.openclaw
     config:
       type: configMap
-      name: "{{ .Release.Name }}-config"
+      name: openclaw-config
       advancedMounts:
         main:
           main:
