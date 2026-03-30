@@ -1,0 +1,46 @@
+app-template:
+  controllers:
+    main:
+      containers:
+        main:
+          image:
+            repository: ghcr.io/openclaw/openclaw
+            tag: latest
+          env:
+            OPENCLAW_GATEWAY_PORT: "18789"
+            OPENCLAW_GATEWAY_BIND: "0.0.0.0"
+            NODE_ENV: "production"
+          envFrom:
+            - secret: "{{ .Release.Name }}-secret"
+  service:
+    main:
+      ports:
+        http:
+          port: 18789
+          protocol: HTTP
+  ingress:
+    main:
+      enabled: true
+      className: nginx
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+      hosts:
+        - host: &host openclaw.malford.io
+          paths:
+            - path: /
+              pathType: Prefix
+              service:
+                name: main
+                port: http
+      tls:
+        - hosts:
+            - *host
+          secretName: openclaw-tls-certificate
+  persistence:
+    data:
+      accessMode: ReadWriteOnce
+      size: 1Gi
+      advancedMounts:
+        main:
+          main:
+            - path: /home/node/.openclaw
