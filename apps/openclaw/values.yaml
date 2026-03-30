@@ -14,7 +14,6 @@ app-template:
             tag: latest
           env:
             OPENCLAW_GATEWAY_PORT: "18789"
-            OPENCLAW_GATEWAY_BIND: "0.0.0.0"
             NODE_ENV: "production"
           envFrom:
             - secret: "{{ .Release.Name }}-secret"
@@ -50,3 +49,12 @@ app-template:
         main:
           main:
             - path: /home/node/.openclaw
+    config:
+      type: configMap
+      name: "{{ .Release.Name }}-config"
+      advancedMounts:
+        main:
+          main:
+            - path: /home/node/.openclaw/openclaw.json
+              subPath: openclaw.json
+              readOnly: true
