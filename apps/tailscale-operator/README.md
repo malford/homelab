@@ -1,7 +1,8 @@
 # apps/tailscale-operator
 
 Deploys the [Tailscale Kubernetes Operator](https://tailscale.com/kb/1236/kubernetes-operator)
-via ArgoCD, using the same pattern as the rest of this repo.
+via ArgoCD. Managed automatically by the ArgoCD ApplicationSet in `system/argocd/values.yaml`
+— no manual Helm install needed.
 
 ## What this does
 
@@ -13,7 +14,7 @@ The OpenClaw gateway ingress (`apps/openclaw/templates/tailscale-ingress.yaml`)
 uses this to expose `wss://openclaw-gateway.tail811db.ts.net` directly to your
 tailnet — no nginx WebSocket proxying required.
 
-## Prerequisites (do before committing/syncing)
+## Prerequisites (do before pushing to main)
 
 ### 1. Tailscale admin console — ACL tags
 
@@ -38,15 +39,14 @@ At https://login.tailscale.com/admin/settings/trust-credentials:
 
 ### 3. Secret store — add the OAuth credentials
 
-Add these two properties to your `external` secret in the `global-secrets` store
-(the same store used by all other apps):
+Add these two properties to your `external` secret in the `global-secrets` store:
 
 | Property key                        | Value                  |
 |-------------------------------------|------------------------|
 | `tailscale-operator-client-id`      | OAuth client ID        |
 | `tailscale-operator-client-secret`  | OAuth client secret    |
 
-The `ExternalSecret` in `templates/externalsecret.yaml` will pull these into a
+The `ExternalSecret` in `templates/externalsecret.yaml` pulls these into an
 `operator-oauth` Kubernetes Secret that the operator reads at startup.
 
 ## Verification
@@ -55,7 +55,7 @@ The `ExternalSecret` in `templates/externalsecret.yaml` will pull these into a
 # Operator pod should be running
 kubectl get pods -n tailscale-operator
 
-# After openclaw tailscale ingress is applied, a proxy pod appears
+# After openclaw tailscale ingress syncs, a proxy pod appears
 kubectl get pods -n openclaw
 
 # Check Tailscale admin console for new devices:
