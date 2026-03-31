@@ -32,24 +32,6 @@ app-template:
         http:
           port: 18789
           protocol: HTTP
-  ingress:
-    main:
-      enabled: true
-      className: nginx
-      annotations:
-        cert-manager.io/cluster-issuer: letsencrypt-prod
-      hosts:
-        - host: &host openclaw.malford.io
-          paths:
-            - path: /
-              pathType: Prefix
-              service:
-                name: main
-                port: http
-      tls:
-        - hosts:
-            - *host
-          secretName: openclaw-tls-certificate
   persistence:
     data:
       accessMode: ReadWriteOnce

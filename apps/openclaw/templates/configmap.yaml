@@ -12,7 +12,7 @@ data:
         "bind": "lan",
         "port": 18789,
         "auth": {
-          "mode": "token"
+          "allowTailscale": true
         }
       }
     }
