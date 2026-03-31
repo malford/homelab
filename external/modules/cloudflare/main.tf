@@ -25,7 +25,7 @@ resource "cloudflare_record" "tunnel" {
   ttl     = 1 # Auto
 }
 
-resource "kubernetes_secret" "cloudflared_credentials" {
+resource "kubernetes_secret_v1" "cloudflared_credentials" {
   metadata {
     name      = "cloudflared-credentials"
     namespace = "cloudflared"
@@ -59,7 +59,7 @@ resource "cloudflare_api_token" "external_dns" {
   }
 }
 
-resource "kubernetes_secret" "external_dns_token" {
+resource "kubernetes_secret_v1" "external_dns_token" {
   metadata {
     name      = "cloudflare-api-token"
     namespace = "external-dns"
@@ -88,7 +88,7 @@ resource "cloudflare_api_token" "cert_manager" {
   }
 }
 
-resource "kubernetes_secret" "cert_manager_token" {
+resource "kubernetes_secret_v1" "cert_manager_token" {
   metadata {
     name      = "cloudflare-api-token"
     namespace = "cert-manager"
@@ -101,4 +101,22 @@ resource "kubernetes_secret" "cert_manager_token" {
   data = {
     "api-token" = cloudflare_api_token.cert_manager.value
   }
+}
+
+# State migrations: kubernetes_secret -> kubernetes_secret_v1
+# These moved blocks tell Terraform to rename the state entries rather than
+# destroy and recreate the secrets. Safe to remove after first apply.
+moved {
+  from = kubernetes_secret.cloudflared_credentials
+  to   = kubernetes_secret_v1.cloudflared_credentials
+}
+
+moved {
+  from = kubernetes_secret.external_dns_token
+  to   = kubernetes_secret_v1.external_dns_token
+}
+
+moved {
+  from = kubernetes_secret.cert_manager_token
+  to   = kubernetes_secret_v1.cert_manager_token
 }
