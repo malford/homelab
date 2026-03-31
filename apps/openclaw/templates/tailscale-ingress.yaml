@@ -1,0 +1,36 @@
+---
+# Tailscale Operator Ingress
+#
+# Exposes the OpenClaw gateway WebSocket directly to your tailnet, bypassing
+# nginx entirely. Requires the Tailscale Kubernetes Operator (apps/tailscale-operator).
+#
+# Once the operator provisions this, OpenClaw is reachable at:
+#   https://openclaw-gateway.tail811db.ts.net
+#   wss://openclaw-gateway.tail811db.ts.net    (WebSocket / TUI)
+#
+# The operator creates a dedicated tailnet device for this ingress and handles
+# TLS automatically via MagicDNS HTTPS — no cert-manager needed here.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-tailscale
+  namespace: {{ .Release.Namespace }}
+spec:
+  ingressClassName: tailscale
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                # app-template v2 names services as <release>-<service-key>
+                # "main" service key => "<release-name>-main"
+                name: {{ .Release.Name }}-main
+                port:
+                  number: 18789
+  tls:
+    - hosts:
+        # This becomes the MagicDNS hostname: openclaw-gateway.tail811db.ts.net
+        # Rename here if you want a different tailnet hostname
+        - openclaw-gateway
