@@ -1,0 +1,8 @@
+tailscale-operator:
+  # OAuth credentials are injected via OPERATOR_OAUTH_CLIENT_ID and
+  # OPERATOR_OAUTH_CLIENT_SECRET environment variables from the
+  # tailscale-operator-secret ExternalSecret (see templates/externalsecret.yaml).
+  # Do not set oauth.clientId / oauth.clientSecret here — keep secrets out of git.
+  oauth:
+    clientId: ""
+    clientSecret: ""
