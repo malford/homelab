@@ -1,6 +1,21 @@
 app-template:
   controllers:
     main:
+      pod:
+        securityContext:
+          runAsUser: 1000
+          runAsGroup: 1000
+          fsGroup: 1000
+          fsGroupChangePolicy: OnRootMismatch
+      initContainers:
+        init-config:
+          image:
+            repository: docker.io/library/busybox
+            tag: latest
+          command:
+            - sh
+            - -c
+            - cp /tmp/openclaw-config/openclaw.json /home/node/.openclaw/openclaw.json
       containers:
         main:
           image:
@@ -8,10 +23,9 @@ app-template:
             tag: latest
           env:
             OPENCLAW_GATEWAY_PORT: "18789"
-            OPENCLAW_GATEWAY_BIND: "0.0.0.0"
             NODE_ENV: "production"
           envFrom:
-            - secret: "{{ .Release.Name }}-secret"
+            - secret: openclaw-secret
   service:
     main:
       ports:
@@ -44,3 +58,12 @@ app-template:
         main:
           main:
             - path: /home/node/.openclaw
+          init-config:
+            - path: /home/node/.openclaw
+    configmap:
+      type: configMap
+      name: openclaw-config
+      advancedMounts:
+        main:
+          init-config:
+            - path: /tmp/openclaw-config
