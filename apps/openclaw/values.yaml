@@ -8,7 +8,7 @@ app-template:
           fsGroup: 1000
           fsGroupChangePolicy: OnRootMismatch
       initContainers:
-        config:
+        init-config:
           image:
             repository: docker.io/library/busybox
             tag: latest
@@ -58,12 +58,12 @@ app-template:
         main:
           main:
             - path: /home/node/.openclaw
-          config:
+          init-config:
             - path: /home/node/.openclaw
-    config:
+    configmap:
       type: configMap
       name: openclaw-config
       advancedMounts:
         main:
-          config:
+          init-config:
             - path: /tmp/openclaw-config
