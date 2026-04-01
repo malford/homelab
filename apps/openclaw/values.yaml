@@ -19,8 +19,8 @@ app-template:
             - -c
             - |
               cp /tmp/openclaw-config/openclaw.json /home/node/.openclaw/openclaw.json &&
-              chmod 600 /home/node/.openclaw/openclaw.json &&
-              chmod 700 /home/node/.openclaw
+              sudo chmod 600 /home/node/.openclaw/openclaw.json &&
+              sudo chmod 700 /home/node/.openclaw
       containers:
         main:
           image:
