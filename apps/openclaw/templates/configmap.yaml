@@ -9,7 +9,7 @@ data:
   openclaw.json: |
     {
       "gateway": {
-        "bind": "tailnet",
+        "bind": "lan",
         "port": 18789,
         "auth": {
           "mode": "token",
