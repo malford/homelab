@@ -24,8 +24,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                # app-template v2 names services as <release>-<service-key>
-                # "main" service key => "<release-name>-main"
                 name: {{ .Release.Name }}
                 port:
                   number: 18789

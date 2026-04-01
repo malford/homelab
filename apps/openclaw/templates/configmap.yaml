@@ -9,11 +9,11 @@ data:
   openclaw.json: |
     {
       "gateway": {
-        "bind": "lan",
+        "bind": "tailnet",
         "port": 18789,
         "auth": {
-          "allowTailscale": true
-      }
+          "mode": "token"
+        }
       },
       "agents": {
         "defaults": {
@@ -22,6 +22,15 @@ data:
           },
           "heartbeat": {
             "every": "30m"
+          },
+          "userTimezone": "America/New_York",
+          "envelopeTimezone": "user",
+          "memorySearch": {
+            "provider": "openai"
+          },
+          "thinkingDefault": "adaptive",
+          "compaction": {
+            "mode": "default"
           }
         }
       }

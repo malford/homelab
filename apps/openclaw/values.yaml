@@ -2,6 +2,8 @@ app-template:
   controllers:
     main:
       pod:
+        annotations:
+          config-version: "1"
         securityContext:
           runAsUser: 1000
           runAsGroup: 1000
@@ -22,12 +24,11 @@ app-template:
             repository: ghcr.io/openclaw/openclaw
             tag: latest
           env:
+            TZ: "America/New_York"
             OPENCLAW_GATEWAY_PORT: "18789"
             NODE_ENV: "production"
           envFrom:
             - secret: openclaw-secret
-      annotations:
-        config-version: "1"
   service:
     main:
       ports:
