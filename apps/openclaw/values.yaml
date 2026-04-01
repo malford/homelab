@@ -26,6 +26,8 @@ app-template:
             NODE_ENV: "production"
           envFrom:
             - secret: openclaw-secret
+      annotations:
+        config-version: "1"
   service:
     main:
       ports:

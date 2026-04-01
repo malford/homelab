@@ -13,6 +13,16 @@ data:
         "port": 18789,
         "auth": {
           "allowTailscale": true
+      }
+      },
+      "agents": {
+        "defaults": {
+          "model": {
+            "primary": "anthropic/claude-sonnet-4-6"
+          },
+          "heartbeat": {
+            "every": "30m"
+          }
         }
       }
     }
