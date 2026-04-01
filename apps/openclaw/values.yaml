@@ -14,13 +14,15 @@ app-template:
           image:
             repository: docker.io/library/busybox
             tag: latest
+          securityContext:
+            runAsUser: 0
           command:
             - sh
             - -c
             - |
               cp /tmp/openclaw-config/openclaw.json /home/node/.openclaw/openclaw.json &&
-              sudo chmod 600 /home/node/.openclaw/openclaw.json &&
-              sudo chmod 700 /home/node/.openclaw
+              chmod 600 /home/node/.openclaw/openclaw.json &&
+              chmod 700 /home/node/.openclaw
       containers:
         main:
           image:
