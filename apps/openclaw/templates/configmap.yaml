@@ -12,7 +12,8 @@ data:
         "bind": "tailnet",
         "port": 18789,
         "auth": {
-          "mode": "token"
+          "mode": "token",
+          "token": "${OPENCLAW_GATEWAY_TOKEN}"
         }
       },
       "agents": {
