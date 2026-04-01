@@ -35,6 +35,13 @@ data:
           "compaction": {
             "mode": "default"
           }
+        },
+        "channels": {
+          "telegram": {
+          "enabled": true,
+          "botToken": { "source": "env", "provider": "default", "id": "${TELEGRAM_BOT_TOKEN}" },
+          "dmPolicy": "allowlist",
+          "allowFrom": ["${TELEGRAM_USER_ID}"]
         }
       }
     }
