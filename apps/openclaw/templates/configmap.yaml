@@ -16,8 +16,7 @@ data:
         "auth": { "mode": "token" },
         "trustedProxies": ["10.0.0.0/8"],
         "controlUi": {
-          "allowedOrigins": ["https://openclaw-gateway.tail811db.ts.net"],
-          "pairing": false
+          "allowedOrigins": ["https://openclaw-gateway.tail811db.ts.net"]
         }
       },
       "agents": {
