@@ -3,7 +3,7 @@ app-template:
     main:
       pod:
         annotations:
-          config-version: "9"
+          config-version: "10"
         securityContext:
           runAsUser: 1000
           runAsGroup: 1000

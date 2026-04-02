@@ -14,8 +14,7 @@ data:
         "bind": "lan",
         "port": 18789,
         "auth": {
-          "mode": "token",
-          "token": "${OPENCLAW_GATEWAY_TOKEN}"
+          "mode": "token"
         }
       },
       "agents": {
@@ -46,7 +45,15 @@ data:
             "id": "TELEGRAM_BOT_TOKEN"
           },
           "dmPolicy": "allowlist",
-          "allowFrom": [ "tg:6913292585" ]
+          "allowFrom": [ "tg:6913292585" ],
+          "defaultTo": "6913292585",
+          "execApprovals": {
+            "enabled": true,
+            "target": "dm"
+          },
+          "capabilities": {
+            "inlineButtons": "dm"
+          }
         }
       }
     }
