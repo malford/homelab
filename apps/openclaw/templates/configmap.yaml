@@ -43,7 +43,7 @@ data:
           "botToken": {
             "source": "env",
             "provider": "default",
-            "id": "${TELEGRAM_BOT_TOKEN}"
+            "id": "TELEGRAM_BOT_TOKEN"
           },
           "dmPolicy": "allowlist",
           "allowFrom": [ "tg:6913292585" ]
