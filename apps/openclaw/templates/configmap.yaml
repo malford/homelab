@@ -15,7 +15,8 @@ data:
         "port": 18789,
         "auth": {
           "mode": "token"
-        }
+        },
+        "trustedProxies": ["10.42.0.0/16"]
       },
       "agents": {
         "defaults": {
