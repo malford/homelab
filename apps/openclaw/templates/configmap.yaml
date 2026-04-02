@@ -14,7 +14,7 @@ data:
         "bind": "lan",
         "port": 18789,
         "auth": { "mode": "token" },
-        "trustedProxies": ["10.42.0.0/16"],
+        "trustedProxies": ["10.0.0.0/8"],
         "controlUi": {
           "allowedOrigins": ["https://openclaw-gateway.tail811db.ts.net"]
         }
