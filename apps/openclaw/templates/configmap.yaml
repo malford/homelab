@@ -49,10 +49,11 @@ data:
           "defaultTo": "6913292585",
           "execApprovals": {
             "enabled": true,
-            "target": "dm"
+            "target": "dm",
+            "approvers": ["6913292585"]
           },
           "capabilities": {
-            "inlineButtons": "dm"
+            "inlineButtons": "all"
           }
         }
       }
