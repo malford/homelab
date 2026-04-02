@@ -43,11 +43,11 @@ data:
           "botToken": {
             "source": "env",
             "provider": "default",
-            "id": "${TELEGRAM_BOT_TOKEN}"
+            "id": "TELEGRAM_BOT_TOKEN"
           },
           "dmPolicy": "allowlist",
           "allowFrom": [
-            "${TELEGRAM_USER_ID}"
+            "TELEGRAM_USER_ID"
           ]
         }
       }
