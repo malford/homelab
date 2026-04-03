@@ -9,7 +9,7 @@ app-template:
         main:
           image:
             repository: ghcr.io/gethomepage/homepage
-            tag: v1.9.0
+            tag: v1.12.3
           env:
             HOMEPAGE_ALLOWED_HOSTS: "*"
           envFrom:
@@ -91,16 +91,6 @@ app-template:
           mode: cluster
         services.yaml: |
           - Popular:
-            - Jellyfin:
-                href: https://jellyfin.malford.io
-                description: Media system (movies, music, etc.)
-                icon: jellyfin.svg
-                widget:
-                  type: jellyfin
-                  url: http://jellyfin.media.svc.cluster.local:8096
-                  key: '{{ `{{HOMEPAGE_VAR_JELLYFIN_API_KEY}}` }}'
-                  enableBlocks: true
-                  enableNowPlaying: true
             - Plex:
                 href: https://plex.malford.io
                 description: Alternate media system
@@ -165,10 +155,6 @@ app-template:
                   type: lidarr
                   url: http://lidarr.media.svc.cluster.local:8686
                   key: '{{ `{{HOMEPAGE_VAR_LIDARR_API_KEY}}` }}'
-            - Jackett:
-                href: https://jackett.malford.io
-                description: Indexer proxy
-                icon: jackett.svg
             - Kanidm:
                 href: https://auth.malford.io
                 description: Identity management
