@@ -12,6 +12,8 @@ app-template:
             tag: v1.9.0
           env:
             HOMEPAGE_ALLOWED_HOSTS: "*"
+          envFrom:
+            - secret: homepage-secret
   service:
     main:
       ports:
@@ -96,7 +98,7 @@ app-template:
                 widget:
                   type: jellyfin
                   url: http://jellyfin.jellyfin.svc.cluster.local:8096
-                  key: YOUR_JELLYFIN_API_KEY
+                  key: "{{HOMEPAGE_VAR_JELLYFIN_API_KEY}}"
                   enableBlocks: true
                   enableNowPlaying: true
             - Plex:
@@ -106,7 +108,7 @@ app-template:
                 widget:
                   type: plex
                   url: http://plex.plex.svc.cluster.local:32400
-                  key: YOUR_PLEX_TOKEN
+                  key: "{{HOMEPAGE_VAR_PLEX_TOKEN}}"
             - Paperless:
                 href: https://paperless.malford.io
                 description: Document management system
@@ -114,7 +116,7 @@ app-template:
                 widget:
                   type: paperlessngx
                   url: http://paperless.paperless.svc.cluster.local:8000
-                  key: YOUR_PAPERLESS_API_KEY
+                  key: "{{HOMEPAGE_VAR_PAPERLESS_API_KEY}}"
           - Management:
             - Transmission:
                 href: https://transmission.malford.io
@@ -130,7 +132,7 @@ app-template:
                 widget:
                   type: sabnzbd
                   url: http://sabnzbd.sabnzbd.svc.cluster.local:8080
-                  key: YOUR_SABNZBD_API_KEY
+                  key: "{{HOMEPAGE_VAR_SABNZBD_API_KEY}}"
             - Prowlarr:
                 href: https://prowlarr.malford.io
                 description: Indexer manager
@@ -138,7 +140,7 @@ app-template:
                 widget:
                   type: prowlarr
                   url: http://prowlarr.prowlarr.svc.cluster.local:9696
-                  key: YOUR_PROWLARR_API_KEY
+                  key: "{{HOMEPAGE_VAR_PROWLARR_API_KEY}}"
             - Radarr:
                 href: https://radarr.malford.io
                 description: Movie manager
@@ -146,7 +148,7 @@ app-template:
                 widget:
                   type: radarr
                   url: http://radarr.radarr.svc.cluster.local:7878
-                  key: YOUR_RADARR_API_KEY
+                  key: "{{HOMEPAGE_VAR_RADARR_API_KEY}}"
             - Sonarr:
                 href: https://sonarr.malford.io
                 description: TV show manager
@@ -154,7 +156,7 @@ app-template:
                 widget:
                   type: sonarr
                   url: http://sonarr.sonarr.svc.cluster.local:8989
-                  key: YOUR_SONARR_API_KEY
+                  key: "{{HOMEPAGE_VAR_SONARR_API_KEY}}"
             - Lidarr:
                 href: https://lidarr.malford.io
                 description: Music manager
@@ -162,7 +164,7 @@ app-template:
                 widget:
                   type: lidarr
                   url: http://lidarr.lidarr.svc.cluster.local:8686
-                  key: YOUR_LIDARR_API_KEY
+                  key: "{{HOMEPAGE_VAR_LIDARR_API_KEY}}"
             - Jackett:
                 href: https://jackett.malford.io
                 description: Indexer proxy
@@ -197,7 +199,7 @@ app-template:
                   type: grafana
                   url: http://grafana.grafana.svc.cluster.local:3000
                   username: admin
-                  password: YOUR_GRAFANA_PASSWORD
+                  password: "{{HOMEPAGE_VAR_GRAFANA_PASSWORD}}"
           - Utilities:
             - Chatbot:
                 href: https://ai.malford.io
