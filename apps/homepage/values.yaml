@@ -76,6 +76,15 @@ app-template:
                 showLabel: true
           - ceph:
               url: http://rook-ceph-mgr-dashboard.rook-ceph.svc.cluster.local:8443
+          - openmeteo:
+              label: Brooklyn
+              latitude: 40.6782
+              longitude: -73.9442
+              units: imperial
+              cache: 5
+          - search:
+              provider: duckduckgo
+              target: _blank
         kubernetes.yaml: |
           mode: cluster
         services.yaml: |
@@ -84,39 +93,80 @@ app-template:
                 href: https://jellyfin.malford.io
                 description: Media system (movies, music, etc.)
                 icon: jellyfin.svg
+                widget:
+                  type: jellyfin
+                  url: http://jellyfin.jellyfin.svc.cluster.local:8096
+                  key: YOUR_JELLYFIN_API_KEY
+                  enableBlocks: true
+                  enableNowPlaying: true
             - Plex:
                 href: https://plex.malford.io
                 description: Alternate media system
                 icon: plex.svg
+                widget:
+                  type: plex
+                  url: http://plex.plex.svc.cluster.local:32400
+                  key: YOUR_PLEX_TOKEN
             - Paperless:
                 href: https://paperless.malford.io
                 description: Document management system
                 icon: paperless.svg
+                widget:
+                  type: paperlessngx
+                  url: http://paperless.paperless.svc.cluster.local:8000
+                  key: YOUR_PAPERLESS_API_KEY
           - Management:
             - Transmission:
                 href: https://transmission.malford.io
                 description: Bittorrent client
                 icon: transmission.svg
+                widget:
+                  type: transmission
+                  url: http://transmission.transmission.svc.cluster.local:9091
             - SABnzbd:
                 href: https://sabnzbd.malford.io
                 description: Usenet download client
                 icon: sabnzbd.svg
-            - Jackett:
-                href: https://jackett.malford.io
-                description: Indexer proxy
-                icon: jackett.svg
+                widget:
+                  type: sabnzbd
+                  url: http://sabnzbd.sabnzbd.svc.cluster.local:8080
+                  key: YOUR_SABNZBD_API_KEY
             - Prowlarr:
                 href: https://prowlarr.malford.io
                 description: Indexer manager
                 icon: prowlarr.svg
+                widget:
+                  type: prowlarr
+                  url: http://prowlarr.prowlarr.svc.cluster.local:9696
+                  key: YOUR_PROWLARR_API_KEY
             - Radarr:
                 href: https://radarr.malford.io
                 description: Movie manager
                 icon: radarr.svg
+                widget:
+                  type: radarr
+                  url: http://radarr.radarr.svc.cluster.local:7878
+                  key: YOUR_RADARR_API_KEY
             - Sonarr:
                 href: https://sonarr.malford.io
                 description: TV show manager
                 icon: sonarr.svg
+                widget:
+                  type: sonarr
+                  url: http://sonarr.sonarr.svc.cluster.local:8989
+                  key: YOUR_SONARR_API_KEY
+            - Lidarr:
+                href: https://lidarr.malford.io
+                description: Music manager
+                icon: lidarr.svg
+                widget:
+                  type: lidarr
+                  url: http://lidarr.lidarr.svc.cluster.local:8686
+                  key: YOUR_LIDARR_API_KEY
+            - Jackett:
+                href: https://jackett.malford.io
+                description: Indexer proxy
+                icon: jackett.svg
             - Kanidm:
                 href: https://auth.malford.io
                 description: Identity management
@@ -143,6 +193,11 @@ app-template:
                 href: https://grafana.malford.io
                 description: Observability dashboards
                 icon: grafana.svg
+                widget:
+                  type: grafana
+                  url: http://grafana.grafana.svc.cluster.local:3000
+                  username: admin
+                  password: YOUR_GRAFANA_PASSWORD
           - Utilities:
             - Chatbot:
                 href: https://ai.malford.io
