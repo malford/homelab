@@ -22,7 +22,7 @@ data:
       "agents": {
         "defaults": {
           "model": {
-            "primary": "anthropic/claude-haiku-4-5"
+            "primary": "anthropic/claude-sonnet-4-6"
           },
           "heartbeat": {
             "every": "30m"
@@ -32,7 +32,7 @@ data:
           "memorySearch": {
             "provider": "openai"
           },
-          "thinkingDefault": "off",
+          "thinkingDefault": "adaptive",
           "compaction": {
             "mode": "default"
           }
@@ -55,18 +55,3 @@ data:
         }
       }
     }
-
-    gitea.json: |
-      {
-        "instances": [
-          {
-            "name": "default",
-            "url": "${GITEA_URL}",
-            "oauth": {
-              "clientId": "${GITEA_OAUTH_ID}",
-              "clientSecret": "${GITEA_OAUTH_SECRET}",
-              "redirectUri": "https://openclaw-gateway.tail811db.ts.net/oauth/callback"
-            }
-          }
-        ]
-      }
