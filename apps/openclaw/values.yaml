@@ -21,7 +21,9 @@ app-template:
             - -c
             - |
               cp /tmp/openclaw-config/openclaw.json /home/node/.openclaw/openclaw.json &&
+              envsubst < /tmp/openclaw-config/gitea.json > /home/node/.openclaw/gitea.json &&
               chmod 600 /home/node/.openclaw/openclaw.json &&
+              chmod 600 /home/node/.openclaw/gitea.json &&
               chmod 700 /home/node/.openclaw &&
               chown -R 1000:1000 /home/node/.openclaw
       containers:
