@@ -11,9 +11,7 @@ app-template:
           fsGroupChangePolicy: OnRootMismatch
       initContainers:
         init-config:
-          image:
-            repository: docker.io/library/busybox
-            tag: latest
+          image: alpine:latest
           securityContext:
             runAsUser: 0
           command:
