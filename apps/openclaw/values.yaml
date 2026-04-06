@@ -18,6 +18,7 @@ app-template:
             - sh
             - -c
             - |
+              apk add envsubst &&
               cp /tmp/openclaw-config/openclaw.json /home/node/.openclaw/openclaw.json &&
               envsubst < /tmp/openclaw-config/gitea.json > /home/node/.openclaw/gitea.json &&
               chmod 600 /home/node/.openclaw/openclaw.json &&
