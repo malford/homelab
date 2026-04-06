@@ -13,7 +13,7 @@ app-template:
             repository: ghcr.io/open-webui/open-webui
             tag: latest
           env:
-            OLLAMA_BASE_URL: http://ollama:11434
+            OLLAMA_BASE_URL: http://ollama.ollama.svc.cluster.local:11434
   service:
     main:
       ports:
