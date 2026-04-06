@@ -58,7 +58,7 @@ data:
 
   gitea.json: |
     {
-      "instances": [
+      "instances": {
         {
           "name": "default",
           "url": "${GITEA_URL}",
@@ -68,5 +68,5 @@ data:
             "redirectUri": "https://openclaw-gateway.tail811db.ts.net/oauth/callback"
           }
         }
-      ]
+      }
     }
