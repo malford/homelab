@@ -185,8 +185,8 @@ app-template:
                 widget:
                   type: unifi
                   url: https://unifi.local.mmalford.com
-                  username: '{{ `{{HOMEPAGE_VAR_GRAFANA_PASSWORD}}` }}'
-                  password: '{{ `{{HOMEPAGE_VAR_GRAFANA_PASSWORD}}` }}'
+                  username: '{{ `{{HOMEPAGE_VAR_UNIFI_USERNAME}}` }}'
+                  password: '{{ `{{HOMEPAGE_VAR_UNIFI_PASSWORD}}` }}'
             - Grafana:
                 href: https://grafana.malford.io
                 description: Observability dashboards
