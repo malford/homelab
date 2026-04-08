@@ -193,7 +193,7 @@ app-template:
                 icon: grafana.svg
                 widget:
                   type: grafana
-                  url: http://grafana.grafana.svc.cluster.local:3000
+                  url: http://grafana.grafana.svc.cluster.local
                   username: admin
                   password: '{{ `{{HOMEPAGE_VAR_GRAFANA_PASSWORD}}` }}'
           - Utilities:
