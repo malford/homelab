@@ -76,12 +76,10 @@ app-template:
                 cpu: true
                 memory: true
                 showLabel: true
-          - ceph:
-              url: http://rook-ceph-mgr-dashboard.rook-ceph.svc.cluster.local:8443
           - openmeteo:
               label: Brooklyn
-              latitude: 40.6782
-              longitude: -73.9442
+              latitude: 40.6459048
+              longitude: -73.9738999
               units: imperial
               cache: 5
           - search:
