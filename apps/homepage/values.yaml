@@ -177,6 +177,16 @@ app-template:
                 href: https://registry.malford.io
                 description: Container registry
                 icon: docker.svg
+          - Monitoring:
+            - Unifi:
+              href: https://unifi.local.mmalford.com
+              description: Network monitoring
+              icon: ubiquiti.svg
+              widget:
+                type: unifi
+                url: https://unifi.local.mmalford.com
+                username: '{{ `{{HOMEPAGE_VAR_GRAFANA_PASSWORD}}` }}'
+                password: '{{ `{{HOMEPAGE_VAR_GRAFANA_PASSWORD}}` }}'
             - Grafana:
                 href: https://grafana.malford.io
                 description: Observability dashboards
