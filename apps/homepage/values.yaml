@@ -23,11 +23,11 @@ app-template:
   ingress:
     homepage:
       enabled: true
-      className: tailscale
+      className: nginx
       annotations:
-        tailscale.com/hostname: "home"
+        cert-manager.io/cluster-issuer: letsencrypt-prod
       hosts:
-        - host: home
+        - host: &host home.malford.io
           paths:
             - path: /
               pathType: Prefix
