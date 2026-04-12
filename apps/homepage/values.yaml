@@ -24,14 +24,11 @@ app-template:
     homepage:
       enabled: true
       className: tailscale
-      hosts:
-        - host: &host homepage
-          paths:
-            - path: /
-              pathType: Prefix
-              service:
-                name: homepage
-                port: 3000
+      defaultBackend:
+        service:
+          name: homepage
+          port:
+            number: 3000
   persistence:
     config:
       enabled: true
