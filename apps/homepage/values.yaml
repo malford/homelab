@@ -24,6 +24,9 @@ app-template:
     homepage:
       enabled: true
       className: tailscale
+      tls:
+        - hosts:
+            - homepage
       defaultBackend:
         service:
           name: homepage
