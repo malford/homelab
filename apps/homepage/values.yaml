@@ -21,12 +21,29 @@ app-template:
           port: 3000
           protocol: HTTP
   ingress:
-    homepage:
+    homepage-nginx:
+      enabled: true
+      className: nginx
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+      hosts:
+        - host: &host home.malford.io
+          paths:
+            - path: /
+              pathType: Prefix
+              service:
+                identifier: homepage
+                port: 3000
+      tls:
+        - hosts:
+            - *host
+          secretName: homepage-tls-certificate
+    homepage-ts:
       enabled: true
       className: tailscale
       tls:
         - hosts:
-            - homepage
+            - home
       defaultBackend:
         service:
           name: homepage
