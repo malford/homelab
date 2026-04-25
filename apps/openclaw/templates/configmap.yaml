@@ -53,6 +53,21 @@ data:
             "inlineButtons": "all"
           }
         }
+      },
+      "plugins": {
+        "entries": {
+          "anthropic": {
+            "enabled": true
+          }
+        }
+      },
+      "auth": {
+        "profiles": {
+          "anthropic:manual": {
+            "provider": "anthropic",
+            "mode": "token"
+          }
+        }
       }
     }
 
