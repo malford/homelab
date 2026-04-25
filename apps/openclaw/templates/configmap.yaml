@@ -22,7 +22,7 @@ data:
       "agents": {
         "defaults": {
           "model": {
-            "primary": "anthropic/claude-haiku-4-5"
+            "primary": "aperture/claude-sonnet-4-6"
           },
           "heartbeat": {
             "every": "30m"
@@ -35,6 +35,21 @@ data:
           "thinkingDefault": "off",
           "compaction": {
             "mode": "default"
+          },
+          "models": {
+            "providers": {
+              "aperture": {
+                "baseUrl": "http://ai.tail811db.ts.net",
+                "apiKey": "-",
+                "api": "anthropic-messages",
+                "models": [
+                  {
+                    "id": "claude-sonnet-4-6",
+                    "name": "Claude Sonnet 4.6"
+                  }
+                ]
+              }
+            }
           }
         }
       },
