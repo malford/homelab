@@ -1,6 +1,6 @@
 # Malford's Homelab
 
-This project has been inspired by and forked from [Khue's homelab](https://github.com/khuedoan/homelab). If this repo interests you I recommend checking out and support their [repo](https://github.com/khuedoan/homelab).
+This project has been inspired by and forked from [Khue's homelab](https://github.com/khuedoan/homelab). Go there to get started and support their [repo](https://github.com/khuedoan/homelab).
 
 **[Features](#features) • [Get Started](#get-started) • [Documentation](https://homelab.malford.io)**
 
@@ -9,7 +9,7 @@ This project has been inspired by and forked from [Khue's homelab](https://githu
 [![license](https://img.shields.io/github/license/malford/malford-homelab?style=flat-square&logo=gnu&logoColor=white)](https://www.gnu.org/licenses/gpl-3.0.html)
 [![stars](https://img.shields.io/github/stars/malford/malford-homelab?logo=github&logoColor=white&color=gold&style=flat-square)](https://github.com/malford/malford-homelab)
 
-This project utilizes [Infrastructure as Code](https://en.wikipedia.org/wiki/Infrastructure_as_code) and [GitOps](https://www.weave.works/technologies/gitops) to automate provisioning, operating, and updating self-hosted services in my homelab.
+This project uses [Infrastructure as Code](https://en.wikipedia.org/wiki/Infrastructure_as_code) and [GitOps](https://www.weave.works/technologies/gitops) to automate provisioning, operating, and updating self-hosted services in my homelab.
 It can be used as a highly customizable framework to build your own homelab.
 
 > **What is a homelab?**
@@ -242,6 +242,8 @@ Distributed under the GPLv3 License.
 See [license page](https://homelab.malford.io/reference/license) or `LICENSE.md` file for more information.
 
 ## Acknowledgements
+
+Thanks to [Khue](https://github.com/khuedoan) for all of their hard work on this project!
 
 References:
 
