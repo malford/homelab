@@ -1,21 +1,23 @@
 app-template:
   controllers:
-    main:
+    ollama:
       containers:
-        main:
+        app:
           image:
             repository: docker.io/ollama/ollama
             tag: 0.20.2
     ui:
       containers:
-        main:
+        app:
           image:
             repository: ghcr.io/open-webui/open-webui
             tag: latest
           env:
             OLLAMA_BASE_URL: http://ollama.ollama.svc.cluster.local:11434
+
   service:
-    main:
+    ollama:
+      controller: ollama
       ports:
         http:
           port: 11434
@@ -26,9 +28,9 @@ app-template:
         http:
           port: 8080
           protocol: HTTP
+
   ingress:
-    main:
-      enabled: true
+    nginx:
       className: nginx
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt-prod
@@ -38,25 +40,42 @@ app-template:
             - path: /
               pathType: Prefix
               service:
-                name: main
+                identifier: ollama
                 port: http
         - host: &uiHost ai.malford.io
           paths:
             - path: /
               pathType: Prefix
               service:
-                name: ui
+                identifier: ui
                 port: http
       tls:
         - hosts:
             - *ollamaHost
             - *uiHost
           secretName: ollama-tls-certificate
+    tailscale:
+      # Exposes Ollama API to your tailnet so Aperture can reach it at:
+      #   https://ollama.tail811db.ts.net/v1
+      className: tailscale
+      hosts:
+        - host: ollama
+          paths:
+            - path: /
+              pathType: Prefix
+              service:
+                identifier: ollama
+                port: http
+      tls:
+        - hosts:
+            - ollama
+
   persistence:
     data:
       accessMode: ReadWriteOnce
       size: 10Gi
       advancedMounts:
-        main:
-          main:
+        ollama:
+          app:
             - path: /root/.ollama
+
