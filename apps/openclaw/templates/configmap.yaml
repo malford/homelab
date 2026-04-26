@@ -20,6 +20,17 @@ data:
         }
       },
       "agents": {
+        "list": [
+          {
+            "id": "main",
+            "name": "Ni",
+            "identity": {
+              "name": "Ni",
+              "emoji": "🐾",
+              "avatar": "avatar.jpg"
+            }
+          }
+        ],
         "defaults": {
           "model": {
             "primary": "anthropic/claude-sonnet-4-6"
@@ -88,15 +99,16 @@ data:
 
   gitea.json: |
     {
-      "instances": {
+      "instances": [
         {
           "name": "default",
           "url": "${GITEA_URL}",
           "oauth": {
-            "clientId": "${GITEA_OAUTH_ID}",
+            "clientId": "9a295fc8-fe8e-4de6-929f-123ea190f589",
             "clientSecret": "${GITEA_OAUTH_SECRET}",
             "redirectUri": "https://openclaw-gateway.tail811db.ts.net/oauth/callback"
           }
         }
-      }
+      ]
     }
+
