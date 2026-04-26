@@ -42,7 +42,7 @@ gitea:
     postgresql:
       resources:
         limits:
-          memory: 1Gi
+          memory: 1280Mi
           cpu: 500m
         requests:
           memory: 768Mi
@@ -50,8 +50,8 @@ gitea:
     pgpool:
       resources:
         limits:
-          memory: 384Mi
+          memory: 512Mi
           cpu: 250m
         requests:
-          memory: 256Mi
+          memory: 320Mi
           cpu: 100m
