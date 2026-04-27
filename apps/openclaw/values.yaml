@@ -1,6 +1,6 @@
 app-template:
   controllers:
-    main:
+    openclaw:
       pod:
         annotations:
           config-version: "17"
@@ -28,8 +28,8 @@ app-template:
               chmod 700 /home/node/.openclaw &&
               chown -R 1000:1000 /home/node/.openclaw
           envFrom:
-            - secret: openclaw-secret
-
+            - secretRef:
+                name: openclaw-secret
       containers:
         main:
           image:
@@ -40,19 +40,23 @@ app-template:
             OPENCLAW_GATEWAY_PORT: "18789"
             NODE_ENV: "production"
           envFrom:
-            - secret: openclaw-secret
+            - secretRef:
+                name: openclaw-secret
+
   service:
-    main:
+    openclaw:
+      controller: openclaw
       ports:
         http:
           port: 18789
           protocol: HTTP
+
   persistence:
     data:
       accessMode: ReadWriteOnce
       size: 1Gi
       advancedMounts:
-        main:
+        openclaw:
           main:
             - path: /home/node/.openclaw
           init-config:
@@ -61,6 +65,7 @@ app-template:
       type: configMap
       name: openclaw-config
       advancedMounts:
-        main:
+        openclaw:
           init-config:
             - path: /tmp/openclaw-config
+
