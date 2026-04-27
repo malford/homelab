@@ -3,7 +3,7 @@ app-template:
     openclaw:
       pod:
         annotations:
-          config-version: "20"
+          config-version: "21"
         securityContext:
           runAsUser: 1000
           runAsGroup: 1000
@@ -22,9 +22,9 @@ app-template:
             - |
               apk add envsubst &&
               mkdir -p /home/node/.openclaw/skills/gitea &&
-              if [ "$(cat /home/node/.openclaw/.config-version 2>/dev/null)" != "20" ]; then
+              if [ "$(cat /home/node/.openclaw/.config-version 2>/dev/null)" != "21" ]; then
                 cp /tmp/openclaw-config/openclaw.json /home/node/.openclaw/openclaw.json
-                echo "20" > /home/node/.openclaw/.config-version
+                echo "21" > /home/node/.openclaw/.config-version
               fi &&
               envsubst < /tmp/openclaw-config/gitea.json > /home/node/.openclaw/skills/gitea/gitea.json &&
               chmod 600 /home/node/.openclaw/openclaw.json &&

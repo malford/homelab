@@ -82,6 +82,11 @@ data:
           },
           "capabilities": {
             "inlineButtons": "all"
+          },
+          "ackReaction": "👀",
+          "pollingStallThresholdMs": 30000,
+          "healthMonitor": {
+            "enabled": true
           }
         }
       },
