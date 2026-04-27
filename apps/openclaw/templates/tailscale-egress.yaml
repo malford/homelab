@@ -5,9 +5,9 @@ metadata:
   namespace: {{ .Release.Namespace }}
   annotations:
     tailscale.com/tailnet-ip: "100.95.164.65"
+    argocd.argoproj.io/compare-options: IgnoreExtraneous
 spec:
-  type: ExternalName
-  externalName: placeholder
+  type: ClusterIP
   ports:
     - port: 80
       protocol: TCP
