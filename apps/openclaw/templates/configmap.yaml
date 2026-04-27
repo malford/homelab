@@ -52,7 +52,7 @@ data:
       "models": {
         "providers": {
           "aperture": {
-            "baseUrl": "http://ai.tail811db.ts.net",
+            "baseUrl": "http://aperture.openclaw.svc.cluster.local",
             "apiKey": "-",
             "api": "anthropic-messages",
             "models": [
