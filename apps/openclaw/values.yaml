@@ -58,7 +58,7 @@ app-template:
   persistence:
     data:
       accessMode: ReadWriteOnce
-      size: 1Gi
+      size: 5Gi
       advancedMounts:
         openclaw:
           main:
