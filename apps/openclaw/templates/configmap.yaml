@@ -44,7 +44,7 @@ data:
             "provider": "ollama",
             "model": "mxbai-embed-large",
             "remote": {
-              "baseUrl": "ollama.ollama.svc.cluster.local:11434",
+              "baseUrl": "http://ollama.ollama.svc.cluster.local:11434",
               "apiKey": "-"
             }
           },
