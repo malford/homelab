@@ -1,0 +1,140 @@
+app-template:
+  controllers:
+    network-optimizer:
+      containers:
+        app:
+          image:
+            repository: ghcr.io/ozark-connect/network-optimizer
+            tag: latest
+          env:
+            TZ: America/New_York
+            HOST_NAME: network-optimizer.malford.io
+            HOST_IP: ""
+            REVERSE_PROXIED_HOST_NAME: ""
+            OPENSPEEDTEST_HOST: no-speedtest.malford.io
+            OPENSPEEDTEST_PORT: "443"
+            OPENSPEEDTEST_HTTPS: "true"
+            OPENSPEEDTEST_HTTPS_PORT: "443"
+            Iperf3Server__Enabled: "false"
+            Logging__LogLevel__Default: Information
+            Logging__LogLevel__NetworkOptimizer: Information
+          envFrom:
+            - secret: network-optimizer-secret
+          probes:
+            liveness:
+              enabled: true
+              custom: true
+              spec:
+                httpGet:
+                  path: /api/health
+                  port: 8042
+                initialDelaySeconds: 40
+                periodSeconds: 30
+                timeoutSeconds: 10
+                failureThreshold: 3
+            readiness:
+              enabled: true
+              custom: true
+              spec:
+                httpGet:
+                  path: /api/health
+                  port: 8042
+                initialDelaySeconds: 40
+                periodSeconds: 30
+                timeoutSeconds: 10
+                failureThreshold: 3
+
+    speedtest:
+      containers:
+        app:
+          image:
+            repository: ghcr.io/ozark-connect/speedtest
+            tag: latest
+          env:
+            TZ: America/Chicago
+            HOST_NAME: network-optimizer.malford.io
+            HOST_IP: ""
+            OPENSPEEDTEST_HOST: no-speedtest.malford.io
+            OPENSPEEDTEST_PORT: "443"
+            OPENSPEEDTEST_HTTPS: "true"
+            OPENSPEEDTEST_HTTPS_PORT: "443"
+            # Points results back to the main app API
+            REVERSE_PROXIED_HOST_NAME: network-optimizer.malford.io
+
+  service:
+    network-optimizer:
+      controller: network-optimizer
+      ports:
+        http:
+          port: 8042
+          protocol: HTTP
+    speedtest:
+      controller: speedtest
+      ports:
+        http:
+          port: 3000
+          protocol: HTTP
+
+  ingress:
+    nginx:
+      enabled: true
+      className: nginx
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+      hosts:
+        - host: &appHost network-optimizer.malford.io
+          paths:
+            - path: /
+              pathType: Prefix
+              service:
+                identifier: network-optimizer
+                port: http
+        - host: &speedtestHost no-speedtest.malford.io
+          paths:
+            - path: /
+              pathType: Prefix
+              service:
+                identifier: speedtest
+                port: http
+      tls:
+        - secretName: network-optimizer-tls-certificate
+          hosts:
+            - *appHost
+            - *speedtestHost
+    tailscale:
+      className: tailscale
+      hosts:
+        - host: network-optimizer
+          paths:
+            - path: /
+              pathType: Prefix
+              service:
+                identifier: network-optimizer
+                port: http
+      tls:
+        - hosts:
+            - network-optimizer
+
+  persistence:
+    data:
+      accessMode: ReadWriteOnce
+      size: 1Gi
+      storageClass: standard-rwo
+      advancedMounts:
+        network-optimizer:
+          app:
+            - path: /app/data
+    ssh-keys:
+      accessMode: ReadWriteOnce
+      size: 64Mi
+      storageClass: standard-rwo
+      advancedMounts:
+        network-optimizer:
+          app:
+            - path: /app/ssh-keys
+    logs:
+      type: emptyDir
+      advancedMounts:
+        network-optimizer:
+          app:
+            - path: /app/logs
