@@ -34,6 +34,20 @@ app-template:
           envFrom:
             - secretRef:
                 name: openclaw-secret
+        install-browser:
+          image:
+            repository: docker.io/library/debian
+            tag: bookworm-slim
+          securityContext:
+            runAsUser: 0
+          command:
+            - sh
+            - -c
+            - |
+              apt-get update -qq && \
+              apt-get install -y --no-install-recommends chromium && \
+              cp -a /usr/lib/chromium /browser-bin/lib && \
+              ln -s /browser-bin/lib/chromium /browser-bin/chromium
       containers:
         main:
           image:
@@ -43,6 +57,7 @@ app-template:
             TZ: "America/New_York"
             OPENCLAW_GATEWAY_PORT: "18789"
             NODE_ENV: "production"
+            BROWSER_EXECUTABLE_PATH: "/browser-bin/lib/chromium"
           envFrom:
             - secretRef:
                 name: openclaw-secret
@@ -56,6 +71,14 @@ app-template:
           protocol: HTTP
 
   persistence:
+    browser-bin:
+      type: emptyDir
+      advancedMounts:
+        openclaw:
+          install-browser:
+            - path: /browser-bin
+          main:
+            - path: /browser-bin
     data:
       accessMode: ReadWriteOnce
       size: 5Gi
