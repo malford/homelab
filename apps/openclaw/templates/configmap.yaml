@@ -108,6 +108,14 @@ data:
             "mode": "token"
           }
         }
+      },
+      "browser": {
+        "ssrfPolicy": {
+          "hostnameAllowlist": [
+            "aperture.openclaw.svc.cluster.local",
+            "ollama.ollama.svc.cluster.local"
+          ]
+        }
       }
     }
 
