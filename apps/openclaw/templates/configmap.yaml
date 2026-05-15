@@ -63,11 +63,15 @@ data:
             "models": [
               {
                 "id": "claude-sonnet-4-6",
-                "name": "Claude Sonnet 4.6"
+                "name": "Claude Sonnet 4.6",
+                "contextWindow": 200000,
+                "maxTokens": 8192
               },
               {
                 "id": "claude-opus-4-6",
-                "name": "Claude Opus 4.6"
+                "name": "Claude Opus 4.6",
+                "contextWindow": 200000,
+                "maxTokens": 8192
               }
             ]
           }
