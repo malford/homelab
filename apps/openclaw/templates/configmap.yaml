@@ -42,7 +42,7 @@ data:
           "envelopeTimezone": "user",
           "memorySearch": {
             "provider": "ollama",
-            "model": "mxbai-embed-large",
+            "model": "nomic-embed-text",
             "remote": {
               "baseUrl": "http://ollama.ollama.svc.cluster.local:11434",
               "apiKey": "-"
