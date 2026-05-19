@@ -82,6 +82,15 @@ argocd-apps:
             repoURL: *repoURL
             path: '{{path}}'
             targetRevision: *revision
+          ignoreDifferences:
+            - group: ""
+              kind: Service
+              name: aperture
+              jsonPointers:
+                - /spec/externalName
+                - /spec/type
+                - /spec/clusterIP
+                - /spec/clusterIPs
           syncPolicy:
             automated:
               prune: true
