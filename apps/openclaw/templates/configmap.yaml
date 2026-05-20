@@ -14,7 +14,14 @@ data:
         "mode": "local",
         "bind": "lan",
         "port": 18789,
-        "auth": { "mode": "token" },
+        "auth": {
+          "mode": "token",
+          "rateLimit": {
+            "maxAttempts": 10,
+            "windowMs": 60000,
+            "lockoutMs": 300000
+          }
+        },
         "trustedProxies": ["10.0.0.0/8"],
         "controlUi": {
           "allowedOrigins": ["https://openclaw-gateway.tail811db.ts.net"]
