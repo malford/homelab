@@ -126,7 +126,6 @@ data:
       },
       "browser": {
         "ssrfPolicy": {
-          "dangerouslyAllowPrivateNetwork": true,
           "hostnameAllowlist": [
             "aperture.openclaw.svc.cluster.local",
             "ollama.ollama.svc.cluster.local"
