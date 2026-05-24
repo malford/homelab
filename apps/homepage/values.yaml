@@ -48,7 +48,7 @@ app-template:
   persistence:
     config:
       type: configMap
-      name: homepage-config
+      identifier: config
       globalMounts:
         - path: /app/config/settings.yaml
           subPath: settings.yaml
