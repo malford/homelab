@@ -1,8 +1,8 @@
 app-template:
   controllers:
-    main:
+    paperless:
       containers:
-        main:
+        app:
           image:
             repository: ghcr.io/paperless-ngx/paperless-ngx
             tag: 2.19.4
@@ -18,14 +18,13 @@ app-template:
             repository: docker.io/library/redis
             tag: 8.2.3
   service:
-    main:
+    app:
+      controller: paperless
       ports:
         http:
           port: 8000
-          protocol: HTTP
   ingress:
-    main:
-      enabled: true
+    app:
       className: nginx
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt-prod
@@ -35,7 +34,7 @@ app-template:
             - path: /
               pathType: Prefix
               service:
-                name: main
+                identifier: app
                 port: http
       tls:
         - hosts:
@@ -43,11 +42,13 @@ app-template:
           secretName: paperless-tls-certificate
   persistence:
     data:
+      type: persistentVolumeClaim
+      storageClass: standard-rwo
       accessMode: ReadWriteOnce
       size: 10Gi
       advancedMounts:
-        main:
-          main:
+        paperless:
+          app:
             - path: /usr/src/paperless/data
               subPath: data
             - path: /usr/src/paperless/media

@@ -1,11 +1,10 @@
 app-template:
-  serviceAccount:
-    name: homepage
-    create: true
+  defaultPodOptions:
+    automountServiceAccountToken: true
   controllers:
     homepage:
       containers:
-        homepage:
+        app:
           image:
             repository: ghcr.io/gethomepage/homepage
             tag: v1.12.3
@@ -14,15 +13,13 @@ app-template:
           envFrom:
             - secret: homepage-secret
   service:
-    homepage:
+    app:
       controller: homepage
       ports:
         http:
           port: 3000
-          protocol: HTTP
   ingress:
-    homepage-nginx:
-      enabled: true
+    nginx:
       className: nginx
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt-prod
@@ -32,26 +29,24 @@ app-template:
             - path: /
               pathType: Prefix
               service:
-                identifier: homepage
-                port: 3000
+                identifier: app
+                port: http
       tls:
         - hosts:
             - *host
           secretName: homepage-tls-certificate
-    homepage-ts:
-      enabled: true
+    tailscale:
       className: tailscale
       tls:
         - hosts:
             - home
       defaultBackend:
         service:
-          name: homepage
+          name: homepage-app
           port:
             number: 3000
   persistence:
     config:
-      enabled: true
       type: configMap
       name: homepage-config
       globalMounts:
@@ -67,7 +62,6 @@ app-template:
           subPath: kubernetes.yaml
   configMaps:
     config:
-      enabled: true
       data:
         settings.yaml: |
           cardBlur: md

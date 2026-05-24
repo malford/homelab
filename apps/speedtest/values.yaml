@@ -1,20 +1,19 @@
 app-template:
   controllers:
-    main:
+    speedtest:
       containers:
-        main:
+        app:
           image:
             repository: docker.io/openspeedtest/latest
             tag: latest
   service:
-    main:
+    app:
+      controller: speedtest
       ports:
         http:
           port: 3000
-          protocol: HTTP
   ingress:
-    main:
-      enabled: true
+    app:
       className: nginx
       annotations:
         nginx.ingress.kubernetes.io/proxy-body-size: 50m
@@ -25,7 +24,7 @@ app-template:
             - path: /
               pathType: Prefix
               service:
-                name: main
+                identifier: app
                 port: http
       tls:
         - hosts:

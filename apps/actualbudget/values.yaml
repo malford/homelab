@@ -1,20 +1,19 @@
 app-template:
   controllers:
-    main:
+    actualbudget:
       containers:
-        main:
+        app:
           image:
             repository: docker.io/actualbudget/actual-server
             tag: 25.11.0-alpine
   service:
-    main:
+    app:
+      controller: actualbudget
       ports:
         http:
           port: 5006
-          protocol: HTTP
   ingress:
-    main:
-      enabled: true
+    app:
       className: nginx
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt-prod
@@ -24,7 +23,7 @@ app-template:
             - path: /
               pathType: Prefix
               service:
-                name: main
+                identifier: app
                 port: http
       tls:
         - hosts:
@@ -32,6 +31,8 @@ app-template:
           secretName: actualbudget-tls-certificate
   persistence:
     data:
+      type: persistentVolumeClaim
+      storageClass: standard-rwo
       accessMode: ReadWriteOnce
       size: 1Gi
       globalMounts:

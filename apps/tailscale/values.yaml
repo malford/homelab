@@ -1,8 +1,12 @@
 app-template:
-  serviceAccount:
-    name: tailscale
+  global:
+    createDefaultServiceAccount: false
+  defaultPodOptions:
+    automountServiceAccountToken: true
   controllers:
     tailscale:
+      serviceAccount:
+        name: tailscale
       containers:
         app:
           image:

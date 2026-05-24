@@ -1,20 +1,19 @@
 app-template:
   controllers:
-    main:
+    pairdrop:
       containers:
-        main:
+        app:
           image:
             repository: lscr.io/linuxserver/pairdrop
             tag: 1.11.2
   service:
-    main:
+    app:
+      controller: pairdrop
       ports:
         http:
           port: 3000
-          protocol: HTTP
   ingress:
-    main:
-      enabled: true
+    app:
       className: nginx
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt-prod
@@ -24,7 +23,7 @@ app-template:
             - path: /
               pathType: Prefix
               service:
-                name: main
+                identifier: app
                 port: http
       tls:
         - hosts:

@@ -1,20 +1,19 @@
 app-template:
   controllers:
-    main:
+    excalidraw:
       containers:
-        main:
+        app:
           image:
             repository: docker.io/excalidraw/excalidraw
             tag: latest
   service:
-    main:
+    app:
+      controller: excalidraw
       ports:
         http:
           port: 80
-          protocol: HTTP
   ingress:
-    main:
-      enabled: true
+    app:
       className: nginx
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt-prod
@@ -26,7 +25,7 @@ app-template:
             - path: /
               pathType: Prefix
               service:
-                name: main
+                identifier: app
                 port: http
       tls:
         - hosts:
