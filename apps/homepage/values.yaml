@@ -42,7 +42,7 @@ app-template:
             - home
       defaultBackend:
         service:
-          name: homepage-app
+          name: homepage
           port:
             number: 3000
   persistence:
