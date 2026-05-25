@@ -1,0 +1,92 @@
+app-template:
+  defaultPodOptions:
+    hostNetwork: true
+    dnsPolicy: ClusterFirstWithHostNet
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: kubernetes.io/hostname
+                  operator: In
+                  values:
+                    - metal0v2
+                    - metal1v2
+
+  controllers:
+    scrypted:
+      type: statefulset
+      strategy: OnDelete
+      containers:
+        app:
+          image:
+            repository: ghcr.io/koush/scrypted
+            tag: v0.144.1-noble-full
+          env:
+            TZ: America/New_York
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+            limits:
+              memory: 4Gi
+
+  service:
+    main:
+      controller: scrypted
+      ports:
+        https:
+          port: 10443
+          protocol: TCP
+
+  ingress:
+    nginx:
+      className: nginx
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+        nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+      hosts:
+        - host: &scryptedHost scrypted.malford.io
+          paths:
+            - path: /
+              pathType: Prefix
+              service:
+                identifier: main
+                port: https
+      tls:
+        - secretName: scrypted-tls-certificate
+          hosts:
+            - *scryptedHost
+    tailscale:
+      className: tailscale
+      hosts:
+        - host: scrypted
+          paths:
+            - path: /
+              pathType: Prefix
+              service:
+                identifier: main
+                port: https
+      tls:
+        - hosts:
+            - scrypted
+
+  persistence:
+    config:
+      type: persistentVolumeClaim
+      storageClass: standard-rwo
+      accessMode: ReadWriteOnce
+      size: 10Gi
+      advancedMounts:
+        scrypted:
+          app:
+            - path: /server/volume
+    recordings:
+      type: persistentVolumeClaim
+      storageClass: standard-rwo
+      accessMode: ReadWriteOnce
+      size: 100Gi
+      advancedMounts:
+        scrypted:
+          app:
+            - path: /nvr
