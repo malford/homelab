@@ -34,7 +34,7 @@ gitea:
       service.explore:
         DISABLE_USERS_PAGE: true
       actions:
-        ENABLED: false
+        ENABLED: true
       webhook:
         ALLOWED_HOST_LIST: private
 
