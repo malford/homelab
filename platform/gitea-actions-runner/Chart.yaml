@@ -1,0 +1,7 @@
+apiVersion: v2
+name: gitea-actions-runner
+version: 0.0.0
+dependencies:
+  - name: actions
+    version: 0.1.1
+    repository: https://dl.gitea.com/charts/

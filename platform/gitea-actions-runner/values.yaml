@@ -1,0 +1,27 @@
+actions:
+  enabled: true
+  giteaRootURL: http://gitea-http.gitea:3000
+  existingSecret: runner-token
+  existingSecretKey: token
+
+  statefulset:
+    replicas: 1
+
+    runner:
+      config: |
+        log:
+          level: info
+        runner:
+          labels:
+            - "ubuntu-latest:docker://catthehacker/ubuntu:act-latest"
+            - "ubuntu-22.04:docker://catthehacker/ubuntu:act-22.04"
+        container:
+          network: bridge
+          privileged: true
+          valid_volumes:
+            - "**"
+
+    persistence:
+      size: 1Gi
+
+    dind: {}
