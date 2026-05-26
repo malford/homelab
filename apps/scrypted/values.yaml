@@ -52,6 +52,21 @@ app-template:
               memory: 128Mi
             limits:
               memory: 512Mi
+        event-syncer:
+          image:
+            repository: registry.malford.io/eufy-event-syncer
+            tag: 0.1.0
+          env:
+            WS_URL: ws://localhost:3000
+            OUTPUT_DIR: /events
+            POLL_INTERVAL_SECONDS: "1800"
+            LOOKBACK_HOURS: "6"
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              memory: 256Mi
 
   service:
     main:
@@ -112,3 +127,10 @@ app-template:
         scrypted:
           app:
             - path: /nvr
+    events:
+      type: persistentVolumeClaim
+      existingClaim: eufy-events
+      advancedMounts:
+        scrypted:
+          event-syncer:
+            - path: /events
