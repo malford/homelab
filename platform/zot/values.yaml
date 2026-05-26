@@ -10,7 +10,11 @@ zot:
           "readTimeout": "60s",
           "writeTimeout": "60s"
         },
-        "log": { "level": "info" }
+        "log": { "level": "info" },
+        "extensions": {
+          "search": { "enable": true },
+          "ui": { "enable": true }
+        }
       }
   ingress:
     enabled: true
