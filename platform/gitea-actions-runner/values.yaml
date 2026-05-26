@@ -24,4 +24,5 @@ actions:
     persistence:
       size: 1Gi
 
-    dind: {}
+    dind:
+      tag: "29.5.2-dind"
