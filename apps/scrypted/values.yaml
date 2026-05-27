@@ -55,12 +55,13 @@ app-template:
         event-syncer:
           image:
             repository: registry.malford.io/eufy-event-syncer
-            tag: 0.1.1
+            tag: 0.1.2
           env:
             WS_URL: ws://localhost:3000
             OUTPUT_DIR: /events
             POLL_INTERVAL_SECONDS: "1800"
             LOOKBACK_HOURS: "6"
+            LOG_LEVEL: DEBUG
           resources:
             requests:
               cpu: 50m
