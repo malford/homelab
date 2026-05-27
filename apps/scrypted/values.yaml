@@ -59,8 +59,8 @@ app-template:
           env:
             WS_URL: ws://localhost:3000
             OUTPUT_DIR: /events
-            POLL_INTERVAL_SECONDS: "1800"
-            LOOKBACK_HOURS: "6"
+            POLL_INTERVAL_SECONDS: "900"
+            LOOKBACK_HOURS: "120"
             LOG_LEVEL: DEBUG
           resources:
             requests:
