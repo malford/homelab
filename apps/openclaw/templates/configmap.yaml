@@ -138,7 +138,8 @@ data:
         "ssrfPolicy": {
           "hostnameAllowlist": [
             "aperture.openclaw.svc.cluster.local",
-            "ollama.ollama.svc.cluster.local"
+            "ollama.ollama.svc.cluster.local",
+            "production-sfo.browserless.io"
           ]
         }
       }
