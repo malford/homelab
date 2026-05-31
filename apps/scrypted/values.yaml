@@ -17,6 +17,7 @@ app-template:
     scrypted:
       type: statefulset
       strategy: OnDelete
+      replicas: 0
       containers:
         app:
           image:
@@ -59,7 +60,7 @@ app-template:
           env:
             WS_URL: ws://localhost:3000
             OUTPUT_DIR: /events
-            POLL_INTERVAL_SECONDS: "120"
+            POLL_INTERVAL_SECONDS: "1800"
             LOOKBACK_HOURS: "240"
             LOG_LEVEL: DEBUG
           resources:
