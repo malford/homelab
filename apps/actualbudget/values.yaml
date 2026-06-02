@@ -5,7 +5,7 @@ app-template:
         app:
           image:
             repository: docker.io/actualbudget/actual-server
-            tag: 25.11.0-alpine
+            tag: 26.6.0-alpine
   service:
     app:
       controller: actualbudget
