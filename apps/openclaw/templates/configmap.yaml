@@ -125,10 +125,23 @@ data:
         }
       },
       "browser": {
+        enabled: true,
+        defaultProfile: "browserless",
+        remoteCdpTimeoutMs: 5000,
+        remoteCdpHandshakeTimeoutMs: 8000,
+        profiles: {
+          browserless: {
+            cdpUrl: "wss://production-sfo.browserless.io?token=${BROWSERLESS_API_TOKEN}",
+            color: "#FF4500"
+          }
+        },
         "ssrfPolicy": {
           "hostnameAllowlist": [
-            "aperture.openclaw.svc.cluster.local",
-            "ollama.ollama.svc.cluster.local"
+            "*.svc.cluster.local",
+            "*.browserless.io",
+            "browserless.io",
+            "*.apple.com",
+            "apple.com"
           ]
         }
       }

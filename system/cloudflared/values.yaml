@@ -5,7 +5,7 @@ app-template:
         app:
           image:
             repository: docker.io/cloudflare/cloudflared
-            tag: 2025.10.1
+            tag: 2026.6.1
           args:
             - tunnel
             - --config
@@ -13,7 +13,6 @@ app-template:
             - run
   configMaps:
     config:
-      enabled: true
       data:
         config.yaml: |
           tunnel: homelab
@@ -28,16 +27,13 @@ app-template:
             - service: http_status:404
   persistence:
     config:
-      enabled: true
       type: configMap
-      name: cloudflared-config
+      identifier: config
       globalMounts:
         - path: /etc/cloudflared/config.yaml
           subPath: config.yaml
     credentials:
-      enabled: true
       type: secret
-      # Created by ../../external/cloudflared
       name: cloudflared-credentials
       globalMounts:
         - path: /etc/cloudflared/credentials.json

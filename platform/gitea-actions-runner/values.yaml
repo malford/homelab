@@ -1,0 +1,29 @@
+actions:
+  enabled: true
+  giteaRootURL: http://gitea-http.gitea:3000
+  existingSecret: runner-token
+  existingSecretKey: token
+
+  statefulset:
+    replicas: 1
+
+    runner:
+      tag: "1.0.6"
+      config: |
+        log:
+          level: info
+        runner:
+          labels:
+            - "ubuntu-latest:docker://gitea/runner-images:ubuntu-latest"
+            - "ubuntu-22.04:docker://gitea/runner-images:ubuntu-22.04"
+        container:
+          network: bridge
+          privileged: true
+          valid_volumes:
+            - "**"
+
+    persistence:
+      size: 1Gi
+
+    dind:
+      tag: "29.5.2-dind"

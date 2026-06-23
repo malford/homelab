@@ -17,6 +17,7 @@ app-template:
     scrypted:
       type: statefulset
       strategy: OnDelete
+      replicas: 0
       containers:
         app:
           image:
@@ -52,6 +53,22 @@ app-template:
               memory: 128Mi
             limits:
               memory: 512Mi
+        event-syncer:
+          image:
+            repository: registry.malford.io/eufy-event-syncer
+            tag: 0.2.6
+          env:
+            WS_URL: ws://localhost:3000
+            OUTPUT_DIR: /events
+            POLL_INTERVAL_SECONDS: "1800"
+            LOOKBACK_HOURS: "240"
+            LOG_LEVEL: DEBUG
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              memory: 256Mi
 
   service:
     main:
@@ -112,3 +129,19 @@ app-template:
         scrypted:
           app:
             - path: /nvr
+    eufy-ws-data:
+      type: persistentVolumeClaim
+      storageClass: standard-rwo
+      accessMode: ReadWriteOnce
+      size: 1Gi
+      advancedMounts:
+        scrypted:
+          eufy-ws:
+            - path: /data
+    events:
+      type: persistentVolumeClaim
+      existingClaim: eufy-events
+      advancedMounts:
+        scrypted:
+          event-syncer:
+            - path: /events

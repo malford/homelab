@@ -34,12 +34,19 @@ gitea:
       service.explore:
         DISABLE_USERS_PAGE: true
       actions:
-        ENABLED: false
+        ENABLED: true
       webhook:
         ALLOWED_HOST_LIST: private
 
   postgresql-ha:
     postgresql:
+      extendedConfiguration: |
+        shared_buffers = 256MB
+        work_mem = 4MB
+        maintenance_work_mem = 32MB
+        max_connections = 50
+        wal_buffers = 8MB
+        effective_cache_size = 512MB
       resources:
         limits:
           memory: 1280Mi
@@ -48,10 +55,12 @@ gitea:
           memory: 768Mi
           cpu: 250m
     pgpool:
+      numInitChildren: 8
+      maxPool: 2
       resources:
         limits:
-          memory: 512Mi
+          memory: 384Mi
           cpu: 250m
         requests:
-          memory: 320Mi
+          memory: 192Mi
           cpu: 100m
