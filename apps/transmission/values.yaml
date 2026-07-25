@@ -131,10 +131,10 @@ app-template:
           </tls-auth>
           nobind
           tls-version-min 1.2
-          cipher AES-256-GCM
+          data-ciphers AES-256-GCM
+          data-ciphers-fallback AES-256-GCM
           auth-user-pass /config/openvpn-credentials.txt
           compress
-          ncp-disable
           tun-mtu-extra 32
           <ca>
           -----BEGIN CERTIFICATE-----
