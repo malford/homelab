@@ -49,18 +49,18 @@ gitea:
         effective_cache_size = 512MB
       resources:
         limits:
-          memory: 1280Mi
+          memory: 2048Mi
           cpu: 500m
         requests:
-          memory: 768Mi
+          memory: 1024Mi
           cpu: 250m
     pgpool:
       numInitChildren: 8
       maxPool: 2
       resources:
         limits:
-          memory: 384Mi
+          memory: 512Mi
           cpu: 250m
         requests:
-          memory: 192Mi
+          memory: 256Mi
           cpu: 100m
