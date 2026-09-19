@@ -26,6 +26,19 @@ defaults:
   staggerStartHour: 1
   staggerMinutes: 10
   staggerPerHour: 6
+  # Per-mover pod security context, applied when privilegedMovers is off. Leave
+  # empty unless you are taking the least-privilege path described below; an
+  # entry can set its own `moverSecurityContext:` to override.
+  moverSecurityContext: {}
+
+# Mover pods default to uid 0 with every capability dropped, which cannot read
+# mode-0600 files or list mode-0700 directories - producing backups that report
+# success while silently omitting Postgres data, SSH host keys and app secrets.
+# Annotating the namespaces grants the movers DAC_OVERRIDE, CHOWN and FOWNER.
+# See templates/namespace.yaml for the full trade-off, and the runbook at
+# docs/how-to-guides/backup-and-restore.md.
+privilegedMovers:
+  enabled: true
 
 backups:
   # --- platform state ---

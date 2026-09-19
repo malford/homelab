@@ -28,5 +28,11 @@ spec:
     pruneIntervalDays: {{ $d.pruneIntervalDays }}
     retain:
       {{- toYaml ($entry.retain | default $d.retain) | nindent 6 }}
+    {{- /* Escape hatch: run this mover as a specific uid/gid instead of relying on
+           the privileged-movers annotation. See templates/namespace.yaml. */}}
+    {{- with ($entry.moverSecurityContext | default $d.moverSecurityContext) }}
+    moverSecurityContext:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
 {{- end }}
 {{- end }}

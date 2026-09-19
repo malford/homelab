@@ -86,6 +86,60 @@ with `enabled: false` — flip it to protect them).
   it. Repository contents remain encrypted and unreadable without the password,
   but they could be deleted. Hardening is on the roadmap.
 
+## Mover permissions
+
+By default a VolSync mover pod runs as uid 0 with `capabilities.drop: [ALL]` —
+root in name only. It can read world-readable files and nothing else. Anything
+the app stored mode 0600, and any directory it stored mode 0700, is invisible to
+it.
+
+That failure is quiet and dangerous. restic still writes a snapshot with whatever
+it *could* read, so the repository looks healthy:
+
+| App | What was silently missed |
+| --- | --- |
+| `gitea-postgres` | **all of PGDATA** (0700) — a 2-file, 30 KiB "backup" |
+| `gitea` | `jwt/private.pem`, `ssh/gitea.rsa*` |
+| `plex` | `Preferences.xml`, `.LocalAdminToken`, `Cache/cert-v2.p12` |
+| `lidarr` | `asp/key-*.xml` |
+
+restic then exits non-zero with `Warning: at least one source file could not be
+read`, VolSync marks the job failed and retries until `BackoffLimit`, which is
+what fills a namespace with `Error` mover pods.
+
+The fix is a Namespace annotation — the only lever VolSync offers, and
+deliberately admin-scoped:
+
+```yaml
+volsync.backube/privileged-movers: "true"
+```
+
+It makes the restic mover add `DAC_OVERRIDE` (read every file), `CHOWN` and
+`FOWNER` (restore original ownership and mode bits). This repo renders it from
+`privilegedMovers.enabled` in `system/volsync-backups/values.yaml`, onto every
+namespace that has a backup entry — see `templates/namespace.yaml`.
+
+**The trade-off:** a mover pod in those namespaces holds those capabilities, so
+anyone who can create a pod there could borrow the mover's ServiceAccount to get
+them too.
+
+The lower-privilege alternative is to run each mover as the app's own uid:
+
+```yaml
+backups:
+  - app: paperless
+    namespace: paperless
+    claim: paperless
+    moverSecurityContext:
+      runAsUser: 1000
+      runAsGroup: 1000
+```
+
+It works, but it fails *silently* when an app changes uid on upgrade — producing
+a backup that reports success and is not one. That is the failure mode the
+annotation exists to remove, so the annotation is the default here. Set
+`privilegedMovers.enabled: false` if you would rather maintain the uid map.
+
 ## Add a PVC to the backup set
 
 One entry in `system/volsync-backups/values.yaml`:
@@ -250,6 +304,17 @@ cheapest insurance in the cluster.
 kubectl -n media get job -l app.kubernetes.io/created-by=volsync
 kubectl -n media logs job/<job-name>
 ```
+
+**`Error` mover pods piling up**, with `permission denied` and `Warning: at
+least one source file could not be read` in the job log. The mover cannot read
+restricted files — see [Mover permissions](#mover-permissions). Check the
+namespace carries the annotation:
+
+```sh
+kubectl get ns media -o jsonpath='{.metadata.annotations}'
+```
+
+Treat any snapshot taken before the fix as incomplete, and re-run the backup.
 
 **Mover fails writing to the repository.** NFS ignores `fsGroup` and the Synology
 export squashes unknown UIDs, which is why the REST server runs as root. If

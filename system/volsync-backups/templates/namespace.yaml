@@ -1,0 +1,46 @@
+{{/*
+Grant VolSync's movers the privileges they need to read every file on a PVC.
+
+Without this, a mover runs as uid 0 with `capabilities.drop: [ALL]` - root in name
+only. It can read world-readable files and nothing else, so restic saves a snapshot
+that is quietly missing whatever the app stored mode 0600: Plex's Preferences.xml,
+gitea's SSH host keys, and - worst - the whole of Postgres's PGDATA, which is 0700
+and yields a 2-file "successful" backup. restic then exits non-zero, VolSync marks
+the job failed, and the retry loop fills the namespace with Error pods.
+
+The annotation is checked by internal/controller/utils/namespace.go and makes the
+restic mover add DAC_OVERRIDE (read every file), CHOWN and FOWNER (restore original
+ownership and permission bits). It is deliberately a Namespace-level opt-in so that
+granting it stays an admin decision - see
+https://volsync.readthedocs.io/en/stable/usage/permissionmodel.html
+
+Trade-off: a mover pod in these namespaces holds those capabilities, so anyone able
+to create a pod there could borrow the mover's ServiceAccount to get them too. The
+lower-privilege alternative is a per-entry `moverSecurityContext` mirroring each
+app's own uid; it is supported below, but it fails silently when an app changes uid
+- producing a backup that looks successful and is not - which is the failure mode
+this annotation exists to remove.
+
+These Namespaces are declared with only a name and annotations: they belong to
+other Applications, so anything else here would fight their owners. Prune=false and
+Delete=false matter - without them, removing an entry from values.yaml would have
+ArgoCD delete the namespace and everything in it.
+*/}}
+{{- if .Values.privilegedMovers.enabled }}
+{{- $namespaces := dict }}
+{{- range $entry := .Values.backups }}
+{{- if ne $entry.enabled false }}
+{{- $_ := set $namespaces $entry.namespace true }}
+{{- end }}
+{{- end }}
+{{- range $ns := keys $namespaces | sortAlpha }}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ $ns }}
+  annotations:
+    volsync.backube/privileged-movers: "true"
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+{{- end }}
+{{- end }}
