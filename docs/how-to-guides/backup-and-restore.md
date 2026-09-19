@@ -328,9 +328,36 @@ kube-rbac-proxy and `metrics.disableAuth: true` in
 ServiceMonitor. The `VolsyncBackupMetricsMissing` alert exists to catch exactly
 this.
 
-**A repository is locked** after a mover pod was killed mid-run:
+**A repository is locked** after a mover pod was killed mid-run. The symptom is
+a backup that *succeeds* and then fails in `forget`:
+
+```
+=== Starting forget ===
+unable to create lock in backend: repository is already locked by PID 53 on
+volsync-src-sonarr-wfdf2 by root
+```
+
+Ask VolSync to unlock, then **delete the job** — the field is only read when the
+controller builds a new job, so the retrying one will ignore it:
 
 ```sh
 kubectl -n media patch replicationsource sonarr --type=merge \
   -p '{"spec":{"restic":{"unlock":"unlock-1"}}}'
+kubectl -n media delete job -l app.kubernetes.io/created-by=volsync
 ```
+
+If it still fails, the lock is not yet considered stale: `restic unlock` will
+not touch a lock from another host until it is 30 minutes old, and each mover
+pod is a new host. Either wait it out, or clear it directly — safe here because
+every app has its own repository, so the only possible holder is that app's
+mover:
+
+```sh
+kubectl -n media run restic-unlock --rm -i --restart=Never \
+  --image=docker.io/restic/restic:latest \
+  --env=RESTIC_REPOSITORY=rest:http://restic-server.restic-server.svc.cluster.local:8000/media-sonarr \
+  --env=RESTIC_PASSWORD="$(kubectl -n global-secrets get secret volsync.restic -o jsonpath='{.data.RESTIC_PASSWORD}' | base64 -d)" \
+  -- unlock --remove-all
+```
+
+Remove the `unlock` key from the `ReplicationSource` afterwards.
