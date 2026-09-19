@@ -37,3 +37,14 @@
     - key: PAPERLESS_ADMIN_PASSWORD
       length: 32
       special: true
+
+# VolSync / restic
+# WARNING: this password encrypts every backup repository. The generator never
+# rotates an existing key, but if the global-secrets namespace is ever wiped a new
+# password is minted and all existing repositories become permanently unreadable.
+# Record it offline — see docs/how-to-guides/backup-and-restore.md.
+- name: volsync.restic
+  data:
+    - key: RESTIC_PASSWORD
+      length: 48
+      special: false

@@ -32,6 +32,12 @@ Good enough for tinkering and personal usage, and reasonably secure.
 - [x] Only use open-source technologies (except external managed services in `./external`)
 - [x] Everything is defined as code
 - [ ] Backup solution (3 copies, 2 seperate devices, 1 offsite)
+    - [x] Nightly encrypted backups of app config and platform state to the NAS
+      (VolSync + restic, see [backup and restore](../how-to-guides/backup-and-restore.md))
+    - [ ] Sync the restic repository offsite to S3 (the third copy)
+    - [ ] Restore drill documented with measured recovery time
+    - [ ] Harden the restic REST server (`--append-only` plus a NetworkPolicy)
+    - [ ] Logical `pg_dump` for gitea Postgres (snapshots are only crash-consistent)
 - [ ] Define [SLOs](https://en.wikipedia.org/wiki/Service-level_objective):
     - [ ] 70% availability (might break in the weekend due to new experimentation)
 - [x] Core applications
@@ -50,7 +56,7 @@ Can be used in "production" (for family or even small scale businesses).
     - [x] Bare-metal OS rolling upgrade
     - [x] Kubernetes version rolling upgrade
     - [x] Application version upgrade
-    - [ ] Encrypted backups
+    - [x] Encrypted backups
     - [ ] Secrets rotation
     - [x] Self healing
 - [ ] Secure by default

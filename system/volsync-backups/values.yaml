@@ -1,0 +1,116 @@
+# Backup policy. This list is the single source of truth for what is protected.
+# Adding an app = one line. The repository server lives in system/restic-server.
+#
+# Each entry renders, into the app's own namespace:
+#   - an ExternalSecret holding RESTIC_REPOSITORY + RESTIC_PASSWORD
+#   - a ReplicationSource that snapshots the PVC and pushes it to the Synology
+#
+# Schedules are staggered automatically from the list position (01:00, 01:10, ...)
+# so the movers never run concurrently. Set `schedule:` on an entry to override.
+
+defaults:
+  repositoryBaseUrl: rest:http://restic-server.restic-server.svc.cluster.local:8000
+  # Backups read from a point-in-time CSI snapshot, so apps are never quiesced.
+  copyMethod: Snapshot
+  volumeSnapshotClassName: ceph-block
+  storageClassName: standard-rwo
+  cacheStorageClassName: standard-rwo
+  cacheCapacity: 2Gi
+  pruneIntervalDays: 14
+  retain:
+    daily: 7
+    weekly: 4
+    monthly: 6
+  # Stagger window: first backup at staggerStartHour:00, then one every
+  # staggerMinutes until staggerPerHour are placed, then the next hour.
+  staggerStartHour: 1
+  staggerMinutes: 10
+  staggerPerHour: 6
+
+backups:
+  # --- platform state ---
+  - app: gitea
+    namespace: gitea
+    claim: gitea-shared-storage
+  # Crash-consistent snapshot; Postgres recovers via WAL replay. A logical pg_dump
+  # would be stronger - tracked on the roadmap.
+  - app: gitea-postgres
+    namespace: gitea
+    claim: data-gitea-postgresql-ha-postgresql-0
+
+  # --- media stack configs (namespace shared by all 11 apps) ---
+  - app: flaresolverr
+    namespace: media
+    claim: flaresolverr
+  - app: jackett
+    namespace: media
+    claim: jackett
+  - app: jellyfin
+    namespace: media
+    claim: jellyfin
+  - app: jellyseerr
+    namespace: media
+    claim: jellyseerr
+  - app: lidarr
+    namespace: media
+    claim: lidarr
+  - app: plex
+    namespace: media
+    claim: plex
+  - app: prowlarr
+    namespace: media
+    claim: prowlarr
+  - app: radarr
+    namespace: media
+    claim: radarr
+  - app: sabnzbd
+    namespace: media
+    claim: sabnzbd
+  - app: sonarr
+    namespace: media
+    claim: sonarr
+  - app: transmission
+    namespace: media
+    claim: transmission
+
+  # --- application data ---
+  - app: paperless
+    namespace: paperless
+    claim: paperless
+  - app: scrypted-config
+    namespace: scrypted
+    claim: scrypted-config
+  - app: scrypted-eufy-ws
+    namespace: scrypted
+    claim: scrypted-eufy-ws-data
+  - app: actualbudget
+    namespace: actualbudget
+    claim: actualbudget
+  - app: openclaw
+    namespace: openclaw
+    claim: openclaw
+  - app: network-optimizer-data
+    namespace: network-optimizer
+    claim: network-optimizer-data
+  - app: network-optimizer-ssh-keys
+    namespace: network-optimizer
+    claim: network-optimizer-ssh-keys
+
+  # --- excluded by default: re-acquirable, flip enabled to protect ---
+  # Downloaded models; re-pullable from upstream.
+  - app: ollama
+    namespace: ollama
+    claim: ollama
+    enabled: false
+
+# Not listed at all - bulk media and scratch space, deliberately out of scope:
+#   media/jellyfin-media (1Ti, nfs-csi)   scrypted/eufy-events (100Gi, nfs-csi)
+#   scrypted/scrypted-recordings (100Gi)  media/downloads-shared
+#   gitea valkey-data (cache)
+
+alerts:
+  enabled: true
+  # Namespace for the PrometheusRule. Prometheus selects rules cluster-wide
+  # (ruleSelectorNilUsesHelmValues: false in system/monitoring-system).
+  namespace: volsync-backups
+  outOfSyncFor: 6h

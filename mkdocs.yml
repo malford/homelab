@@ -65,6 +65,7 @@ nav:
     - how-to-guides/single-node-cluster-adjustments.md
     - how-to-guides/disable-dhcp-proxy-in-dnsmasq.md
     - how-to-guides/media-management.md
+    - how-to-guides/backup-and-restore.md
     - how-to-guides/updating-documentation.md
     - Troubleshooting:
       - how-to-guides/troubleshooting/pxe-boot.md

@@ -47,6 +47,7 @@ More information can be found in [the roadmap](#roadmap) below.
 - [x] Distributed storage
 - [x] Support multiple environments (dev, prod)
 - [x] Monitoring and alerting
+- [x] Automated encrypted backups to the NAS
 - [ ] Automated offsite backups 🚧
 - [x] Single sign-on
 - [x] Infrastructure testing

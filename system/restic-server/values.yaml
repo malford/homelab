@@ -1,0 +1,71 @@
+# restic REST server — the backup repository endpoint for VolSync.
+#
+# VolSync's restic mover can only address a repository by URL, so reaching the
+# Synology needs a network endpoint. This serves `rest:http://...` over ClusterIP
+# and stores the repositories on an nfs-csi PVC, which lands them on the NAS at
+# 192.168.3.20:/volume1/clusterStorage (see system/csi-driver-nfs).
+#
+# Backup *policy* (which PVCs, schedules, retention) lives in system/volsync-backups.
+app-template:
+  defaultPodOptions:
+    securityContext:
+      # NFS ignores fsGroup and the Synology export squashes unknown UIDs, so the
+      # server writes as root rather than the image's default unprivileged user.
+      # If writes still fail, check the export's squash/permission settings first.
+      runAsUser: 0
+      runAsGroup: 0
+
+  controllers:
+    main:
+      containers:
+        server:
+          image:
+            repository: docker.io/restic/rest-server
+            tag: 0.14.0
+          env:
+            # Any value disables HTTP basic auth. The service is ClusterIP-only and
+            # repository contents are AES-256 encrypted by restic, so the repo
+            # password is the real access control. Hardening with --append-only and
+            # a NetworkPolicy is tracked on the roadmap.
+            DISABLE_AUTHENTICATION: "true"
+          probes:
+            liveness: &probe
+              enabled: true
+              custom: true
+              spec:
+                tcpSocket:
+                  port: 8000
+                initialDelaySeconds: 10
+                periodSeconds: 30
+                failureThreshold: 3
+            readiness: *probe
+            startup:
+              enabled: false
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+
+  service:
+    main:
+      controller: main
+      ports:
+        http:
+          port: 8000
+          protocol: HTTP
+
+  persistence:
+    data:
+      enabled: true
+      type: persistentVolumeClaim
+      storageClass: nfs-csi
+      accessMode: ReadWriteOnce
+      # Nominal only — NFS does not enforce a quota; the Synology volume is the
+      # real limit. restic deduplicates and compresses, so actual usage is far
+      # below the sum of the protected PVCs.
+      size: 500Gi
+      globalMounts:
+        - path: /data

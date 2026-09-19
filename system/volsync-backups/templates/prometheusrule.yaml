@@ -1,0 +1,63 @@
+{{/*
+A backup that has silently stopped running is worse than no backup, because it is
+believed. These rules are the only thing standing between a broken mover and a bad
+surprise during a restore.
+
+Prometheus selects rules cluster-wide (ruleSelectorNilUsesHelmValues: false in
+system/monitoring-system), so no extra labels are needed for discovery.
+
+Metric names and labels verified against VolSync's internal/controller/metrics.go:
+volsync_volume_out_of_sync, volsync_missed_intervals_total,
+volsync_sync_duration_seconds - all labelled obj_name, obj_namespace, role, method.
+*/}}
+{{- if .Values.alerts.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: volsync-backups
+  namespace: {{ .Values.alerts.namespace }}
+  labels:
+    {{- include "volsync-backups.labels" . | nindent 4 }}
+spec:
+  groups:
+    - name: volsync-backups
+      rules:
+        - alert: VolsyncBackupOutOfSync
+          expr: volsync_volume_out_of_sync{role="source"} == 1
+          for: {{ .Values.alerts.outOfSyncFor }}
+          labels:
+            severity: warning
+          annotations:
+            summary: Backup of {{ `{{ $labels.obj_namespace }}/{{ $labels.obj_name }}` }} is out of sync
+            description: >-
+              The ReplicationSource has not completed a successful backup within its
+              schedule for {{ .Values.alerts.outOfSyncFor }}. Check the mover job:
+              kubectl -n {{ `{{ $labels.obj_namespace }}` }} logs job/volsync-src-{{ `{{ $labels.obj_name }}` }}
+
+        - alert: VolsyncBackupMissedIntervals
+          expr: increase(volsync_missed_intervals_total{role="source"}[24h]) > 0
+          labels:
+            severity: warning
+          annotations:
+            summary: Backup of {{ `{{ $labels.obj_namespace }}/{{ $labels.obj_name }}` }} is overrunning its schedule
+            description: >-
+              A backup did not finish before its next scheduled start. Either the PVC
+              has grown beyond what the window allows, or the stagger in
+              system/volsync-backups/values.yaml needs widening.
+
+        # Catches the failure mode the two rules above cannot see: if the controller
+        # is down, or the metrics endpoint is not being scraped, every other rule
+        # goes quiet and looks healthy. Requires metrics.disableAuth in
+        # system/volsync-system/values.yaml to stay set.
+        - alert: VolsyncBackupMetricsMissing
+          expr: absent(volsync_volume_out_of_sync)
+          for: 1h
+          labels:
+            severity: warning
+          annotations:
+            summary: No VolSync metrics are reaching Prometheus
+            description: >-
+              Backup health is unobservable, so the other VolSync alerts cannot fire.
+              Check that volsync-system is running and that its ServiceMonitor is
+              being scraped.
+{{- end }}

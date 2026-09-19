@@ -1,0 +1,9 @@
+volsync:
+  metrics:
+    # The chart ships a ServiceMonitor that scrapes the metrics endpoint without a
+    # bearer token, but the endpoint sits behind kube-rbac-proxy. Without this flag
+    # every scrape gets a 401 and no VolSync metrics ever reach Prometheus, which
+    # would silently disable the backup-freshness alerts in system/volsync-backups.
+    # Setting it adds `--ignore-paths=/metrics` to the proxy; the metrics Service
+    # stays ClusterIP-only.
+    disableAuth: true

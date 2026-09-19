@@ -1,0 +1,32 @@
+{{/*
+One ReplicationSource per protected PVC. VolSync takes a CSI VolumeSnapshot of the
+live PVC, mounts the snapshot in a mover pod, and pushes the delta to the restic
+repository on the Synology. The app keeps running throughout.
+*/}}
+{{- $d := .Values.defaults }}
+{{- range $i, $entry := .Values.backups }}
+{{- if ne $entry.enabled false }}
+---
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationSource
+metadata:
+  name: {{ $entry.app }}
+  namespace: {{ $entry.namespace }}
+  labels:
+    {{- include "volsync-backups.labels" $ | nindent 4 }}
+spec:
+  sourcePVC: {{ $entry.claim }}
+  trigger:
+    schedule: {{ include "volsync-backups.schedule" (dict "root" $ "entry" $entry "index" $i) | quote }}
+  restic:
+    repository: {{ include "volsync-backups.secretName" $entry }}
+    copyMethod: {{ $d.copyMethod }}
+    volumeSnapshotClassName: {{ $entry.volumeSnapshotClassName | default $d.volumeSnapshotClassName }}
+    storageClassName: {{ $entry.storageClassName | default $d.storageClassName }}
+    cacheStorageClassName: {{ $d.cacheStorageClassName }}
+    cacheCapacity: {{ $entry.cacheCapacity | default $d.cacheCapacity }}
+    pruneIntervalDays: {{ $d.pruneIntervalDays }}
+    retain:
+      {{- toYaml ($entry.retain | default $d.retain) | nindent 6 }}
+{{- end }}
+{{- end }}
