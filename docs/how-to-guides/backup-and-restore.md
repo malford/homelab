@@ -291,10 +291,62 @@ kubectl -n media delete pvc sonarr-restore-check
 
 ## Test the restore, periodically
 
-A backup is a hypothesis until it has been restored. Pick a low-risk app
-(`flaresolverr`, `actualbudget`), run steps 1 and 2 above into a scratch PVC,
-confirm the files are intact, and delete it. Doing this twice a year is the
-cheapest insurance in the cluster.
+A backup is a hypothesis until it has been restored. Run steps 1 and 2 above into
+a *scratch* PVC — never steps 3 and 4 — confirm the data, and delete it. Twice a
+year is the cheapest insurance in the cluster.
+
+**Counting files is not a passing grade.** A snapshot can contain every file and
+still be unusable. Drill against something whose data has to *work*, and make it
+work: `gitea-postgres` is the best target here, because it is the largest, the
+most irreplaceable, and the one whose repository was silently empty before the
+[mover permissions](#mover-permissions) fix.
+
+### Last drill: 2026-09-19 — PASS
+
+Restored `gitea-postgres` (221 MiB) from the previous night's snapshot into a
+scratch PVC, then started a standalone `postgres:17` against the restored PGDATA
+and compared it to the live database:
+
+| Measure | Result |
+| --- | --- |
+| restic restore (`status.lastSyncDuration`) | **15.8 s** |
+| `kubectl apply` → mountable PVC | **~75 s** |
+| PGDATA | 2,504 files, ownership `1001:1001` and mode `0700` intact |
+| WAL replay | `redo done` → `database system is ready to accept connections` |
+| Content vs live | users 3=3, repos 4=4, tokens 1=1, repo names identical |
+| `action` rows | 2324 restored vs 2330 live — the 6 events since the snapshot |
+
+That last row is the point: the restored database is not *similar* to production,
+it is production as of the backup window.
+
+Two harmless artifacts of drilling with an upstream image rather than the
+Bitnami one, so they don't get mistaken for corruption next time:
+
+- `pg_isready` fails in the drill pod — the container runs as uid 1001, which has
+  no `/etc/passwd` entry, so it cannot infer a username. Postgres is fine; poll
+  with `psql -U postgres` instead.
+- `WARNING: database "postgres" has a collation version mismatch` — the snapshot
+  was made on Debian 12 (glibc 2.36) and read on Debian 13 (2.41). It is a
+  property of the drill container, not of the data.
+
+The PVC belongs to a repmgr replica, so the restore carries `standby.signal` and
+will wait for a primary forever. Delete it (and the stale `postmaster.pid`) on
+the scratch copy to make it recover standalone:
+
+```sh
+rm -f /restored/data/standby.signal /restored/data/postmaster.pid
+postgres -D /restored/data \
+  -c config_file=/tmp/postgresql.conf \
+  -c hba_file=/tmp/pg_hba.conf \
+  -c ident_file=/tmp/pg_ident.conf
+```
+
+Write those three files yourself, minimally — `listen_addresses=''` and
+`unix_socket_directories='/tmp'`, `local all all trust`, and an empty ident file.
+Bitnami keeps no `postgresql.conf` inside PGDATA; the one it uses lives in a
+sibling directory and points at paths that exist only inside the Bitnami image.
+Run the pod as uid 1001 too — Postgres refuses to start unless the effective
+user owns the 0700 data directory.
 
 ## Troubleshooting
 

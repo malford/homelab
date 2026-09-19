@@ -35,7 +35,7 @@ Good enough for tinkering and personal usage, and reasonably secure.
     - [x] Nightly encrypted backups of app config and platform state to the NAS
       (VolSync + restic, see [backup and restore](../how-to-guides/backup-and-restore.md))
     - [ ] Sync the restic repository offsite to S3 (the third copy)
-    - [ ] Restore drill documented with measured recovery time
+    - [x] Restore drill documented with measured recovery time
     - [ ] Harden the restic REST server (`--append-only` plus a NetworkPolicy)
     - [ ] Logical `pg_dump` for gitea Postgres (snapshots are only crash-consistent)
 - [ ] Define [SLOs](https://en.wikipedia.org/wiki/Service-level_objective):
