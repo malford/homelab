@@ -93,6 +93,15 @@ argocd-apps:
             syncOptions: &syncOptions
               - CreateNamespace=true
               - ApplyOutOfSyncOnly=true
+              # Client-side apply stores the entire manifest in the
+              # last-applied-configuration annotation, which Kubernetes caps at
+              # 262144 bytes. Six kube-prometheus-stack CRDs and two
+              # external-secrets CRDs exceed that, so those apps could never
+              # finish a sync. The cap is a property of client-side apply rather
+              # than of any one app, so this belongs on the shared anchor.
+              # controller.diff.server.side above only makes *diffing*
+              # server-side; applying needs this too.
+              - ServerSideApply=true
     # The media stack shares one namespace, so it cannot use `root`'s
     # namespace-per-directory template. Everything else about it is identical -
     # same repo, same revision, same sync policy - so it reuses the anchors
