@@ -1,5 +1,7 @@
 - name: Bootstrapping the cluster
   hosts: localhost
+  vars:
+    argocd_chart: "{{ playbook_dir }}/argocd"
   tasks:
     - name: Create ArgoCD namespace
       kubernetes.core.k8s:
@@ -17,15 +19,59 @@
           - status.phase=Running
       register: first_install
 
+    # Dependencies are resolved here rather than via helm_template's
+    # dependency_update, which is `helm dependency update` semantics: it only
+    # fires when a dependency is missing by *name*, so a stale chart in
+    # charts/ satisfies any version pin and Helm silently renders it. `build`
+    # reads Chart.lock instead, and fails loudly when it and Chart.yaml
+    # diverge. Keeping it out of helm_template also keeps Helm's progress
+    # output — written to stdout, not stderr — out of the manifest stream fed
+    # to resource_definition below.
+    - name: Create a scratch Helm repository config
+      ansible.builtin.tempfile:
+        state: directory
+        suffix: helm
+      register: helm_scratch
+
+    - name: Resolve ArgoCD chart dependencies
+      environment:
+        # Scoped to the scratch dir so the operator's own Helm repo registry is
+        # never read or written. `build` requires a repo definition; `update`
+        # does not.
+        HELM_REPOSITORY_CONFIG: "{{ helm_scratch.path }}/repositories.yaml"
+        HELM_REPOSITORY_CACHE: "{{ helm_scratch.path }}/cache"
+      block:
+        - name: Register the chart's dependency repositories
+          ansible.builtin.command:
+            cmd: "helm repo add dep-{{ ansible_loop.index }} {{ item }}"
+          # Chart.yaml stays the single source of truth for these URLs. The
+          # local name is arbitrary: `build` matches on URL, and this registry
+          # is discarded below.
+          loop: >-
+            {{ (lookup('file', argocd_chart ~ '/Chart.yaml') | from_yaml).dependencies
+               | map(attribute='repository') | unique | list }}
+          loop_control:
+            extended: true
+          changed_when: false
+
+        - name: Build dependencies from Chart.lock
+          ansible.builtin.command:
+            cmd: "helm dependency build {{ argocd_chart }}"
+          changed_when: false
+      always:
+        - name: Remove the scratch Helm repository config
+          ansible.builtin.file:
+            path: "{{ helm_scratch.path }}"
+            state: absent
+
     - name: Render ArgoCD manifests from Helm chart
       kubernetes.core.helm_template:
-        chart_ref: ./argocd
+        chart_ref: "{{ argocd_chart }}"
         include_crds: true
         release_name: argocd
         release_namespace: argocd
-        dependency_update: true
         values_files:
-          - "argocd/{{ (first_install.resources | length == 0) | ternary('values-seed.yaml', 'values.yaml') }}"
+          - "{{ argocd_chart }}/{{ (first_install.resources | length == 0) | ternary('values-seed.yaml', 'values.yaml') }}"
       register: argocd_manifests
 
     - name: Apply ArgoCD manifests
