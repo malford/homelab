@@ -71,6 +71,14 @@
         # on crds.install rather than from a top-level crds/ directory. Kept in
         # case an upstream chart ever moves them there.
         include_crds: true
+        # Every ServiceMonitor in the chart is gated on
+        # `.Capabilities.APIVersions.Has "monitoring.coreos.com/v1"`. A plain
+        # template render has no cluster to ask, so that gate is always false
+        # and the render silently omits them - which is how the four live
+        # ServiceMonitors ended up unmanaged, surviving only because `apply`
+        # does not prune. Declaring the capability puts them back in the render.
+        api_versions:
+          - monitoring.coreos.com/v1
         release_name: argocd
         release_namespace: argocd
         values_files:
