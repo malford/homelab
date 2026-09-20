@@ -104,6 +104,11 @@ argocd-apps:
             revision: *revision
             directories:
               - path: apps/media/*
+              # Shared values, not a chart - see apps/media/_shared/base.yaml.
+              # `apps/media/*` matches it, so it needs excluding or it would
+              # generate an Application with nothing to deploy.
+              - path: apps/media/_shared
+                exclude: true
       template:
         metadata:
           name: '{{path.basename}}'
@@ -116,6 +121,17 @@ argocd-apps:
             repoURL: *repoURL
             path: '{{path}}'
             targetRevision: *revision
+            helm:
+              # Shared defaults first, the app's own values second, so the app
+              # wins on any key it restates. A leading `/` is relative to the
+              # repository root, not to the Application's own path.
+              #
+              # ignoreMissingValueFiles is load-bearing: media-shared has no
+              # values.yaml at all, and without this its render would fail.
+              ignoreMissingValueFiles: true
+              valueFiles:
+                - /apps/media/_shared/base.yaml
+                - values.yaml
           syncPolicy:
             automated: *automated
             retry: *retry

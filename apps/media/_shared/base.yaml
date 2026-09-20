@@ -1,0 +1,39 @@
+# Shared defaults for every media app.
+#
+# The `media` ApplicationSet in system/argocd/values.yaml hands this file to each
+# generated Application ahead of the app's own values.yaml, so anything set here
+# is a default that the app can override by restating the key. Values are merged
+# per-key, so an app only overrides what it names.
+#
+# This directory is not a chart. It is excluded from the ApplicationSet generator
+# precisely so it never becomes an Application of its own.
+#
+# Only put a key here if it is identical in every app that sets it. Helm replaces
+# lists wholesale instead of merging them, so anything list-shaped - ingress
+# hosts and tls, mount definitions - cannot live here and stays per-app.
+app-template:
+  defaultPodOptions:
+    enableServiceLinks: true
+    # The uid/gid that owns the media and config volumes. Apps whose image needs
+    # a different identity (flaresolverr, plex) restate this block.
+    securityContext:
+      runAsUser: 1029
+      runAsGroup: 100
+      fsGroup: 100
+
+  ingress:
+    main:
+      enabled: true
+      className: nginx
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+
+  persistence:
+    # Per-app config PVC. Every app declares its own mount path and subPath;
+    # only the shape of the claim is shared.
+    config:
+      enabled: true
+      type: persistentVolumeClaim
+      storageClass: standard-rwo
+      accessMode: ReadWriteOnce
+      size: 20Gi
