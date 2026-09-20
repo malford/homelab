@@ -8,8 +8,7 @@ argo-cd:
     metrics: *metrics
   repoServer:
     metrics: *metrics
-  redis:
-    metrics: *metrics
+  # Deliberately no `redis: metrics:` - see the note in values.yaml.
 argocd-apps:
   applicationsets:
     root:

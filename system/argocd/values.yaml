@@ -36,8 +36,11 @@ argo-cd:
     metrics: *metrics
   repoServer:
     metrics: *metrics
-  redis:
-    metrics: *metrics
+  # No `redis: metrics:` here. The anchor above means "component metrics plus a
+  # ServiceMonitor", but redis additionally needs `exporter.enabled` to get the
+  # redis_exporter sidecar that serves :9121. Reusing the anchor produced a
+  # Service and a ServiceMonitor whose named targetPort matched nothing on a pod
+  # declaring only `redis=6379`, so it scraped empty endpoints for 232 days.
 argocd-apps:
   applicationsets:
     root:
