@@ -1,18 +1,24 @@
 argo-cd:
   global:
     domain: argocd.malford.io
-    serverSideapply: false
   configs:
     params:
       server.insecure: true
       controller.diff.server.side: true
+      # Chart 9.0.0 stopped shipping a default for this; the deployment reads it
+      # via an optional configMapKeyRef, so leaving it unset would hand control
+      # to an unpinned binary default. Pin the behaviour we already run on.
+      applicationsetcontroller.policy: sync
     cm:
+      # Not a chart default, so it has to stay explicit.
       resource.ignoreResourceUpdatesEnabled: true
-      resource.customizations.ignoreResourceUpdates.all: |
-        jsonPointers:
-          - /status
+      # Argo CD 3.0 defaults resource tracking to `annotation`. Every app
+      # inherits ApplyOutOfSyncOnly=true from the syncOptions anchor below, and
+      # upstream flags that pairing as liable to orphan resources on migration.
+      # Staying on `label` keeps the upgrade a no-op for existing apps.
+      application.resourceTrackingMethod: label
   crds:
-    install: false
+    install: true
   server:
     ingress:
       enabled: true

@@ -67,6 +67,9 @@
     - name: Render ArgoCD manifests from Helm chart
       kubernetes.core.helm_template:
         chart_ref: "{{ argocd_chart }}"
+        # Inert for argo-cd, which renders its CRDs from templates/crds/ gated
+        # on crds.install rather than from a top-level crds/ directory. Kept in
+        # case an upstream chart ever moves them there.
         include_crds: true
         release_name: argocd
         release_namespace: argocd
