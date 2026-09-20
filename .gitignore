@@ -6,4 +6,3 @@ book/
 *.png
 *.tgz
 *kubeconfig.yaml
-Chart.lock

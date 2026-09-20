@@ -4,4 +4,7 @@ version: 0.0.0
 dependencies:
   - name: zot
     version: 0.1.116
-    repository: http://zotregistry.dev/helm-charts
+    # Must be https: ArgoCD's repo-server only registers https/oci dependency
+    # repositories, so an http:// URL is never added and `helm dependency build`
+    # fails with "no repository definition" once Chart.lock is tracked.
+    repository: https://zotregistry.dev/helm-charts
