@@ -1,10 +1,4 @@
 app-template:
-  defaultPodOptions:
-    enableServiceLinks: true
-    securityContext:
-      runAsUser: 1029
-      runAsGroup: 100
-      fsGroup: 100
   controllers:
     main:
       containers:
@@ -25,10 +19,6 @@ app-template:
           protocol: HTTP
   ingress:
     main:
-      enabled: true
-      className: nginx
-      annotations:
-        cert-manager.io/cluster-issuer: letsencrypt-prod
       hosts:
         - host: &radarrHost radarr.malford.io
           paths:
@@ -48,11 +38,6 @@ app-template:
       globalMounts:
         - path: /media
     config:
-      enabled: true
-      type: persistentVolumeClaim
-      storageClass: standard-rwo
-      accessMode: ReadWriteOnce
-      size: 20Gi
       advancedMounts:
         main:
           radarr:

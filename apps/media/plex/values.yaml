@@ -1,4 +1,7 @@
 app-template:
+  # Overrides the shared block in apps/media/_shared/base.yaml: this image runs
+  # as 102, not the 1029 that owns the media volumes. Restated in full because
+  # it is the whole block that differs, not one key.
   defaultPodOptions:
     enableServiceLinks: true
     securityContext:
@@ -40,10 +43,6 @@ app-template:
           protocol: TCP
   ingress:
     main:
-      enabled: true
-      className: nginx
-      annotations:
-        cert-manager.io/cluster-issuer: letsencrypt-prod
       hosts:
         - host: &plexHost plex.malford.io
           paths:
@@ -79,11 +78,6 @@ app-template:
       globalMounts:
         - path: /media
     config:
-      enabled: true
-      type: persistentVolumeClaim
-      storageClass: standard-rwo
-      accessMode: ReadWriteOnce
-      size: 20Gi
       advancedMounts:
         main:
           plex:

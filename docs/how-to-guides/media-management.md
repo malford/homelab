@@ -77,6 +77,27 @@ no list to keep in step — in particular, media apps are *not* added to the
 `root` ApplicationSet, which excludes `apps/media` precisely because these apps
 share one namespace instead of getting one each.
 
+### What the shared values file already gives you
+
+Every generated Application is handed `apps/media/_shared/base.yaml` ahead of
+its own `values.yaml`, so a new app does **not** restate the pod security
+context, the ingress class and cert-manager issuer, or the config PVC's storage
+class and size. Its `values.yaml` needs only what is genuinely its own: the
+image, the service port, the ingress host, and its mounts.
+
+Two rules for that file:
+
+- **An app overrides a shared default by restating the key.** `flaresolverr` and
+  `plex` do exactly this for `defaultPodOptions`, because their images run as a
+  different uid.
+- **Anything list-shaped stays per-app.** Helm replaces lists wholesale rather
+  than merging them, so `ingress.main.hosts`, `ingress.main.tls` and the mount
+  definitions can never move into the shared file.
+
+`apps/media/_shared/` is not a chart. It is excluded from the ApplicationSet's
+directory generator so it never becomes an Application of its own — without that
+exclusion `apps/media/*` would match it.
+
 Two things that do not happen automatically:
 
 - **Backups.** Add the app's config PVC to `system/volsync-backups/values.yaml` —
