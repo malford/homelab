@@ -1,0 +1,4 @@
+apiVersion: v2
+name: media-shared
+description: Storage shared by the media apps rather than owned by any one of them
+version: 0.0.0

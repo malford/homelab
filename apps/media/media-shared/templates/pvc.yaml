@@ -1,0 +1,32 @@
+{{/*
+The download scratch space, mounted ReadWriteMany by sabnzbd and transmission
+(which write) and by lidarr, radarr and sonarr (which import from it). It belongs
+to the stack rather than to any single app, which is why it lives here instead of
+in one of their charts.
+
+This volume predates GitOps - it was applied by hand and expanded by hand, so
+ArgoCD is adopting it, not creating it. Two consequences:
+
+  - The size below must match the live PVC. PVCs cannot shrink, so declaring
+    anything smaller leaves this Application permanently OutOfSync.
+  - Prune=false,Delete=false: removing this file, or this app, must never be the
+    thing that destroys the volume. Same reasoning as
+    system/volsync-backups/templates/namespace.yaml.
+
+Deliberately not backed up - the contents are in-flight downloads, re-acquirable
+by definition. See system/volsync-backups/values.yaml.
+*/}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: downloads-shared
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: standard-rwx
+  resources:
+    requests:
+      storage: 400Gi
