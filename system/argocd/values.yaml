@@ -53,32 +53,6 @@ argocd-apps:
               # `apps/media/sonarr`.
               - path: apps/media
                 exclude: true
-              # TRANSITIONAL: the charts used to live flat in apps/. These
-              # exclusions keep `root` off them until the move has been pushed
-              # and the `media` ApplicationSet has re-matched at the new paths.
-              # Remove together with the old paths in the `media` generator.
-              - path: apps/flaresolverr
-                exclude: true
-              - path: apps/jackett
-                exclude: true
-              - path: apps/jellyfin
-                exclude: true
-              - path: apps/jellyseerr
-                exclude: true
-              - path: apps/lidarr
-                exclude: true
-              - path: apps/plex
-                exclude: true
-              - path: apps/prowlarr
-                exclude: true
-              - path: apps/radarr
-                exclude: true
-              - path: apps/sabnzbd
-                exclude: true
-              - path: apps/sonarr
-                exclude: true
-              - path: apps/transmission
-                exclude: true
       template:
         metadata:
           name: '{{path.basename}}'
@@ -130,22 +104,6 @@ argocd-apps:
             revision: *revision
             directories:
               - path: apps/media/*
-              # TRANSITIONAL: the old flat paths, kept only so this
-              # ApplicationSet adopts the existing Applications on the commit
-              # that moves them. `directories` is a union, so listing both means
-              # no Application is ever un-generated mid-migration. Remove once
-              # the move is pushed, along with the matching exclusions above.
-              - path: apps/flaresolverr
-              - path: apps/jackett
-              - path: apps/jellyfin
-              - path: apps/jellyseerr
-              - path: apps/lidarr
-              - path: apps/plex
-              - path: apps/prowlarr
-              - path: apps/radarr
-              - path: apps/sabnzbd
-              - path: apps/sonarr
-              - path: apps/transmission
       template:
         metadata:
           name: '{{path.basename}}'
