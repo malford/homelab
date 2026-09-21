@@ -88,6 +88,21 @@ kube-prometheus-stack:
           - receiver: "null"
             matchers:
               - alertname = "InfoInhibitor"
+          # CephPGImbalance compares each OSD's raw PG count against the
+          # unweighted mean, with no CRUSH weight in the expression. These OSDs
+          # differ 6:1 in size (two ~750G, four 121G), so PG counts that
+          # correctly track weight land 47-122% off that mean and all six fire
+          # permanently. The balancer is active in upmap mode and reports
+          # no_optimization_needed - correct behaviour is what trips the rule.
+          # It also carries no signal of its own: an OSD actually filling up is
+          # already covered by CephOSDNearFull/Full/BackfillFull.
+          # Dropped here rather than at the source, unlike kubeProxy above,
+          # because rook's createPrometheusRules is all-or-nothing across ~60
+          # rules - including CephOSDDown and CephFilesystemDamaged - so there
+          # is no knob for this one alert. Revisit if the OSDs are ever levelled.
+          - receiver: "null"
+            matchers:
+              - alertname = "CephPGImbalance"
       receivers:
         # Overriding `receivers` replaces the chart's list rather than merging
         # into it, so the null receiver the routes above depend on has to be
