@@ -73,7 +73,18 @@ kube-prometheus-stack:
             matchers:
               - alertname = "Watchdog"
             repeat_interval: 5m
+          # InfoInhibitor exists only to be an inhibition source for other info
+          # alerts - it has no description, no runbook, and nothing a human can
+          # act on. The chart routes it to null alongside Watchdog; overriding
+          # that route above dropped it, which is why it has been notifying.
+          - receiver: "null"
+            matchers:
+              - alertname = "InfoInhibitor"
       receivers:
+        # Overriding `receivers` replaces the chart's list rather than merging
+        # into it, so the null receiver the routes above depend on has to be
+        # redeclared here.
+        - name: "null"
         - name: ntfy
           webhook_configs:
             - url: http://localhost:8081
