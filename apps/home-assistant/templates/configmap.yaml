@@ -22,5 +22,6 @@ data:
     http:
       use_x_forwarded_for: true
       trusted_proxies:
-        - 10.42.0.0/16
+        # Cilium IPAM hands out 10.0.x.x, not the 10.42.x.x in node.spec.podCIDR.
+        - 10.0.0.0/8
         - 192.168.5.0/24

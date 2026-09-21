@@ -63,8 +63,16 @@ Behind the nginx ingress, Home Assistant answers **every** request with
 http:
   use_x_forwarded_for: true
   trusted_proxies:
-    - 10.42.0.0/16      # pod CIDR — ingress-nginx pods
-    - 192.168.5.0/24    # node/LAN — Cilium may SNAT pod traffic to a node IP
+    - 10.0.0.0/8        # pod CIDR — ingress-nginx pods
+    - 192.168.5.0/24    # node/LAN — direct access and any SNAT to a node IP
+```
+
+The pod CIDR is `10.0.x.x`, **not** the `10.42.x.x` that `node.spec.podCIDR`
+reports — Cilium's own IPAM allocates the addresses pods actually get, and the
+k3s field is vestigial. The authoritative answer:
+
+```sh
+kubectl get ciliumnode metal1v2 -o jsonpath='{.spec.ipam.podCIDRs}'
 ```
 
 This ships in the seed. If a `400` appears anyway, the seed did not land:
