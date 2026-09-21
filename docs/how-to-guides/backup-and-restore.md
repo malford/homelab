@@ -63,15 +63,14 @@ rebuilt from this repository. The authoritative list is
 | `gitea` | `gitea-shared-storage`, `data-gitea-postgresql-ha-postgresql-0` |
 | `media` | config volumes for all 11 apps (`sonarr`, `radarr`, `plex`, …) |
 | `paperless` | `paperless` |
-| `scrypted` | `scrypted-config`, `scrypted-eufy-ws-data` |
 | `actualbudget` | `actualbudget` |
 | `openclaw` | `openclaw` |
 | `network-optimizer` | `network-optimizer-data`, `network-optimizer-ssh-keys` |
 
 **Deliberately not backed up** — bulk data that is re-acquirable, and would cost
-terabytes to protect: `jellyfin-media`, `downloads-shared`, `eufy-events`,
-`scrypted-recordings`, gitea's `valkey-data` cache, and `ollama` models (listed
-with `enabled: false` — flip it to protect them).
+terabytes to protect: `jellyfin-media`, `downloads-shared`, gitea's
+`valkey-data` cache, and `ollama` models (listed with `enabled: false` — flip it
+to protect them).
 
 ### Known limitations
 

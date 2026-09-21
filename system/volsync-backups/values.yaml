@@ -90,12 +90,6 @@ backups:
   - app: paperless
     namespace: paperless
     claim: paperless
-  - app: scrypted-config
-    namespace: scrypted
-    claim: scrypted-config
-  - app: scrypted-eufy-ws
-    namespace: scrypted
-    claim: scrypted-eufy-ws-data
   - app: actualbudget
     namespace: actualbudget
     claim: actualbudget
@@ -117,8 +111,7 @@ backups:
     enabled: false
 
 # Not listed at all - bulk media and scratch space, deliberately out of scope:
-#   media/jellyfin-media (1Ti, nfs-csi)   scrypted/eufy-events (100Gi, nfs-csi)
-#   scrypted/scrypted-recordings (100Gi)  media/downloads-shared
+#   media/jellyfin-media (1Ti, nfs-csi)   media/downloads-shared
 #   gitea valkey-data (cache)
 
 alerts:
