@@ -164,18 +164,3 @@ data:
         }
       }
     }
-
-  gitea.json: |
-    {
-      "instances": [
-        {
-          "name": "default",
-          "url": "${GITEA_URL}",
-          "oauth": {
-            "clientId": "9a295fc8-fe8e-4de6-929f-123ea190f589",
-            "clientSecret": "${GITEA_OAUTH_SECRET}",
-            "redirectUri": "https://openclaw-gateway.tail811db.ts.net/oauth/callback"
-          }
-        }
-      ]
-    }
