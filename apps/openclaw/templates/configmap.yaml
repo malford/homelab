@@ -28,9 +28,8 @@ data:
         }
       },
       "agents": {
-        "list": [
-          {
-            "id": "main",
+        "entries": {
+          "main": {
             "name": "Ni",
             "identity": {
               "name": "Ni",
@@ -38,7 +37,7 @@ data:
               "avatar": "avatar.jpg"
             }
           }
-        ],
+        },
         "defaults": {
           "model": {
             "primary": "aperture/claude-sonnet-4-6"
@@ -47,18 +46,20 @@ data:
             "every": "30m"
           },
           "userTimezone": "America/New_York",
-          "envelopeTimezone": "user",
-          "memorySearch": {
-            "provider": "ollama",
-            "model": "nomic-embed-text",
-            "remote": {
-              "baseUrl": "http://ollama.ollama.svc.cluster.local:11434",
-              "apiKey": "-"
-            }
-          },
           "thinkingDefault": "off",
           "compaction": {
             "mode": "default"
+          }
+        }
+      },
+      "memory": {
+        "search": {
+          "enabled": true,
+          "provider": "ollama",
+          "model": "nomic-embed-text",
+          "remote": {
+            "baseUrl": "http://ollama.ollama.svc.cluster.local:11434",
+            "apiKey": "-"
           }
         }
       },
@@ -103,7 +104,6 @@ data:
             "inlineButtons": "all"
           },
           "ackReaction": "👀",
-          "pollingStallThresholdMs": 30000,
           "healthMonitor": {
             "enabled": true
           }
@@ -125,18 +125,15 @@ data:
         }
       },
       "browser": {
-        enabled: true,
-        defaultProfile: "browserless",
-        remoteCdpTimeoutMs: 5000,
-        remoteCdpHandshakeTimeoutMs: 8000,
-        profiles: {
-          browserless: {
-            cdpUrl: "wss://production-sfo.browserless.io?token=${BROWSERLESS_API_TOKEN}",
-            color: "#FF4500"
+        "enabled": true,
+        "defaultProfile": "browserless",
+        "profiles": {
+          "browserless": {
+            "cdpUrl": "wss://production-sfo.browserless.io?token=${BROWSERLESS_API_TOKEN}"
           }
         },
         "ssrfPolicy": {
-          "hostnameAllowlist": [
+          "allowedHostnames": [
             "*.svc.cluster.local",
             "*.browserless.io",
             "browserless.io",
