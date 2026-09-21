@@ -1,0 +1,101 @@
+app-template:
+  defaultPodOptions:
+    # Host networking so mDNS/SSDP discovery sees the LAN; pinned to two nodes
+    # so the address devices call back on stays predictable.
+    hostNetwork: true
+    dnsPolicy: ClusterFirstWithHostNet
+    terminationGracePeriodSeconds: 60
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: kubernetes.io/hostname
+                  operator: In
+                  values:
+                    - metal0v2
+                    - metal1v2
+
+  controllers:
+    home-assistant:
+      # hostNetwork + RWO: a second pod cannot start alongside the first.
+      strategy: Recreate
+      initContainers:
+        init-config:
+          image:
+            repository: docker.io/library/alpine
+            tag: "3.24.2"
+          command:
+            - sh
+            - -c
+            - |
+              if [ ! -f /config/configuration.yaml ]; then
+                cp /tmp/seed/configuration.yaml /config/configuration.yaml
+              fi
+              for f in automations scripts scenes; do
+                [ -f "/config/$f.yaml" ] || echo '[]' > "/config/$f.yaml"
+              done
+      containers:
+        main:
+          image:
+            repository: ghcr.io/home-assistant/home-assistant
+            tag: "2026.9.3"
+          env:
+            TZ: "America/New_York"
+          probes:
+            # HA needs 60-90s on a cold start; the startup probe holds the pod
+            # NotReady until then so the ingress does not 502 through a restart.
+            startup:
+              enabled: true
+              spec:
+                failureThreshold: 60
+                periodSeconds: 5
+            readiness:
+              enabled: true
+            liveness:
+              enabled: true
+
+  service:
+    app:
+      controller: home-assistant
+      ports:
+        http:
+          port: 8123
+
+  ingress:
+    app:
+      className: nginx
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+      hosts:
+        - host: &host ha.malford.io
+          paths:
+            - path: /
+              pathType: Prefix
+              service:
+                identifier: app
+                port: http
+      tls:
+        - hosts:
+            - *host
+          secretName: home-assistant-tls-certificate
+
+  persistence:
+    data:
+      type: persistentVolumeClaim
+      storageClass: standard-rwo
+      accessMode: ReadWriteOnce
+      size: 5Gi
+      advancedMounts:
+        home-assistant:
+          main:
+            - path: /config
+          init-config:
+            - path: /config
+    seed:
+      type: configMap
+      name: home-assistant-config
+      advancedMounts:
+        home-assistant:
+          init-config:
+            - path: /tmp/seed

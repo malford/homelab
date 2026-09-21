@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: home-assistant-config
+  namespace: {{ .Release.Namespace }}
+data:
+  # Seed only: copied to the PVC when configuration.yaml is absent. Home
+  # Assistant owns the file after that, so editing this does not change a
+  # running instance.
+  # use_x_forwarded_for + trusted_proxies are mandatory behind the nginx
+  # ingress - without them every proxied request returns 400 Bad Request.
+  configuration.yaml: |
+    default_config:
+
+    frontend:
+      themes: !include_dir_merge_named themes
+
+    automation: !include automations.yaml
+    script: !include scripts.yaml
+    scene: !include scenes.yaml
+
+    http:
+      use_x_forwarded_for: true
+      trusted_proxies:
+        - 10.42.0.0/16
+        - 192.168.5.0/24
