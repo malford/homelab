@@ -6,3 +6,30 @@
     - {name: "fs.inotify.max_queued_events", value: 16384}
     - {name: "fs.inotify.max_user_instances", value: 8192}
     - {name: "fs.inotify.max_user_watches", value: 524288}
+
+# The default pool resolves to both A and AAAA records, but these nodes have no
+# IPv6 route. Chrony selects an unreachable AAAA source and then never
+# disciplines the clock - while the unit stays active and enabled, so every
+# service-level check reports healthy. `-4` confines source selection to IPv4.
+- name: Restrict chronyd to IPv4 time sources
+  ansible.builtin.lineinfile:
+    path: /etc/sysconfig/chronyd
+    regexp: '^OPTIONS='
+    line: 'OPTIONS="-4"'
+    create: true
+    mode: "0644"
+  notify: Restart chronyd
+
+- name: Apply the chronyd change before asserting on it
+  ansible.builtin.meta: flush_handlers
+
+# `systemctl is-active chronyd` is true throughout the failure above, so it
+# proves nothing. NTPSynchronized reads the kernel clock state that chrony only
+# sets once it has actually selected a source and stepped.
+- name: Verify the system clock is synchronised
+  ansible.builtin.command: timedatectl show --property=NTPSynchronized --value
+  register: chrony_synchronised
+  changed_when: false
+  until: chrony_synchronised.stdout == "yes"
+  retries: 12
+  delay: 5
