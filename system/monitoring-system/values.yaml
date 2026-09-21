@@ -69,10 +69,18 @@ kube-prometheus-stack:
           # NodeClockNotSynchronising went unread. It goes to a dead man's switch
           # instead: an external service that pages when the heartbeat STOPS,
           # which is the only check that catches monitoring itself dying.
+          # The cadence needs its own group_interval, not just repeat_interval.
+          # Alertmanager only re-evaluates a group when its group_interval timer
+          # fires, so a 5m repeat under the parent's 5m group_interval lands on
+          # the boundary and slips to 10m about half the time - which is exactly
+          # what made healthchecks.io report the check late. A 1m tick with a 2m
+          # repeat pings every 2-3m with margin to spare.
           - receiver: deadmansswitch
             matchers:
               - alertname = "Watchdog"
-            repeat_interval: 5m
+            group_wait: 0s
+            group_interval: 1m
+            repeat_interval: 2m
           # InfoInhibitor exists only to be an inhibition source for other info
           # alerts - it has no description, no runbook, and nothing a human can
           # act on. The chart routes it to null alongside Watchdog; overriding
