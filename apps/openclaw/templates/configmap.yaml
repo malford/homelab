@@ -116,6 +116,25 @@ data:
           }
         }
       },
+      "skills": {
+        "allowBundled": [
+          "clawhub",
+          "control-ui",
+          "diagram-maker",
+          "healthcheck",
+          "meme-maker",
+          "node-connect",
+          "node-inspect-debugger",
+          "notion",
+          "python-debugpy",
+          "skill-creator",
+          "spike",
+          "taskflow",
+          "taskflow-inbox-triage",
+          "visualize",
+          "weather"
+        ]
+      },
       "auth": {
         "profiles": {
           "anthropic:manual": {
