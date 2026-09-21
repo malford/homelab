@@ -102,6 +102,9 @@ backups:
   - app: network-optimizer-ssh-keys
     namespace: network-optimizer
     claim: network-optimizer-ssh-keys
+  - app: home-assistant
+    namespace: home-assistant
+    claim: home-assistant
 
   # --- excluded by default: re-acquirable, flip enabled to protect ---
   # Downloaded models; re-pullable from upstream.
