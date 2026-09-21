@@ -4,6 +4,8 @@ metadata:
   name: openclaw-config
   namespace: {{ .Release.Namespace }}
 data:
+  # Seed only: copied to the PVC when openclaw.json is absent. OpenClaw owns the
+  # file after that, so editing this does not change a running gateway.
   # The gateway token is injected at runtime via OPENCLAW_GATEWAY_TOKEN env var
   # bind: lan required for K8s — pod has no tailscale0 interface.
   # Tailscale Operator handles the tailnet perimeter externally.

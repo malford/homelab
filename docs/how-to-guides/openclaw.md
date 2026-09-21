@@ -13,27 +13,54 @@ store and workspace.
 
 ## How config reaches the pod
 
-The `init-config` init container copies `openclaw.json` from the ConfigMap onto
-the PVC **only when `config-version` changes**:
+The ConfigMap is a **seed, not a source of truth**. The `init-config` init
+container copies `openclaw.json` onto the PVC only when the file is absent —
+first provision, or a restore onto an empty volume. After that OpenClaw owns it.
 
-```yaml
-pod:
-  annotations:
-    config-version: "36"
+Editing `configmap.yaml` therefore has no effect on a running gateway. It
+changes what a rebuilt PVC starts from, nothing more.
+
+!!! danger "Do not write `openclaw.json` from outside OpenClaw"
+
+    OpenClaw defends the file. On startup it compares the on-disk config against
+    `openclaw.json.last-good` and treats four signatures as tampering: a size
+    drop over 50%, a missing `gateway.mode`, an update-channel-only root, and a
+    top-level `meta` key present in last-good but absent in the incoming file.
+
+    On a hit it moves the incoming file to `openclaw.json.clobbered.<timestamp>`,
+    restores its own, and logs:
+
+    ```
+    Config auto-restored from backup: …/openclaw.json (missing-meta-vs-last-good)
+    ```
+
+    `doctor --fix` writes `meta.migrations`, so **every** ConfigMap-sourced
+    config is rejected once doctor has run — silently, apart from that one log
+    line. A `.clobbered.*` file on the PVC is the tell.
+
+### Changing config on a running gateway
+
+Use the CLI. It writes through OpenClaw, so it updates `meta`, refreshes
+`last-good`, and hot-reloads without a restart:
+
+```sh
+kubectl -n openclaw exec deploy/openclaw -- \
+  openclaw config set skills.allowBundled '["weather","visualize"]' \
+  --strict-json --dry-run
+
+kubectl -n openclaw exec deploy/openclaw -- \
+  openclaw config set skills.allowBundled '["weather","visualize"]' --strict-json
 ```
 
-The annotation value and the `!=` test inside the init container's script are
-two separate literals in `values.yaml`. They must match, or the config is
-re-copied on every pod start.
+Then fold the change back into `configmap.yaml` so the seed stays current. The
+live file is the reference:
 
-!!! warning "Bumping `config-version` discards anything `doctor` wrote"
+```sh
+kubectl -n openclaw exec deploy/openclaw -- cat /home/node/.openclaw/openclaw.json
+```
 
-    `openclaw doctor --fix` writes to `openclaw.json` on the PVC — see
-    [Upgrading the image](#upgrading-the-image). That is drift from git, and it
-    survives restarts precisely because the init container leaves the file
-    alone. Bumping `config-version` overwrites it.
-
-    Bump it deliberately, and expect to re-run `doctor` afterwards.
+Ignore `wizard` and `meta` when copying back — both are OpenClaw's own
+bookkeeping and do not belong in git.
 
 ## Upgrading the image
 
@@ -56,9 +83,13 @@ Unrecognized keys are reported in batches, so a clean-looking second batch does
 not mean the file is clean — walk `$defs`/`$ref` in the dumped schema and check
 every key against `properties` where `additionalProperties` is `false`.
 
-Commit the corrected `configmap.yaml`, bump `config-version`, and let ArgoCD
-sync until `config validate` reports `Config valid`. Then confirm `doctor` gets
-past the gate — it should run the full check set (currently 35), not stop at 1:
+Apply the corrections with `openclaw config set` or `config patch` until
+`config validate` reports `Config valid`, then mirror them into
+`configmap.yaml`. Copying the corrected file onto the PVC will not work — see
+[How config reaches the pod](#how-config-reaches-the-pod).
+
+Then confirm `doctor` gets past the gate — it should run the full check set
+(currently 35), not stop at 1:
 
 ```sh
 kubectl -n openclaw exec deploy/openclaw -- openclaw doctor --lint --json
