@@ -7,6 +7,18 @@ kube-prometheus-stack:
       - name: Loki
         type: loki
         url: http://loki.loki:3100
+  # k3s runs the control plane as one binary and exposes no separate metrics
+  # endpoints for these three, so the stack's default scrape targets cannot
+  # exist here and KubeProxyDown / KubeControllerManagerDown / KubeSchedulerDown
+  # fire permanently with no way to clear. Unclearable alerts are how a real one
+  # goes unread, so drop the exporters and their rules rather than silencing the
+  # symptom downstream. kubeEtcd is left alone - it is not firing.
+  kubeProxy:
+    enabled: false
+  kubeControllerManager:
+    enabled: false
+  kubeScheduler:
+    enabled: false
   prometheus:
     prometheusSpec:
       ruleSelectorNilUsesHelmValues: false
