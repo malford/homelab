@@ -1,15 +1,3 @@
-{{/*
-A backup that has silently stopped running is worse than no backup, because it is
-believed. These rules are the only thing standing between a broken mover and a bad
-surprise during a restore.
-
-Prometheus selects rules cluster-wide (ruleSelectorNilUsesHelmValues: false in
-system/monitoring-system), so no extra labels are needed for discovery.
-
-Metric names and labels verified against VolSync's internal/controller/metrics.go:
-volsync_volume_out_of_sync, volsync_missed_intervals_total,
-volsync_sync_duration_seconds - all labelled obj_name, obj_namespace, role, method.
-*/}}
 {{- if .Values.alerts.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
@@ -45,10 +33,6 @@ spec:
               (chronyc tracking) and volsync-system restarts first - syncs here finish
               in seconds against a 10-minute stagger, so a true overrun is unlikely.
 
-        # Catches the failure mode the two rules above cannot see: if the controller
-        # is down, or the metrics endpoint is not being scraped, every other rule
-        # goes quiet and looks healthy. Requires metrics.disableAuth in
-        # system/volsync-system/values.yaml to stay set.
         - alert: VolsyncBackupMetricsMissing
           expr: absent(volsync_volume_out_of_sync)
           for: 1h
