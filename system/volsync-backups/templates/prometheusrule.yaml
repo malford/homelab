@@ -39,11 +39,11 @@ spec:
           labels:
             severity: warning
           annotations:
-            summary: Backup of {{ `{{ $labels.obj_namespace }}/{{ $labels.obj_name }}` }} is overrunning its schedule
+            summary: Backup of {{ `{{ $labels.obj_namespace }}/{{ $labels.obj_name }}` }} missed a scheduled run
             description: >-
-              A backup did not finish before its next scheduled start. Either the PVC
-              has grown beyond what the window allows, or the stagger in
-              system/volsync-backups/values.yaml needs widening.
+              A scheduled sync did not start on time. Check node clock skew
+              (chronyc tracking) and volsync-system restarts first - syncs here finish
+              in seconds against a 10-minute stagger, so a true overrun is unlikely.
 
         # Catches the failure mode the two rules above cannot see: if the controller
         # is down, or the metrics endpoint is not being scraped, every other rule
