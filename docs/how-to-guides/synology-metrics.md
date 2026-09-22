@@ -129,6 +129,44 @@ Folder placement uses `sidecar.dashboards.folderAnnotation`, enabled in
 `platform/grafana/values.yaml`. The 26 kube-prometheus-stack dashboards carry no
 annotation and stay in General.
 
+### Every board has to be bound to a datasource
+
+All six provisioned clean and rendered nothing. A dashboard reaching Grafana is
+not the same as a dashboard that can *query* — the second failure is invisible
+to every target and query check above.
+
+!!! warning "gnetId exports with `__inputs` need a `datasource` key"
+
+    A grafana.com export that declares
+    `__inputs: [{name: "DS_PROMETHEUS", ...}]` sets every panel's datasource to
+    the literal string `${DS_PROMETHEUS}`. Grafana cannot resolve it. Only a
+    per-dashboard `datasource:` key makes the chart emit the substitution into
+    `download_dashboards.sh`:
+
+    ```sh
+    | sed '/-- .* --/! s/"datasource":.*,/"datasource": "Prometheus",/g'
+    ```
+
+    All five UniFi boards need it. Ceph (2842) does not — its export declares
+    no `__inputs`, so its panels are `datasource: null` and fall through to the
+    default. Check `__inputs` before adding any new `gnetId`.
+
+!!! warning "Never pull dashboard JSON through another Grafana's API"
+
+    `/api/dashboards/uid/...` returns that Grafana's **own datasource UIDs**,
+    not portable `${DS_*}` placeholders. The Synology board arrived carrying the
+    NAS Grafana's uid `ee17d478vg2kgb` in 121 places, plus a `datasource`-type
+    template variable whose `current` still named a NAS datasource. The
+    template variable is a separate fix — correcting the panels does not touch
+    it. Both are rewritten to `prometheus`, the cluster datasource uid.
+
+`download_dashboards.sh` runs in an **init container**, so a `gnetId` change
+needs a pod restart, not just a sync:
+
+```sh
+kubectl -n grafana rollout restart deploy/grafana
+```
+
 ## Prometheus got a volume
 
 The cluster TSDB was an `emptyDir` — 15.6 GB on whichever node the pod landed
@@ -191,6 +229,25 @@ Confirm the cluster DaemonSet is untouched and still distinct — expect two row
 curl -s --get localhost:9091/api/v1/query \
   --data-urlencode 'query=count by (job) (node_time_seconds)'
 ```
+
+Metrics arriving does not mean panels render. Check the binding separately —
+every uid must be `prometheus` or the name string `Prometheus`, and no
+`${DS_` may survive:
+
+```sh
+R="--resolve grafana.malford.io:443:192.168.5.225"
+for uid in lcHlCU2Vz 9WaGWZaZk; do
+  curl -s $R "https://grafana.malford.io/api/dashboards/uid/$uid" | python3 -c "
+import sys,json,re
+d=json.load(sys.stdin)['dashboard']
+raw=json.dumps(d)
+print(d['title'][:34].ljust(36), 'unresolved=', len(re.findall(r'\\\$\{DS_', raw)))
+"
+done
+```
+
+A single `unresolved` hit means a `gnetId` entry is missing its `datasource`
+key, or the pod has not been restarted since it was added.
 
 On the Synology board itself, the edited groups are where a mistake shows up:
 **System uptime** must show one value, not seven; **Exporter Status** three
