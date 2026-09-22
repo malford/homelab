@@ -14,6 +14,11 @@ grafana:
     dashboards:
       enabled: true
       searchNamespace: monitoring-system
+      # Lets a ConfigMap choose its folder. The 26 kube-prometheus-stack
+      # dashboards carry no annotation and stay where they are, in General.
+      folderAnnotation: grafana_folder
+      provider:
+        foldersFromFilesStructure: true
     datasources:
       enabled: true
       searchNamespace: monitoring-system
@@ -56,7 +61,35 @@ grafana:
         editable: true
         options:
           path: /var/lib/grafana/dashboards/grafana-dashboards-storage
+      - name: 'grafana-dashboards-network'
+        orgId: 1
+        folder: 'network'
+        type: file
+        disableDeletion: true
+        editable: true
+        options:
+          path: /var/lib/grafana/dashboards/grafana-dashboards-network
   dashboards:
+    # The UniFi boards you ran on the NAS were the InfluxDB variants. InfluxQL
+    # does not translate to PromQL, so these are the author's Prometheus-native
+    # equivalents rather than a port: 11315<-10418, 11311<-10414, 11314<-10415,
+    # 11313<-10416. 11310 is new - UP_UNIFI_DEFAULT_SAVE_DPI feeds it.
+    grafana-dashboards-network:
+      unifi-client-insights:
+        gnetId: 11315
+        revision: 9
+      unifi-network-sites:
+        gnetId: 11311
+        revision: 5
+      unifi-uap-insights:
+        gnetId: 11314
+        revision: 10
+      unifi-usg-insights:
+        gnetId: 11313
+        revision: 9
+      unifi-client-dpi:
+        gnetId: 11310
+        revision: 5
     grafana-dashboards-storage:
       ceph-dashboard:
         gnetId: 2842
@@ -79,7 +112,4 @@ grafana:
         token: ''
       k8s-views-pods:
         url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-views-pods.json
-        token: ''
-      synology-dashboard:
-        url: https://raw.githubusercontent.com/wozniakpawel/synology-grafana-prometheus-overly-comprehensive-dashboard/refs/heads/main/Synology_Dashboard.json
         token: ''
