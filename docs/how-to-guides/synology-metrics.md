@@ -20,20 +20,21 @@ running; tearing it down is Phase 2.
 The NAS exporters are plain HTTP endpoints with no Kubernetes Service to
 select, so they are scraped by `ScrapeConfig` rather than `ServiceMonitor`. That
 requires the compose file to publish them — by default they are reachable only
-over the Docker bridge:
+over the Docker bridge.
 
-```yaml
-  nodeexporter:
-    ports: ["9100:9100"]
-  cadvisor:
-    ports: ["9338:8080"]   # 8080 collides with DSM; 9338 is cadvisor's registered port
-  snmp:
-    ports: ["9116:9116"]
+This is the only part of the pipeline that is **not deployed from this repo**.
+The file below is kept here as the source of truth; applying it means pasting it
+into the Container Manager project and recreating it. Nothing syncs.
+
+```yaml title="./docs/how-to-guides/files/synology-compose.yml"
+--8<--
+./docs/how-to-guides/files/synology-compose.yml
+--8<--
 ```
 
-This is the only part of the pipeline that is not in this repo. If the
-Container Manager project is ever recreated from the original compose file,
-these three blocks go missing and all three targets go down together.
+Those three `ports:` blocks are the entire contract with the cluster. If the
+project is ever recreated from an older compose file they go missing and all
+three targets go down together.
 
 !!! warning "The job names are load-bearing"
 
@@ -253,11 +254,41 @@ On the Synology board itself, the edited groups are where a mistake shows up:
 **System uptime** must show one value, not seven; **Exporter Status** three
 rows, not fifty-four; the **Docker row** only NAS containers.
 
-## Phase 2
+## Phase 2 — tearing the NAS stack down
 
-Still to remove from the NAS: InfluxDB, its Grafana, its Prometheus, and
-`speedtest_exporter`. node-exporter, snmp-exporter and cadvisor **stay** — they
-are the targets this pipeline scrapes.
+The compose file above **is** the post-teardown state. It drops InfluxDB, the
+NAS Grafana, the NAS Prometheus, the NAS unpoller and `speedtest_exporter`,
+along with the `grafana_net` network that only they used. node-exporter,
+snmp-exporter and cadvisor stay — they are the targets this pipeline scrapes.
+Ports 8086, 3340 and 9090 are freed.
+
+Removing the services orphans their data on disk but does not delete it, which
+is the right order. Keep `./unifi-poller/influxdb`, `./grafana`, `./prometheus`
+and `./prometheus.yml` until the cluster has been trusted for a week.
+`./snmp.yml` is still load-bearing — leave it. `./.env.metrics` becomes
+unreferenced but still holds UniFi and InfluxDB credentials, so delete it rather
+than leave it lying around.
 
 Historical InfluxDB data is not migrated; Prometheus starts fresh, and the gap
 is accepted.
+
+!!! note "The Docker row gets smaller, and that is correct"
+
+    cadvisor reported 13 container series with the full stack running. After
+    teardown it sees three containers. Not a regression — but it looks like one.
+
+After recreating the project, confirm the ports still answer:
+
+```sh
+for p in 9100 9338 9116; do
+  printf '%s ' "$p"; curl -s -o /dev/null -w '%{http_code}\n' "http://192.168.3.20:$p/"
+done
+```
+
+Then confirm the cluster still sees all three — expect `3`:
+
+```sh
+curl -s -G --resolve grafana.malford.io:443:192.168.5.225 \
+  "https://grafana.malford.io/api/datasources/proxy/uid/prometheus/api/v1/query" \
+  --data-urlencode 'query=count(up{job=~"nodeexporter|snmp|synology-cadvisor"} == 1)'
+```
