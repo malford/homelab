@@ -25,10 +25,22 @@ kube-prometheus-stack:
       serviceMonitorSelectorNilUsesHelmValues: false
       podMonitorSelectorNilUsesHelmValues: false
       probeSelectorNilUsesHelmValues: false
-      additionalScrapeConfigs:
-        - job_name: 'synology-nas'
-          static_configs:
-            - targets: ['192.168.3.20:9090']
+      # ScrapeConfig was the one selector still defaulting to the release label,
+      # so first-party ScrapeConfigs were invisible to it.
+      scrapeConfigSelectorNilUsesHelmValues: false
+      # The TSDB was an emptyDir - 15.6G on the node, discarded every restart.
+      # 30d costs ~47G at current ingestion, so the clock expires data and
+      # retentionSize is only a backstop against series growth.
+      retention: 30d
+      retentionSize: 48GiB
+      storageSpec:
+        volumeClaimTemplate:
+          spec:
+            storageClassName: standard-rwo
+            accessModes: [ReadWriteOnce]
+            resources:
+              requests:
+                storage: 60Gi
   alertmanager:
     alertmanagerSpec:
       # Mounts at /etc/alertmanager/secrets/deadmansswitch/. The ping URL is a
