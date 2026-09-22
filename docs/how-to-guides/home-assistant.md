@@ -57,14 +57,31 @@ collides with the running pod on both host port 8123 and the volume attachment.
 ## The reverse proxy requirement
 
 Behind the nginx ingress, Home Assistant answers **every** request with
-`400 Bad Request` unless `configuration.yaml` declares the proxy as trusted:
+`400 Bad Request` unless it trusts the proxy. Since 2026.x that setting no
+longer lives in `configuration.yaml` — it lives in `/config/.storage/http`, and
+the YAML block is migrated into that store exactly **once**:
 
-```yaml
-http:
-  use_x_forwarded_for: true
-  trusted_proxies:
-    - 10.0.0.0/8        # pod CIDR — ingress-nginx pods
-    - 192.168.5.0/24    # node/LAN — direct access and any SNAT to a node IP
+- On the first start that sees an `http:` block, HA copies it into the store,
+  sets `yaml_migration_done: true`, and stages the copy as `pending`.
+- `pending` is a **trial**. Unless it is promoted in the UI (Settings → System →
+  Network) within five minutes it is marked `error: "not_promoted"`, and HA
+  falls back to `stable` — which carries no proxy settings at all.
+- Every later boot reads the store and ignores the YAML entirely.
+
+Editing the seed after that first start therefore changes nothing, and
+`check_config` will report the YAML as valid while the running server uses
+`stable`. Read the truth from the store, not the file:
+
+```sh
+kubectl -n home-assistant exec deploy/home-assistant -c main -- \
+  cat /config/.storage/http
+```
+
+`stable` must contain:
+
+```json
+"use_x_forwarded_for": true,
+"trusted_proxies": ["10.0.0.0/8", "192.168.5.0/24"]
 ```
 
 The pod CIDR is `10.0.x.x`, **not** the `10.42.x.x` that `node.spec.podCIDR`
@@ -75,11 +92,16 @@ k3s field is vestigial. The authoritative answer:
 kubectl get ciliumnode metal1v2 -o jsonpath='{.spec.ipam.podCIDRs}'
 ```
 
-This ships in the seed. If a `400` appears anyway, the seed did not land:
+YAML `http:` is deprecated and breaks in HA 2027.2.0. The seed keeps it only to
+cover a genuinely fresh volume; the durable home for proxy trust is the store,
+which lives on the PVC and is backed up.
 
-```sh
-kubectl -n home-assistant exec deploy/home-assistant -- cat /config/configuration.yaml
-```
+!!! warning "Recovering a store that reverted"
+
+    Once `yaml_migration_done` is set, the only fixes are to promote the trial
+    in the UI — which needs a reachable UI — or to write the values straight
+    into `stable` and restart. Direct LAN access on port 8123 bypasses the
+    proxy and is what makes the first option possible at all.
 
 ## First boot
 
@@ -115,9 +137,20 @@ Not configured. A USB coordinator needs three changes:
    path of least resistance; it is also the reason this deployment omits it
    until a radio actually exists.
 
-Bluetooth is likewise absent: it needs `/run/dbus` from the host. `default_config:`
-still enables the `bluetooth` integration, which finds no adapters and stays
-quiet. That is expected, not a fault.
+Bluetooth is *not* absent, despite no `/run/dbus` mount. `hostNetwork: true`
+exposes the node's own adapter, `default_config:` enables the `bluetooth`
+integration, and it auto-discovers `hci0` — then fails, because the container
+holds no `NET_ADMIN`/`NET_RAW`:
+
+```text
+PermissionError: Missing NET_ADMIN/NET_RAW capabilities for Bluetooth management
+AttributeError: 'NoneType' object has no attribute 'send'
+```
+
+That repeats roughly every four minutes, indefinitely — noisy, but harmless.
+Deleting the auto-discovered Bluetooth entry in Settings → Devices & services
+stops the retry loop for good. Granting the two capabilities instead would make
+Bluetooth actually work, which is a deliberate choice rather than a default.
 
 ## Backups
 
