@@ -74,22 +74,31 @@ grafana:
     # does not translate to PromQL, so these are the author's Prometheus-native
     # equivalents rather than a port: 11315<-10418, 11311<-10414, 11314<-10415,
     # 11313<-10416. 11310 is new - UP_UNIFI_DEFAULT_SAVE_DPI feeds it.
+    # These exports declare a DS_PROMETHEUS input, so every panel references
+    # ${DS_PROMETHEUS} until `datasource` rewrites it. Without it the boards
+    # provision clean and render nothing. Ceph below needs no key - its export
+    # has no input and falls through to the default datasource.
     grafana-dashboards-network:
       unifi-client-insights:
         gnetId: 11315
         revision: 9
+        datasource: Prometheus
       unifi-network-sites:
         gnetId: 11311
         revision: 5
+        datasource: Prometheus
       unifi-uap-insights:
         gnetId: 11314
         revision: 10
+        datasource: Prometheus
       unifi-usg-insights:
         gnetId: 11313
         revision: 9
+        datasource: Prometheus
       unifi-client-dpi:
         gnetId: 11310
         revision: 5
+        datasource: Prometheus
     grafana-dashboards-storage:
       ceph-dashboard:
         gnetId: 2842
