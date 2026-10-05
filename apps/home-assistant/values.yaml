@@ -36,6 +36,41 @@ app-template:
               for f in automations scripts scenes; do
                 [ -f "/config/$f.yaml" ] || echo '[]' > "/config/$f.yaml"
               done
+        # Declarative HACS install; replaces upstream's `wget | bash`, which needs
+        # unzip that the HA image lacks. See docs/how-to-guides/home-assistant.md.
+        init-hacs:
+          dependsOn: init-config
+          image:
+            repository: docker.io/library/alpine
+            tag: "3.24.2"
+          env:
+            # Source of truth: a UI self-update is reverted on the next pod start.
+            HACS_VERSION: "2.0.5"
+          command:
+            - sh
+            - -c
+            - |
+              set -eu
+              target=/config/custom_components/hacs
+              if [ "$(cat "$target/.hacs-chart-version" 2>/dev/null || true)" = "$HACS_VERSION" ]; then
+                echo "HACS $HACS_VERSION already installed"
+                exit 0
+              fi
+              echo "installing HACS $HACS_VERSION"
+              # Staged on the PVC: same-filesystem rename, and a failed download
+              # leaves the working install untouched.
+              stage=/config/custom_components/.hacs-stage
+              mkdir -p /config/custom_components
+              rm -rf "$stage"
+              mkdir -p "$stage"
+              wget -qO /tmp/hacs.zip \
+                "https://github.com/hacs/integration/releases/download/$HACS_VERSION/hacs.zip"
+              # Archive is flat, so it unpacks into hacs/, not above it.
+              unzip -q /tmp/hacs.zip -d "$stage"
+              echo "$HACS_VERSION" > "$stage/.hacs-chart-version"
+              rm -rf "$target"
+              mv "$stage" "$target"
+              echo "HACS $HACS_VERSION installed"
       containers:
         main:
           image:
@@ -92,6 +127,8 @@ app-template:
           main:
             - path: /config
           init-config:
+            - path: /config
+          init-hacs:
             - path: /config
     seed:
       type: configMap

@@ -8,6 +8,7 @@ integrations, automations and the user database.
 | --- | --- |
 | Image pin | `apps/home-assistant/values.yaml` (`containers.main.image.tag`) |
 | Config seed | `apps/home-assistant/templates/configmap.yaml` (`configuration.yaml`) |
+| HACS pin | `apps/home-assistant/values.yaml` (`initContainers.init-hacs.env.HACS_VERSION`) |
 | State | PVC `home-assistant`, mounted at `/config` |
 | Backups | `system/volsync-backups/values.yaml` |
 | URL | <https://ha.malford.io> |
@@ -152,6 +153,89 @@ meantime.
 If the ingress is not up yet, direct LAN access bypasses the proxy entirely:
 `http://192.168.5.113:8123` or `http://192.168.5.114:8123`.
 
+## HACS
+
+[HACS](https://hacs.xyz) is installed by the `init-hacs` init container, not by
+hand. Upstream's documented container install is:
+
+```sh
+docker exec -it <container> bash
+wget -O - https://get.hacs.xyz | bash -
+```
+
+That cannot work here for two reasons. The command is imperative — anything it
+writes is undone the moment the pod is replaced onto a fresh volume — and
+[the script](https://github.com/hacs/get/blob/main/get) hard-requires both
+`wget` and `unzip`, while the Home Assistant image ships only `wget`.
+
+So the init container does the same work declaratively, from Alpine, which has
+both:
+
+1. Compare `custom_components/hacs/.hacs-chart-version` against `HACS_VERSION`.
+   Equal, and it exits without touching anything.
+2. Otherwise download that exact release, unzip it to a staging directory
+   **on the PVC**, and only then swap it over the live one.
+
+Staging before the swap is deliberate. Upstream deletes the existing install
+*before* it validates anything, so a failed download or a too-old Home Assistant
+leaves you with no HACS at all. Here the old directory is removed only once a
+good copy is extracted, and the staging path is on the same filesystem so the
+final `mv` is a rename rather than a copy.
+
+### Changing the version
+
+`HACS_VERSION` in `values.yaml` is the source of truth. Bump it, commit, and
+ArgoCD rolls a pod that reconciles to it.
+
+!!! warning "A HACS self-update is reverted on the next pod restart"
+
+    HACS can update *itself* from Settings → HACS, and that update writes to
+    `custom_components/hacs` — which the init container reconciles on every pod
+    start. Updating in the UI therefore holds only until the next restart, and a
+    kured reboot is enough to roll it back.
+
+    This is the same contract as `image.tag`: the version in git wins. To take a
+    new HACS release, bump `HACS_VERSION` rather than clicking update. Check the
+    release's `MINIMUM_HA_VERSION` against the image pin first — HACS 2.0.5
+    requires Home Assistant 2024.4.1 or newer.
+
+Confirm what is actually installed:
+
+```sh
+kubectl -n home-assistant exec deploy/home-assistant -c main -- \
+  cat /config/custom_components/hacs/.hacs-chart-version
+```
+
+Or read the install itself, which logs one line either way:
+
+```sh
+kubectl -n home-assistant logs deploy/home-assistant -c init-hacs
+```
+
+### Setting it up is still manual
+
+Installing the code is all the chart can do. Like onboarding, the rest is
+stateful and lives in `/config/.storage`, not in git:
+
+1. Restart Home Assistant, then add HACS under Settings → Devices & services →
+   Add integration.
+2. Complete the GitHub device-flow authorization it prompts for.
+
+That GitHub token cannot be provisioned declaratively — the device flow needs a
+human at github.com. It is why a restore matters more than a reinstall here: the
+token and the list of downloaded repositories come back with the PVC, and
+nothing in git can recreate them.
+
+### What HACS downloads is not reinstalled for you
+
+Integrations, themes and Lovelace plugins that HACS downloads land **outside**
+`custom_components/hacs` — in sibling `custom_components/<name>` directories,
+plus `themes/` and `www/community/`. The init container never touches those, so
+reconciling the HACS version leaves them alone.
+
+They are also not in git. They survive because they are on the PVC and the PVC
+is backed up; a restore brings them back, a fresh volume does not.
+
 ## Adding a Zigbee or Z-Wave radio
 
 Not configured. A USB coordinator needs three changes:
@@ -198,6 +282,20 @@ live:
 kubectl -n home-assistant get replicationsource home-assistant \
   -o jsonpath='{.status.nextSyncTime}{"\n"}'
 ```
+
+One PVC holds everything under `/config`, so the whole of HACS is already
+covered by that single entry — no second backup target was needed for it:
+
+| HACS state | Path on the PVC | Recreated by git? |
+| --- | --- | --- |
+| Integration code | `custom_components/hacs/` | Yes — `init-hacs` reinstalls it |
+| GitHub token, repo list | `.storage/hacs.*` | No |
+| Downloaded integrations | `custom_components/<name>/` | No |
+| Downloaded themes, plugins | `themes/`, `www/community/` | No |
+
+Only the first row is reproducible from the chart. Everything else exists solely
+because the volume is backed up, which is the same reason the onboarding account
+is load-bearing.
 
 An empty `nextSyncTime` means a `trigger.manual` key is stuck and the schedule
 will never fire again — see [Backup and restore](backup-and-restore.md).
