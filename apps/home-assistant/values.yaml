@@ -1,7 +1,8 @@
 app-template:
   defaultPodOptions:
-    # Host networking so mDNS/SSDP discovery sees the LAN; pinned to two nodes
-    # so the address devices call back on stays predictable.
+    # Host networking puts mDNS/SSDP on the cluster VLAN only (192.168.5.0/24);
+    # reaching clients and IoT on other VLANs needs the gateway mDNS proxy.
+    # Pinned to two nodes so the address devices call back on stays predictable.
     hostNetwork: true
     dnsPolicy: ClusterFirstWithHostNet
     terminationGracePeriodSeconds: 60

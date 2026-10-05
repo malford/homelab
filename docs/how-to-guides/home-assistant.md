@@ -35,7 +35,11 @@ refuses to start if an included file is missing.
 Home Assistant discovers LAN devices over mDNS and SSDP, which are broadcast
 protocols that do not cross the pod network. `hostNetwork: true` with
 `dnsPolicy: ClusterFirstWithHostNet` puts the process on the node's own
-interface, so discovery works and cluster DNS still resolves.
+interface, so discovery reaches the LAN and cluster DNS still resolves.
+
+Host networking only buys the node's own broadcast domain, though. The nodes
+have a single LAN NIC (`eno1`) on the cluster VLAN, so discovery stops at
+`192.168.5.0/24` — see [Cross-VLAN discovery](#cross-vlan-discovery).
 
 Two consequences follow:
 
@@ -53,6 +57,38 @@ collides with the running pod on both host port 8123 and the volume attachment.
     `metal1v2` (192.168.5.114). Anything that calls back by address — ESPHome
     devices, webhooks — should use `ha.malford.io`, not a node IP. Pinning to a
     single node instead would fix the IP at the cost of availability.
+
+## Cross-VLAN discovery
+
+The LAN is split three ways, and Home Assistant sits on none of the segments
+its devices or controllers live on:
+
+| VLAN             | Contents                                              |
+| ---------------- | ----------------------------------------------------- |
+| `192.168.2.0/24` | IoT — LIFX, TP-Link plugs, Midea AC, Modern Forms fans |
+| `192.168.3.0/24` | Clients — laptops, phones, tablets                    |
+| `192.168.5.0/24` | k3s cluster — Home Assistant on `metal0v2`/`metal1v2`  |
+
+mDNS is link-local multicast (224.0.0.251, TTL 1), so it does not route. The
+**gateway mDNS proxy must be enabled on all three VLANs** — enabling it on a
+subset silently breaks whichever direction is missing.
+
+Anything that depends on discovery rather than a known address needs this:
+HomeKit (`_hap._tcp`), Chromecast, AirPlay, SSDP/DLNA, Spotify Connect.
+
+!!! warning "Reachability tests do not prove discovery"
+
+    Unicast routing between VLANs is open, so `curl` and
+    `nc -vz 192.168.5.114 21064` succeed even when the mDNS proxy is off. A
+    passing connectivity check tells you nothing about whether a controller can
+    *find* the service. Check discovery directly from a client instead:
+
+    ```sh
+    dns-sd -B _hap._tcp          # runs until Ctrl-C; absence is the signal
+    ```
+
+    If the service is listening and the logs are clean but it never appears in
+    that browse, suspect the mDNS proxy before touching the app config.
 
 ## The reverse proxy requirement
 
