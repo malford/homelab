@@ -5,17 +5,46 @@ cloudflare_account_id = "foobarid"
 # https://dash.cloudflare.com/profile/api-tokens
 cloudflare_api_key = "foobarkey"
 
-ntfy = {
-  # https://ntfy.sh or your own instance
-  url = "https://ntfy.sh"
-  # Your topic name
-  topic = "random_topic_name_here_a8sd7fkjxlkcjasdw33813"
-}
-
 extra_secrets = {
   # Try to keep this to a minimum with third-party secrets
   # Consider using the secret generator if possible
   # ../platform/global-secrets/files/secret-generator/config.yaml
   #
   # key = "value"
+  #
+  # secrets currently provisioned
+  #
+  # anthropic-api-key                = ""
+  # anthropic-auth-token             = ""
+  # anthropic-base-url               = ""
+  # browserless-api-token            = ""
+  # claude-code-oauth-token          = ""
+  # deadmansswitch-url               = ""
+  # gitea-oauth-id                   = ""
+  # gitea-oauth-secret               = ""
+  # gitea-url                        = ""
+  # github-pat-openclaw              = ""
+  # github-token-renovate            = ""
+  # grafana-admin-password           = ""
+  # jellyfin-api-key                 = ""
+  # lidarr-api-key                   = ""
+  # network-optimizer-password       = ""
+  # ntfy-topic                       = ""
+  # openai-api-key                   = ""
+  # openclaw-gateway-token           = ""
+  # openvpn-password                 = ""
+  # openvpn-username                 = ""
+  # paperless-api-key                = ""
+  # plex-token                       = ""
+  # prowlarr-api-key                 = ""
+  # radarr-api-key                   = ""
+  # sabnzbd-api-key                  = ""
+  # sonarr-api-key                   = ""
+  # tailscale-auth-key               = ""
+  # tailscale-operator-client-id     = ""
+  # tailscale-operator-client-secret = ""
+  # telegram-bot-token               = ""
+  # telegram-user-id                 = ""
+  # unifi-admin-password             = ""
+  # unifi-admin-username             = ""
 }

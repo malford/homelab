@@ -110,6 +110,10 @@ app-template:
                   type: paperlessngx
                   url: http://paperless.paperless.svc.cluster.local:8000
                   key: '{{ `{{HOMEPAGE_VAR_PAPERLESS_API_KEY}}` }}'
+            - Home Assistant:
+                href: https://ha.malford.io
+                description: Home automation
+                icon: home-assistant.svg
           - Management:
             - Transmission:
                 href: https://transmission.malford.io

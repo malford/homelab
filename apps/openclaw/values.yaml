@@ -2,8 +2,6 @@ app-template:
   controllers:
     openclaw:
       pod:
-        annotations:
-          config-version: "35"
         securityContext:
           runAsUser: 1000
           runAsGroup: 1000
@@ -13,32 +11,24 @@ app-template:
         init-config:
           image:
             repository: docker.io/library/alpine
-            tag: latest
+            tag: "3.24.2"
           securityContext:
             runAsUser: 0
           command:
             - sh
             - -c
             - |
-              apk add envsubst &&
-              mkdir -p /home/node/.openclaw/skills/gitea &&
-              if [ "$(cat /home/node/.openclaw/.config-version 2>/dev/null)" != "35" ]; then
+              if [ ! -f /home/node/.openclaw/openclaw.json ]; then
                 cp /tmp/openclaw-config/openclaw.json /home/node/.openclaw/openclaw.json
-                echo "22" > /home/node/.openclaw/.config-version
               fi &&
-              envsubst < /tmp/openclaw-config/gitea.json > /home/node/.openclaw/skills/gitea/gitea.json &&
               chmod 600 /home/node/.openclaw/openclaw.json &&
-              chmod 600 /home/node/.openclaw/skills/gitea/gitea.json &&
               chmod 700 /home/node/.openclaw &&
               chown -R 1000:1000 /home/node/.openclaw
-          envFrom:
-            - secretRef:
-                name: openclaw-secret
       containers:
         main:
           image:
             repository: ghcr.io/openclaw/openclaw
-            tag: latest
+            tag: "2026.9.5"
           env:
             TZ: "America/New_York"
             OPENCLAW_GATEWAY_PORT: "18789"

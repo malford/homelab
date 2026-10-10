@@ -11,7 +11,7 @@ app-template:
         app:
           image:
             repository: ghcr.io/open-webui/open-webui
-            tag: latest
+            tag: 0.11.4
           env:
             OLLAMA_BASE_URL: http://ollama.ollama.svc.cluster.local:11434
 

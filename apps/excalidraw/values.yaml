@@ -5,7 +5,8 @@ app-template:
         app:
           image:
             repository: docker.io/excalidraw/excalidraw
-            tag: latest
+            # No version tags upstream; digest-pinned by hand, Renovate can't bump.
+            tag: latest@sha256:f7ee194addd607bf831d2af0f0a34463dd4225e426cf35199ef0b12a803398e9
   service:
     app:
       controller: excalidraw

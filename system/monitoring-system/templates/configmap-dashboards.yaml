@@ -1,0 +1,16 @@
+# Picked up by the grafana sidecar, which watches this namespace for the
+# grafana_dashboard label. A fork rather than a gnetId/url entry in
+# platform/grafana: the upstream board assumes a NAS-only Prometheus and
+# breaks in a shared TSDB, so 14 expressions carry job selectors we added.
+# It does not follow upstream - re-apply those selectors if it is re-imported.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards-synology
+  namespace: {{ .Release.Namespace }}
+  labels:
+    grafana_dashboard: "1"
+  annotations:
+    grafana_folder: synology
+data:
+{{ (.Files.Glob "files/dashboards/*.json").AsConfig | indent 2 }}

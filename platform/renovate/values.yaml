@@ -1,6 +1,8 @@
 renovate:
   cronjob:
     schedule: '0 9 * * *'  # Everyday at 09:00
+    # Each retained pod pins a container layer on its node's 32G image LV.
+    successfulJobsHistoryLimit: 1
   renovate:
     config: |
       {

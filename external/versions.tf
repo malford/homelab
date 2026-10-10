@@ -34,6 +34,9 @@ provider "cloudflare" {
 }
 
 provider "kubernetes" {
-  # Use KUBE_CONFIG_PATH environment variables
-  # Or in cluster service account
+  # Pinned rather than left empty. An empty block falls back to KUBE_CONFIG_PATH,
+  # and an unset KUBE_CONFIG_PATH is silent: see the validation on this variable.
+  # Plan and apply only ever run interactively from the jump box, so there is no
+  # in-cluster service account path to preserve here.
+  config_path = var.kubeconfig_path
 }

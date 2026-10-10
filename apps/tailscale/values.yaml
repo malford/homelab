@@ -11,7 +11,7 @@ app-template:
         app:
           image:
             repository: ghcr.io/tailscale/tailscale
-            tag: latest
+            tag: v1.102.4
           env:
             TS_HOSTNAME: homelab-router
             TS_USERSPACE: false

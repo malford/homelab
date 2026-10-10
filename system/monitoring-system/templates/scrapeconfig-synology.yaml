@@ -1,0 +1,55 @@
+# The NAS exporters are plain HTTP endpoints on 192.168.3.20 - there is no
+# service to select, so ScrapeConfig rather than ServiceMonitor.
+# The job names `nodeexporter` and `snmp` are load-bearing: the Synology
+# dashboard hardcodes them in 38 expressions. Renaming either silently empties
+# those panels. `nodeexporter` does not collide with the cluster's own
+# DaemonSet job, which is `node-exporter` with a hyphen.
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: nodeexporter
+  namespace: {{ .Release.Namespace }}
+spec:
+  jobName: nodeexporter
+  staticConfigs:
+    - targets:
+        - 192.168.3.20:9100
+      labels:
+        instance: synology
+---
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: snmp
+  namespace: {{ .Release.Namespace }}
+spec:
+  jobName: snmp
+  metricsPath: /snmp
+  # The NAS config passes target=172.22.0.1, the compose bridge gateway as seen
+  # from inside the container. From the cluster it has to be the LAN address.
+  # The snmpv3 credentials stay in snmp.yml on the NAS.
+  params:
+    auth:
+      - snmpv3
+    module:
+      - synology
+    target:
+      - 192.168.3.20
+  staticConfigs:
+    - targets:
+        - 192.168.3.20:9116
+      labels:
+        instance: synology
+---
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: synology-cadvisor
+  namespace: {{ .Release.Namespace }}
+spec:
+  jobName: synology-cadvisor
+  staticConfigs:
+    - targets:
+        - 192.168.3.20:9338
+      labels:
+        instance: synology

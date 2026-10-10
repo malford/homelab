@@ -1,0 +1,254 @@
+# OpenClaw
+
+OpenClaw runs as a single gateway pod in the `openclaw` namespace, backed by one
+RWO PVC (`openclaw`) holding its entire state: config, SQLite databases, cron
+store and workspace.
+
+| Thing | Lives in |
+| --- | --- |
+| Image pin | `apps/openclaw/values.yaml` (`containers.main.image.tag`) |
+| Config | `apps/openclaw/templates/configmap.yaml` (`openclaw.json`) |
+| Secrets | `openclaw-secret`, injected via `envFrom` |
+| State | PVC `openclaw`, mounted at `/home/node/.openclaw` |
+
+## How config reaches the pod
+
+The ConfigMap is a **seed, not a source of truth**. The `init-config` init
+container copies `openclaw.json` onto the PVC only when the file is absent —
+first provision, or a restore onto an empty volume. After that OpenClaw owns it.
+
+Editing `configmap.yaml` therefore has no effect on a running gateway. It
+changes what a rebuilt PVC starts from, nothing more.
+
+!!! danger "Do not write `openclaw.json` from outside OpenClaw"
+
+    OpenClaw defends the file. On startup it compares the on-disk config against
+    `openclaw.json.last-good` and treats four signatures as tampering: a size
+    drop over 50%, a missing `gateway.mode`, an update-channel-only root, and a
+    top-level `meta` key present in last-good but absent in the incoming file.
+
+    On a hit it moves the incoming file to `openclaw.json.clobbered.<timestamp>`,
+    restores its own, and logs:
+
+    ```
+    Config auto-restored from backup: …/openclaw.json (missing-meta-vs-last-good)
+    ```
+
+    `doctor --fix` writes `meta.migrations`, so **every** ConfigMap-sourced
+    config is rejected once doctor has run — silently, apart from that one log
+    line. A `.clobbered.*` file on the PVC is the tell.
+
+### Changing config on a running gateway
+
+Use the CLI. It writes through OpenClaw, so it updates `meta`, refreshes
+`last-good`, and hot-reloads without a restart:
+
+```sh
+kubectl -n openclaw exec deploy/openclaw -- \
+  openclaw config set skills.allowBundled '["weather","visualize"]' \
+  --strict-json --dry-run
+
+kubectl -n openclaw exec deploy/openclaw -- \
+  openclaw config set skills.allowBundled '["weather","visualize"]' --strict-json
+```
+
+Then fold the change back into `configmap.yaml` so the seed stays current. The
+live file is the reference:
+
+```sh
+kubectl -n openclaw exec deploy/openclaw -- cat /home/node/.openclaw/openclaw.json
+```
+
+Ignore `wizard` and `meta` when copying back — both are OpenClaw's own
+bookkeeping and do not belong in git.
+
+## Upgrading the image
+
+A version bump is two migrations, and **the config one gates the other**.
+`doctor` validates config before it runs any other check: against an invalid
+config it reports `checksRun: 1` and stops, so it can never reach the state
+migrations. Fix the config first or the state work silently never happens.
+
+### 1. Reconcile the config against the new schema
+
+`openclaw config validate` checks the config against the schema without starting
+the gateway, so it works from the crashlooping pod:
+
+```sh
+kubectl -n openclaw exec deploy/openclaw -- openclaw config validate
+kubectl -n openclaw exec deploy/openclaw -- openclaw config schema > /tmp/oc-schema.json
+```
+
+Unrecognized keys are reported in batches, so a clean-looking second batch does
+not mean the file is clean — walk `$defs`/`$ref` in the dumped schema and check
+every key against `properties` where `additionalProperties` is `false`.
+
+Apply the corrections with `openclaw config set` or `config patch` until
+`config validate` reports `Config valid`, then mirror them into
+`configmap.yaml`. Copying the corrected file onto the PVC will not work — see
+[How config reaches the pod](#how-config-reaches-the-pod).
+
+Then confirm `doctor` gets past the gate — it should run the full check set
+(currently 35), not stop at 1:
+
+```sh
+kubectl -n openclaw exec deploy/openclaw -- openclaw doctor --lint --json
+```
+
+!!! note
+
+    `--lint` is not read-only. It compacts and retires dead tables in
+    `state/openclaw.sqlite`. Take the backup in step 2 before running it.
+
+### 2. Back up the PVC
+
+VolSync covers this nightly, but take a point-in-time copy before mutating
+state:
+
+```sh
+kubectl -n openclaw patch replicationsource openclaw --type=merge \
+  -p '{"spec":{"trigger":{"manual":"pre-upgrade-1"}}}'
+kubectl -n openclaw get replicationsource openclaw \
+  -o jsonpath='{.status.latestMoverStatus.result}{"\n"}'
+```
+
+Remove the `manual` key afterwards — a leftover trigger stops the schedule
+permanently while ArgoCD still reports the app as Synced.
+
+### 3. Run the state migration
+
+The gateway refuses to start until state is migrated, and it cannot migrate
+itself — it detects the need and exits, expecting an operator to run
+`openclaw doctor --fix`.
+
+You cannot stop the gateway first: ArgoCD's `selfHeal` restores a scaled-down
+deployment within about a second, and patching the Application is futile because
+it is generated by the `root` ApplicationSet under
+`applicationsetcontroller.policy: sync`. Run `doctor` alongside the crashlooping
+pod instead — it takes the state locks, and the worst case is a retry.
+
+The PVC is RWO, so the debug pod must be pinned to the node already running
+openclaw:
+
+```sh
+NODE=$(kubectl -n openclaw get pod -l app.kubernetes.io/name=openclaw \
+  -o jsonpath='{.items[0].spec.nodeName}')
+
+cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: Pod
+metadata:
+  name: oc-doctor
+  namespace: openclaw
+spec:
+  restartPolicy: Never
+  nodeName: ${NODE}
+  securityContext: { runAsUser: 1000, runAsGroup: 1000, fsGroup: 1000 }
+  containers:
+    - name: doctor
+      image: ghcr.io/openclaw/openclaw:2026.9.5
+      command: ["sleep", "3600"]
+      envFrom:
+        - secretRef:
+            name: openclaw-secret
+      volumeMounts: [{ name: data, mountPath: /home/node/.openclaw }]
+  volumes:
+    - name: data
+      persistentVolumeClaim: { claimName: openclaw }
+EOF
+```
+
+Match the image tag to the one being deployed, and keep the `envFrom` — without
+it `doctor` sees no `OPENCLAW_GATEWAY_TOKEN` and reports a spurious
+`CRITICAL: Gateway bound to "lan" without authentication`, whose suggested fix
+(`gateway.bind loopback`) would break the ingress.
+
+!!! danger "Close stdin, or `doctor` hangs forever"
+
+    `--non-interactive` does not suppress every prompt. Under `kubectl exec`
+    without `-i`, stdin stays open and never delivers, so `doctor` blocks in
+    `epoll_wait` after partially completing the migration — no output, no error,
+    ~12% CPU. Redirect from `/dev/null`, and run it detached so the exec session
+    is not the lifeline:
+
+    ```sh
+    kubectl -n openclaw exec oc-doctor -- sh -c \
+      'nohup sh -c "openclaw doctor --fix --non-interactive --yes </dev/null \
+        >/tmp/doctor.log 2>&1; echo EXIT=\$? >>/tmp/doctor.log" >/dev/null 2>&1 &'
+
+    kubectl -n openclaw exec oc-doctor -- cat /tmp/doctor.log
+    ```
+
+Expect `Doctor complete.` and `EXIT=0`. A run on a large state directory takes
+roughly 90 seconds.
+
+### 4. Review what `doctor` changed, then restart
+
+`doctor` rewrites `openclaw.json` and leaves the original at
+`openclaw.json.bak`. Review the diff before accepting it:
+
+```sh
+kubectl -n openclaw exec oc-doctor -- \
+  diff /home/node/.openclaw/openclaw.json.bak /home/node/.openclaw/openclaw.json
+```
+
+Then drop the debug pod — it holds the gateway lifecycle lock — and restart:
+
+```sh
+kubectl -n openclaw delete pod oc-doctor
+kubectl -n openclaw delete pod -l app.kubernetes.io/name=openclaw
+kubectl -n openclaw logs -l app.kubernetes.io/name=openclaw --tail=20
+```
+
+`[gateway] ready` and a populated `kubectl -n openclaw get endpoints openclaw`
+are the success condition.
+
+## Local client on the Mac
+
+The Mac runs the OpenClaw CLI as a *remote* client of the cluster gateway rather
+than its own local one. Only the `gateway` block of `~/.openclaw/openclaw.json`
+differs:
+
+```json
+"gateway": {
+  "port": 18789,
+  "mode": "remote",
+  "remote": {
+    "url": "wss://openclaw-gateway.tail811db.ts.net",
+    "token": "<openclaw-gateway-token from the secret store>"
+  },
+  "controlUi": {
+    "allowedOrigins": [
+      "https://openclaw-gateway.tail811db.ts.net",
+      "https://matt-16-mbp.tail811db.ts.net"
+    ],
+    "allowInsecureAuth": false
+  },
+  "tailscale": { "mode": "off", "resetOnExit": false },
+  "nodes": {
+    "denyCommands": [
+      "camera.snap", "camera.clip", "screen.record",
+      "contacts.add", "calendar.add", "reminders.add", "sms.send"
+    ]
+  }
+}
+```
+
+Stop the local gateway, since it is no longer the active one, and verify:
+
+```sh
+openclaw gateway stop
+openclaw health
+openclaw status --deep
+```
+
+To roll back, set `mode` to `"local"` and run `openclaw gateway start`.
+
+## Why the gateway binds to `lan`
+
+`bind: tailnet` falls back to `127.0.0.1` inside a pod, which breaks the
+ingress — there is no `tailscale0` interface in the container. The Tailscale
+Operator provides the tailnet perimeter externally, and
+`OPENCLAW_GATEWAY_TOKEN` provides authentication, so `doctor`'s "bound to lan
+without authentication" finding is expected here whenever the token is absent
+from the environment it is inspecting.

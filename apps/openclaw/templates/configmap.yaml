@@ -4,6 +4,8 @@ metadata:
   name: openclaw-config
   namespace: {{ .Release.Namespace }}
 data:
+  # Seed only: copied to the PVC when openclaw.json is absent. OpenClaw owns the
+  # file after that, so editing this does not change a running gateway.
   # The gateway token is injected at runtime via OPENCLAW_GATEWAY_TOKEN env var
   # bind: lan required for K8s — pod has no tailscale0 interface.
   # Tailscale Operator handles the tailnet perimeter externally.
@@ -28,9 +30,8 @@ data:
         }
       },
       "agents": {
-        "list": [
-          {
-            "id": "main",
+        "entries": {
+          "main": {
             "name": "Ni",
             "identity": {
               "name": "Ni",
@@ -38,7 +39,7 @@ data:
               "avatar": "avatar.jpg"
             }
           }
-        ],
+        },
         "defaults": {
           "model": {
             "primary": "aperture/claude-sonnet-4-6"
@@ -47,18 +48,20 @@ data:
             "every": "30m"
           },
           "userTimezone": "America/New_York",
-          "envelopeTimezone": "user",
-          "memorySearch": {
-            "provider": "ollama",
-            "model": "nomic-embed-text",
-            "remote": {
-              "baseUrl": "http://ollama.ollama.svc.cluster.local:11434",
-              "apiKey": "-"
-            }
-          },
           "thinkingDefault": "off",
           "compaction": {
             "mode": "default"
+          }
+        }
+      },
+      "memory": {
+        "search": {
+          "enabled": true,
+          "provider": "ollama",
+          "model": "nomic-embed-text",
+          "remote": {
+            "baseUrl": "http://ollama.ollama.svc.cluster.local:11434",
+            "apiKey": "-"
           }
         }
       },
@@ -103,7 +106,6 @@ data:
             "inlineButtons": "all"
           },
           "ackReaction": "👀",
-          "pollingStallThresholdMs": 30000,
           "healthMonitor": {
             "enabled": true
           }
@@ -116,6 +118,25 @@ data:
           }
         }
       },
+      "skills": {
+        "allowBundled": [
+          "clawhub",
+          "control-ui",
+          "diagram-maker",
+          "healthcheck",
+          "meme-maker",
+          "node-connect",
+          "node-inspect-debugger",
+          "notion",
+          "python-debugpy",
+          "skill-creator",
+          "spike",
+          "taskflow",
+          "taskflow-inbox-triage",
+          "visualize",
+          "weather"
+        ]
+      },
       "auth": {
         "profiles": {
           "anthropic:manual": {
@@ -125,18 +146,15 @@ data:
         }
       },
       "browser": {
-        enabled: true,
-        defaultProfile: "browserless",
-        remoteCdpTimeoutMs: 5000,
-        remoteCdpHandshakeTimeoutMs: 8000,
-        profiles: {
-          browserless: {
-            cdpUrl: "wss://production-sfo.browserless.io?token=${BROWSERLESS_API_TOKEN}",
-            color: "#FF4500"
+        "enabled": true,
+        "defaultProfile": "browserless",
+        "profiles": {
+          "browserless": {
+            "cdpUrl": "wss://production-sfo.browserless.io?token=${BROWSERLESS_API_TOKEN}"
           }
         },
         "ssrfPolicy": {
-          "hostnameAllowlist": [
+          "allowedHostnames": [
             "*.svc.cluster.local",
             "*.browserless.io",
             "browserless.io",
@@ -145,19 +163,4 @@ data:
           ]
         }
       }
-    }
-
-  gitea.json: |
-    {
-      "instances": [
-        {
-          "name": "default",
-          "url": "${GITEA_URL}",
-          "oauth": {
-            "clientId": "9a295fc8-fe8e-4de6-929f-123ea190f589",
-            "clientSecret": "${GITEA_OAUTH_SECRET}",
-            "redirectUri": "https://openclaw-gateway.tail811db.ts.net/oauth/callback"
-          }
-        }
-      ]
     }

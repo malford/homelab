@@ -25,10 +25,22 @@ kube-prometheus-stack:
       serviceMonitorSelectorNilUsesHelmValues: false
       podMonitorSelectorNilUsesHelmValues: false
       probeSelectorNilUsesHelmValues: false
-      additionalScrapeConfigs:
-        - job_name: 'synology-nas'
-          static_configs:
-            - targets: ['192.168.3.20:9090']
+      # ScrapeConfig was the one selector still defaulting to the release label,
+      # so first-party ScrapeConfigs were invisible to it.
+      scrapeConfigSelectorNilUsesHelmValues: false
+      # The TSDB was an emptyDir - 15.6G on the node, discarded every restart.
+      # 30d costs ~47G at current ingestion, so the clock expires data and
+      # retentionSize is only a backstop against series growth.
+      retention: 30d
+      retentionSize: 48GiB
+      storageSpec:
+        volumeClaimTemplate:
+          spec:
+            storageClassName: standard-rwo
+            accessModes: [ReadWriteOnce]
+            resources:
+              requests:
+                storage: 60Gi
   alertmanager:
     alertmanagerSpec:
       # Mounts at /etc/alertmanager/secrets/deadmansswitch/. The ping URL is a
@@ -88,6 +100,21 @@ kube-prometheus-stack:
           - receiver: "null"
             matchers:
               - alertname = "InfoInhibitor"
+          # CephPGImbalance compares each OSD's raw PG count against the
+          # unweighted mean, with no CRUSH weight in the expression. These OSDs
+          # differ 6:1 in size (two ~750G, four 121G), so PG counts that
+          # correctly track weight land 47-122% off that mean and all six fire
+          # permanently. The balancer is active in upmap mode and reports
+          # no_optimization_needed - correct behaviour is what trips the rule.
+          # It also carries no signal of its own: an OSD actually filling up is
+          # already covered by CephOSDNearFull/Full/BackfillFull.
+          # Dropped here rather than at the source, unlike kubeProxy above,
+          # because rook's createPrometheusRules is all-or-nothing across ~60
+          # rules - including CephOSDDown and CephFilesystemDamaged - so there
+          # is no knob for this one alert. Revisit if the OSDs are ever levelled.
+          - receiver: "null"
+            matchers:
+              - alertname = "CephPGImbalance"
       receivers:
         # Overriding `receivers` replaces the chart's list rather than merging
         # into it, so the null receiver the routes above depend on has to be
