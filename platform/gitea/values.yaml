@@ -1,4 +1,12 @@
 gitea:
+  # gitea-shared-storage is RWO, so it attaches to one node at a time, while the
+  # chart's default maxUnavailable: 0 holds the old pod until the new one is
+  # Ready. Unsatisfiable unless both land on the same node, which is why
+  # upgrades only worked by scheduling luck. rollingUpdate must be nulled or the
+  # chart default survives the merge and the API rejects the Deployment.
+  strategy:
+    type: Recreate
+    rollingUpdate: null
   ingress:
     enabled: true
     className: nginx
