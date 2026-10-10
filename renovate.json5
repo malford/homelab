@@ -1,11 +1,11 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:base"
+    "config:recommended"
   ],
   "packageRules": [
     {
-      "matchPackagePatterns": [
+      "matchPackageNames": [
         "*"
       ],
       "matchUpdateTypes": [
@@ -14,6 +14,35 @@
       ],
       "groupName": "all non-major dependencies",
       "groupSlug": "all-minor-patch"
+    },
+    {
+      // Argo auto-syncs these with prune+selfHeal, so they land one at a time.
+      // Managers are scoped so in-repo go.mod deps stay in the grouped PR.
+      "matchFileNames": [
+        "system/**",
+        "platform/**"
+      ],
+      "matchManagers": [
+        "helmv3",
+        "helm-values"
+      ],
+      "groupName": null
+    },
+    {
+      // Rook operator and cluster must move in lockstep, and both live in the
+      // same Chart.yaml, so split PRs would skew them and then conflict.
+      "matchPackageNames": [
+        "rook-ceph",
+        "rook-ceph-cluster"
+      ],
+      "groupName": "rook-ceph"
+    },
+    {
+      // v2 -> v3 is a module path change, not a version bump. See PR #49.
+      "matchPackageNames": [
+        "gopkg.in/yaml.v2"
+      ],
+      "enabled": false
     }
   ]
 }
