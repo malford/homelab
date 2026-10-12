@@ -1,3 +1,10 @@
+configJob:
+  # Builds files/config at deploy time, so this must stay >= the go directive in
+  # its go.mod. Renovate tracks it here so it moves with the module.
+  image:
+    repository: docker.io/library/golang
+    tag: 1.26-alpine
+
 gitea:
   # gitea-shared-storage is RWO, so it attaches to one node at a time, while the
   # chart's default maxUnavailable: 0 holds the old pod until the new one is

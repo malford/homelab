@@ -1,7 +1,9 @@
+{{- $image := printf "%s:%s" .Values.configJob.image.repository .Values.configJob.image.tag }}
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: gitea-config-{{ include (print $.Template.BasePath "/config-source.yaml") . | sha256sum | trunc 7 }}
+  # spec.template is immutable, so the image has to feed the name too.
+  name: gitea-config-{{ printf "%s%s" (include (print $.Template.BasePath "/config-source.yaml") .) $image | sha256sum | trunc 7 }}
   namespace: {{ .Release.Namespace }}
   annotations:
     argocd.argoproj.io/sync-wave: "1"
@@ -12,7 +14,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: apply
-          image: golang:1.19-alpine
+          image: {{ $image }}
           env:
             - name: GITEA_HOST
               value: http://gitea-http:3000

@@ -1,7 +1,9 @@
+{{- $image := printf "%s:%s" .Values.secretGenerator.image.repository .Values.secretGenerator.image.tag }}
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: secret-generator-{{ include (print $.Template.BasePath "/secret-generator/configmap.yaml") . | sha256sum | trunc 7 }}
+  # spec.template is immutable, so the image has to feed the name too.
+  name: secret-generator-{{ printf "%s%s" (include (print $.Template.BasePath "/secret-generator/configmap.yaml") .) $image | sha256sum | trunc 7 }}
   namespace: {{ .Release.Namespace }}
 spec:
   backoffLimit: 3
@@ -10,7 +12,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: secret-generator
-          image: golang:1.19-alpine
+          image: {{ $image }}
           workingDir: /go/src/secret-generator
           command:
             - sh
