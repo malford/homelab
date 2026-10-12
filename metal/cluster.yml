@@ -1,8 +1,21 @@
-- name: Create Kubernetes cluster
+- name: Prepare bare metal nodes
   hosts: metal
   roles:
     - prerequisites
+
+# Serialised: replacing the binary without an ordered restart leaves nodes
+# staged on a version they are not running, and kured later reboots them into
+# it one at a time in arbitrary order.
+- name: Create Kubernetes cluster
+  hosts: metal
+  serial: 1
+  max_fail_percentage: 0
+  roles:
     - k3s
+
+- name: Configure automatic upgrades
+  hosts: metal
+  roles:
     - automatic_upgrade
 
 - name: Install Kubernetes addons
