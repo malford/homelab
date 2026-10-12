@@ -37,6 +37,10 @@
     - key: PAPERLESS_ADMIN_PASSWORD
       length: 32
       special: true
+    # Required from paperless-ngx v3 onward; rotating it invalidates sessions
+    - key: PAPERLESS_SECRET_KEY
+      length: 64
+      special: false
 
 # VolSync / restic
 # WARNING: this password encrypts every backup repository. The generator never
