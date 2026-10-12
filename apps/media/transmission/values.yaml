@@ -3,7 +3,7 @@ app-template:
     main:
       containers:
         transmission:
-          image: { repository: docker.io/haugene/transmission-openvpn, tag: 5.4.1 }
+          image: { repository: docker.io/haugene/transmission-openvpn, tag: 5.5.2 }
           securityContext:
             runAsUser: 0
             capabilities:
