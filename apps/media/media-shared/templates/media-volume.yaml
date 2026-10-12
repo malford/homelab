@@ -1,8 +1,20 @@
+{{/*
+The media library on the NAS, mounted ReadWriteMany by plex, sabnzbd, lidarr,
+radarr, sonarr and transmission. It lived in the jellyfin chart until jellyfin
+was removed; the name is kept because renaming a bound claim means recreating it
+and remounting it in all six.
+
+Prune=false,Delete=false: the PV is Retain, so the NAS data survives regardless,
+but losing the claim breaks every consumer on its next restart. Same reasoning as
+the downloads-shared PVC alongside this file.
+*/}}
 ---
 apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: jellyfin-media-pv
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
 spec:
   capacity:
     storage: 1Ti
@@ -36,6 +48,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: jellyfin-media
   namespace: {{ .Release.Namespace }}
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
 spec:
   storageClassName: nfs-csi
   accessModes:
