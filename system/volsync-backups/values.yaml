@@ -51,16 +51,13 @@ backups:
     namespace: gitea
     claim: data-gitea-postgresql-ha-postgresql-0
 
-  # --- media stack configs (namespace shared by all 11 apps) ---
+  # --- media stack configs (namespace shared by all 10 apps) ---
   - app: flaresolverr
     namespace: media
     claim: flaresolverr
   - app: jackett
     namespace: media
     claim: jackett
-  - app: jellyfin
-    namespace: media
-    claim: jellyfin
   - app: jellyseerr
     namespace: media
     claim: jellyseerr

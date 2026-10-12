@@ -6,9 +6,9 @@
 
 ## Initial setup
 
-- Jellyfin `https://jellyfin.example.com`:
-    - Create an `admin` user and save the credentials to your password manager
-    - Add media libraries:
+- Plex `https://plex.example.com`:
+    - Sign in with your plex.tv account to claim the server
+    - Add libraries:
         - Movies at `/media/movies`
         - Shows at `/media/shows`
 - Radarr `https://radarr.example.com`:
@@ -26,12 +26,7 @@
         - Sonarr: same as Radarr
     - Go back to Indexers -> Add New Indexers
 - Jellyseerr `https://jellyseerr.example.com`:
-    - Sign In
-        - Use your Jellyfin account
-        - URL: `https://jellyfin.example.com`
-        - Email: you can enter anything
-        - Username: `admin`
-        - Password: same as Jellyfin
+    - Sign In with Plex, using the account that claimed the server
     - Configure Media Server
         - Enable Movies and Shows
     - Configure Services:
@@ -48,17 +43,17 @@
             - Enable Scan: true
         - Add Sonarr Server: similar to Radarr
 
-Optionally, for convenience, you can add a `guest` account without a password in Jellyfin,
-allow access to all libraries, and allow that account to manage requests in Jellyseerr.
+Optionally, invite the people you want to share with as Plex friends, give them access to
+both libraries, and allow their accounts to request media in Jellyseerr.
 
 ## Usage
 
 Here's a suggested flow:
 
-- Users using the `guest` account can request media in Jellyseerr
+- Users request media in Jellyseerr
 - Admins approve the request (or you can enable auto-approve)
 - Wait for the media to be downloaded
-- Watch on Jellyfin
+- Watch on Plex
 
 You may need to increase the volume size depending on your usage.
 
@@ -107,5 +102,6 @@ Two things that do not happen automatically:
   Application but deliberately leaves its Deployment and PVC behind. Clean those
   up by hand once you are sure you want the data gone.
 
-Storage shared by several apps — the `downloads-shared` scratch volume — lives in
-`apps/media/media-shared/` rather than in whichever app happens to mount it.
+Storage shared by several apps — the `downloads-shared` scratch volume and the
+`jellyfin-media` NFS library — lives in `apps/media/media-shared/` rather than in
+whichever app happens to mount it.

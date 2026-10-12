@@ -26,7 +26,6 @@ extra_secrets = {
   # github-pat-openclaw              = ""
   # github-token-renovate            = ""
   # grafana-admin-password           = ""
-  # jellyfin-api-key                 = ""
   # lidarr-api-key                   = ""
   # network-optimizer-password       = ""
   # ntfy-topic                       = ""
