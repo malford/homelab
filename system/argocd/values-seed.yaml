@@ -20,6 +20,12 @@ argocd-apps:
               - path: system/*
               - path: platform/*
               - path: apps/*
+              # A list override replaces values.yaml's wholesale, so both
+              # exclusions have to be restated here or seed mode loses them.
+              - path: system/argocd
+                exclude: true
+              - path: apps/media
+                exclude: true
       template:
         spec:
           source:
