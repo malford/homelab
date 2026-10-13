@@ -102,6 +102,30 @@ backups:
   - app: home-assistant
     namespace: home-assistant
     claim: home-assistant
+  # Identity database. scripts/hacks rebuilds the service accounts and the dex
+  # OAuth2 app, but real user accounts only exist here.
+  - app: kanidm
+    namespace: kanidm
+    claim: data-kanidm-0
+  # Two entries because the repository path is <namespace>-<app>, so `app` has
+  # to be unique. Jetstream (queue state) and search (reindexable) are derived
+  # and deliberately left out.
+  - app: matrix-postgres
+    namespace: matrix
+    claim: data-matrix-postgresql-0
+  - app: matrix-media
+    namespace: matrix
+    claim: matrix-dendrite-media-pvc
+  # CI history and secrets. Agent scratch PVCs regenerate.
+  - app: woodpecker
+    namespace: woodpecker
+    claim: data-woodpecker-server-0
+  - app: zot
+    namespace: zot
+    claim: zot-pvc-zot-0
+  - app: media-manager
+    namespace: media-manager
+    claim: media-manager-config
 
   # --- excluded by default: re-acquirable, flip enabled to protect ---
   # Downloaded models; re-pullable from upstream.
