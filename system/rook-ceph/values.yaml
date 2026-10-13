@@ -5,6 +5,10 @@ rook-ceph:
     # Unused, and rook 1.15's csi-snapshotter v8.0.1 only speaks the v1alpha1
     # group API that snapshot-controller 5.x drops.
     enableVolumeGroupSnapshot: false
+    # 1.18 defaults this on, which swaps the in-rook CSI driver for a separate
+    # operator: +1 Deployment, +5 CRDs, ~50 RBAC objects. Keep the in-rook
+    # driver so the chart hop stays an operator bump. Migrate on its own commit.
+    rookUseCsiOperator: false
 snapshot-controller:
   # 3.0.6 shipped CRDs in Helm's crds/ dir, which is never pruned. 5.x templates
   # them, so without this a dep change could prune every VolumeSnapshot.
