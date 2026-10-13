@@ -3,7 +3,7 @@ app-template:
     main:
       containers:
         jackett:
-          image: { repository: docker.io/linuxserver/jackett, tag: 0.24.2826 }
+          image: { repository: docker.io/linuxserver/jackett, tag: 0.24.2830 }
           securityContext:
             runAsUser: 0
           env:
