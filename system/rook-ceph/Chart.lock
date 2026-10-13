@@ -1,12 +1,12 @@
 dependencies:
 - name: rook-ceph
   repository: https://charts.rook.io/release
-  version: v1.15.4
+  version: v1.16.9
 - name: rook-ceph-cluster
   repository: https://charts.rook.io/release
-  version: v1.15.4
+  version: v1.16.9
 - name: snapshot-controller
   repository: https://piraeus.io/helm-charts
   version: 5.3.0
-digest: sha256:a106ec6412c2bc4b80511823df346a8999c5ead36c6c576c231a8de66fbf6699
-generated: "2026-10-13T13:15:36.838667-04:00"
+digest: sha256:9f55334efdd216e71436244a31d87731caf2aece2ddbda0950a5428d74a44189
+generated: "2026-10-13T16:21:35.764737-04:00"
