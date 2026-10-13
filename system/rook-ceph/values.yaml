@@ -6,6 +6,10 @@ rook-ceph-cluster:
     enabled: true
     createPrometheusRules: true
   cephClusterSpec:
+    # Pinned so a chart bump upgrades only the operator, not Ceph itself.
+    # Rook treats these as separate procedures; bump deliberately.
+    cephVersion:
+      image: quay.io/ceph/ceph:v18.2.4
     storage:
       useAllNodes: true
       useAllDevices: false
