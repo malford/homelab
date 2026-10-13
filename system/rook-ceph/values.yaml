@@ -19,9 +19,10 @@ rook-ceph-cluster:
     createPrometheusRules: true
   cephClusterSpec:
     # Pinned so a chart bump upgrades only the operator, not Ceph itself.
-    # Rook treats these as separate procedures; bump deliberately.
+    # 19.2.5 is rook 1.18's Squid ceiling (19.2.6+ unsupported) and clears 1.19,
+    # which drops Reef. Dated tag keeps all six nodes on an identical build.
     cephVersion:
-      image: quay.io/ceph/ceph:v18.2.4
+      image: quay.io/ceph/ceph:v19.2.5-20260709
     storage:
       useAllNodes: true
       useAllDevices: false
