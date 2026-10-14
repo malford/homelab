@@ -1,7 +1,10 @@
 cilium_repo_url: https://helm.cilium.io
-cilium_version: 1.16.17
+cilium_version: 1.17.18
 cilium_namespace: kube-system
 cilium_values:
+  # Pins datapath defaults to the originally-installed minor so the upgrade
+  # does not flip behaviour cilium only enables for fresh installs.
+  upgradeCompatibility: "1.16"
   operator:
     replicas: 1
   kubeProxyReplacement: true
