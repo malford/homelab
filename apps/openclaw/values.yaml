@@ -28,7 +28,7 @@ app-template:
         main:
           image:
             repository: ghcr.io/openclaw/openclaw
-            tag: "2026.10.2"
+            tag: "2026.10.3"
           env:
             TZ: "America/New_York"
             OPENCLAW_GATEWAY_PORT: "18789"
