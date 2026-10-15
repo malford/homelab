@@ -10,6 +10,8 @@ data:
   # bind: lan required for K8s — pod has no tailscale0 interface.
   # Tailscale Operator handles the tailnet perimeter externally.
   # bind: tailnet falls back to 127.0.0.1 and breaks the ingress.
+  # The aperture provider below is reached in-cluster: the CoreDNS rewrite in
+  # system/coredns-custom points that hostname at system/tailnet-egress.
   openclaw.json: |
     {
       "gateway": {
@@ -68,7 +70,7 @@ data:
       "models": {
         "providers": {
           "aperture": {
-            "baseUrl": "http://aperture.openclaw.svc.cluster.local",
+            "baseUrl": "https://ai.tail811db.ts.net",
             "apiKey": "-",
             "api": "anthropic-messages",
             "models": [

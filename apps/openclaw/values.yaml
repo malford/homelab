@@ -45,6 +45,30 @@ app-template:
           port: 18789
           protocol: HTTP
 
+  ingress:
+    # Publishes the gateway onto the tailnet, bypassing nginx. The operator
+    # creates its own device and terminates TLS via MagicDNS, so no cert-manager
+    # here. Reachable at https:// and wss://openclaw-gateway.tail811db.ts.net
+    # - the hostname comes from tls.hosts, which configmap.yaml also pins in
+    # gateway.controlUi.allowedOrigins.
+    tailscale:
+      # Pinned: this is openclaw's only ingress, so app-template would otherwise
+      # name it `openclaw` and the rename would make the operator rebuild the
+      # tailnet device - risking an `openclaw-gateway-1` hostname.
+      forceRename: openclaw-tailscale
+      className: tailscale
+      hosts:
+        - host: openclaw-gateway
+          paths:
+            - path: /
+              pathType: Prefix
+              service:
+                identifier: openclaw
+                port: http
+      tls:
+        - hosts:
+            - openclaw-gateway
+
   persistence:
     data:
       accessMode: ReadWriteOnce
