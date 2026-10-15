@@ -90,6 +90,11 @@ backups:
   - app: actualbudget
     namespace: actualbudget
     claim: actualbudget
+  # Boards, widgets and integration credentials are only in this SQLite volume;
+  # Homarr has no declarative config to rebuild them from.
+  - app: homarr
+    namespace: homarr
+    claim: homarr-database
   - app: openclaw
     namespace: openclaw
     claim: openclaw

@@ -26,6 +26,7 @@ extra_secrets = {
   # github-pat-openclaw              = ""
   # github-token-renovate            = ""
   # grafana-admin-password           = ""
+  # homarr-encryption-key            = ""  # openssl rand -hex 32
   # lidarr-api-key                   = ""
   # network-optimizer-password       = ""
   # ntfy-topic                       = ""

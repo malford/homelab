@@ -1,0 +1,39 @@
+homarr:
+  # Boards and integrations live in the SQLite volume, so the pod must release
+  # the RWO claim before a replacement can attach.
+  strategyType: Recreate
+  env:
+    TZ: America/New_York
+    LOG_LEVEL: info
+    AUTH_PROVIDERS: credentials
+  database:
+    type: sqlite
+    migrationEnabled: true
+  envSecrets:
+    dbEncryption:
+      existingSecret: db-encryption
+      key: db-encryption-key
+  # Grants the ServiceAccount cluster read access and sets ENABLE_KUBERNETES.
+  rbac:
+    enabled: true
+  persistence:
+    homarrDatabase:
+      enabled: true
+      name: homarr-database
+      storageClassName: standard-rwo
+      accessMode: ReadWriteOnce
+      size: 2Gi
+      mountPath: /appdata
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+    hosts:
+      - host: &host homarr.malford.io
+        paths:
+          - path: /
+    tls:
+      - hosts:
+          - *host
+        secretName: homarr-tls-certificate
