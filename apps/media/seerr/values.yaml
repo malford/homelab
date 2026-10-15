@@ -1,0 +1,45 @@
+app-template:
+  # Overrides the shared block in apps/media/_shared/base.yaml: the image runs as
+  # node (1000) and only talks to the *arr/Plex APIs, so it never needs the 1029
+  # that owns the media volumes.
+  defaultPodOptions:
+    enableServiceLinks: true
+    securityContext:
+      runAsUser: 1000
+      runAsGroup: 100
+      fsGroup: 100
+  controllers:
+    main:
+      containers:
+        seerr:
+          image: { repository: ghcr.io/seerr-team/seerr, tag: v3.5.0 }
+          env:
+            TZ: America/New_York
+  service:
+    main:
+      controller: main
+      ports:
+        seerr:
+          port: 5055
+          protocol: HTTP
+  ingress:
+    main:
+      hosts:
+        - host: &seerrHost seerr.malford.io
+          paths:
+            - path: /
+              pathType: Prefix
+              service:
+                identifier: main
+                port: seerr
+      tls:
+        - secretName: seerr-tls-certificate
+          hosts:
+            - *seerrHost
+  persistence:
+    config:
+      advancedMounts:
+        main:
+          seerr:
+            - path: /app/config
+              subPath: seerr

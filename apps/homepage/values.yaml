@@ -211,12 +211,12 @@ app-template:
                   type: plex
                   url: http://plex.media.svc.cluster.local:32400
                   key: '{{ `{{HOMEPAGE_VAR_PLEX_TOKEN}}` }}'
-            - Jellyseerr:
-                href: https://jellyseerr.malford.io
+            - Seerr:
+                href: https://seerr.malford.io
                 description: Media requests
-                icon: jellyseerr.svg
+                icon: seerr.svg
                 namespace: media
-                app: jellyseerr
+                app: seerr
           - Library:
             - Radarr:
                 href: https://radarr.malford.io

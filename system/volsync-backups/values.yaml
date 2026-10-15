@@ -58,9 +58,6 @@ backups:
   - app: jackett
     namespace: media
     claim: jackett
-  - app: jellyseerr
-    namespace: media
-    claim: jellyseerr
   - app: lidarr
     namespace: media
     claim: lidarr
@@ -76,6 +73,9 @@ backups:
   - app: sabnzbd
     namespace: media
     claim: sabnzbd
+  - app: seerr
+    namespace: media
+    claim: seerr
   - app: sonarr
     namespace: media
     claim: sonarr

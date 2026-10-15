@@ -25,7 +25,7 @@
         - Radarr: paste the API key (you can keep the default address and port)
         - Sonarr: same as Radarr
     - Go back to Indexers -> Add New Indexers
-- Jellyseerr `https://jellyseerr.example.com`:
+- Seerr `https://seerr.example.com`:
     - Sign In with Plex, using the account that claimed the server
     - Configure Media Server
         - Enable Movies and Shows
@@ -44,13 +44,13 @@
         - Add Sonarr Server: similar to Radarr
 
 Optionally, invite the people you want to share with as Plex friends, give them access to
-both libraries, and allow their accounts to request media in Jellyseerr.
+both libraries, and allow their accounts to request media in Seerr.
 
 ## Usage
 
 Here's a suggested flow:
 
-- Users request media in Jellyseerr
+- Users request media in Seerr
 - Admins approve the request (or you can enable auto-approve)
 - Wait for the media to be downloaded
 - Watch on Plex
