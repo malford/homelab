@@ -1,0 +1,4 @@
+apiVersion: v2
+name: tailnet-egress
+description: Outbound reachability from pods to tailnet hosts, via operator-managed egress proxies
+version: 0.0.0

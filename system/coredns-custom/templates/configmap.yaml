@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  # Name and namespace are fixed - CoreDNS mounts this exact ConfigMap.
+  name: coredns-custom
+  namespace: kube-system
+data:
+  {{- with .Values.rewrites }}
+  # *.override is imported inside the main `.:53` block.
+  rewrites.override: |
+    {{- range . }}
+    rewrite name exact {{ .from }} {{ .to }}
+    {{- end }}
+  {{- end }}
+  {{- $upstream := join " " .Values.forwardTo }}
+  {{- $sni := .Values.tlsServername }}
+  {{- range .Values.stubZones }}
+  # *.server is imported at top level, as a server block of its own.
+  {{ . }}.server: |
+    {{ . }}:53 {
+      errors
+      cache 30
+      {{- if $sni }}
+      forward . {{ $upstream }} {
+        tls_servername {{ $sni }}
+      }
+      {{- else }}
+      forward . {{ $upstream }}
+      {{- end }}
+    }
+  {{- end }}

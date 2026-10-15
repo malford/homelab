@@ -1,0 +1,4 @@
+apiVersion: v2
+name: coredns-custom
+description: Cluster DNS extensions - name rewrites and stub zones layered onto k3s CoreDNS
+version: 0.0.0

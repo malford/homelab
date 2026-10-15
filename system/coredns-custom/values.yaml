@@ -1,0 +1,38 @@
+# Cluster DNS extensions. Sole owner of the `coredns-custom` ConfigMap, which
+# k3s already mounts into CoreDNS at /etc/coredns/custom (optional: true) - so
+# nothing here edits the k3s-managed Corefile and nothing is lost on upgrade.
+# https://docs.k3s.io/advanced#coredns-custom-configuration-imports
+#
+# Why this exists: the nodes resolve via 8.8.8.8 (set at install time by
+# metal/roles/pxe_server/templates/kickstart.ks.j2 from `dns_server` in
+# metal/group_vars/all.yml), and CoreDNS inherits that with
+# `forward . /etc/resolv.conf`. Public names resolve; nothing private does.
+# Repointing that upstream is not possible from here - a second `forward .` in
+# the main server block makes CoreDNS refuse to load - so private zones are
+# delegated one block at a time below.
+
+# Make a name resolve to an in-cluster Service while callers keep using the real
+# hostname, so the Host header, TLS SNI and the certificate all still match.
+rewrites:
+  - from: ai.tail811db.ts.net
+    to: aperture.tailnet-egress.svc.cluster.local
+
+# Private zones the node resolvers cannot answer. Each becomes its own CoreDNS
+# server block. Keep these narrow: `malford.io` is public and must keep
+# resolving through the default upstream.
+stubZones:
+  - local.mmalford.com
+
+# Where stub zones are sent. The UniFi gateway already forwards to NextDNS, so
+# one target covers both the *.local.mmalford.com rewrite (-> 192.168.3.24) and
+# any other name UniFi serves locally. Cross-VLAN - cluster is on .5 - but pods
+# already reach this address for the homepage Unifi widget.
+#
+# Alternative if the gateway should not be in the path: NextDNS directly over
+# TLS, which carries the profile ID in the SNI rather than relying on a linked
+# source IP. Resolves the rewrite but knows nothing UniFi-local:
+#   forwardTo: ["tls://45.90.28.53", "tls://45.90.30.53"]
+#   tlsServername: 489d86.dns.nextdns.io
+forwardTo:
+  - 192.168.3.1
+tlsServername: ""

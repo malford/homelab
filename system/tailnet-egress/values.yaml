@@ -1,0 +1,17 @@
+# Outbound tailnet reachability for pods. This list is the single source of truth.
+#
+# Pods have no tailscale0 interface and cannot route 100.64.0.0/10, so a pod
+# cannot dial a tailnet address directly. The Tailscale operator watches for
+# ExternalName Services carrying a tailnet-fqdn annotation and provisions a proxy
+# pod per Service, then rewrites externalName to point at it. One Service per
+# host; ports are explicit because the proxy only forwards what is listed.
+#
+# Reaching these by their real hostname (so TLS still validates) needs a matching
+# rewrite in system/coredns-custom.
+
+egress:
+  - name: aperture
+    fqdn: ai.tail811db.ts.net
+    ports:
+      - name: https
+        port: 443
