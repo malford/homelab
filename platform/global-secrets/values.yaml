@@ -3,4 +3,4 @@ secretGenerator:
   # directive in its go.mod. Renovate tracks it here so it moves with the module.
   image:
     repository: docker.io/library/golang
-    tag: 1.26-alpine
+    tag: 1.27-alpine
