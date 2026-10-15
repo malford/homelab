@@ -3,7 +3,7 @@ configJob:
   # its go.mod. Renovate tracks it here so it moves with the module.
   image:
     repository: docker.io/library/golang
-    tag: 1.26-alpine
+    tag: 1.27-alpine
 
 gitea:
   # gitea-shared-storage is RWO, so it attaches to one node at a time, while the
