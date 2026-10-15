@@ -333,11 +333,15 @@ app-template:
                 widget:
                   type: grafana
                   url: http://grafana.grafana.svc.cluster.local
-                  # Grafana 12.x needs the v2 API; anonymous auth is enabled
-                  # org-wide, so no credentials are required here.
+                  # /api/admin/stats needs server admin, which anonymous auth
+                  # can never grant, so basic auth is required.
+                  username: admin
+                  password: '{{ `{{HOMEPAGE_VAR_GRAFANA_PASSWORD}}` }}'
+                  # v2 counts alerts from the unified alerting API; alerts live
+                  # in kube-prometheus-stack's Alertmanager, not Grafana's.
                   version: 2
                   alerts: alertmanager
-                  fields: ["dashboards", "datasources", "totalalerts", "alertstriggered"]
+                  fields: ["dashboards", "datasources", "alertstriggered"]
             - Prometheus:
                 description: Metrics and scrape targets
                 icon: prometheus.svg

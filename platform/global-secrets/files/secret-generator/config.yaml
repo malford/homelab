@@ -17,6 +17,15 @@
       length: 32
       special: false
 
+# Grafana
+# Consumed by the chart via admin.existingSecret and by homepage's grafana widget,
+# which needs server admin for /api/admin/stats. Alphanumeric to stay header-safe.
+- name: grafana.admin
+  data:
+    - key: password
+      length: 32
+      special: false
+
 # Registry
 - name: registry.admin
   data:

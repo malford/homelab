@@ -23,6 +23,12 @@ grafana:
       enabled: true
       searchNamespace: monitoring-system
   envFromSecret: grafana-secrets
+  # Pins the admin credential to external-secrets instead of the chart's own
+  # generated one, so homepage can authenticate against the same password.
+  admin:
+    existingSecret: grafana-admin
+    userKey: admin-user
+    passwordKey: admin-password
   grafana.ini:
     server:
       root_url: https://grafana.malford.io
