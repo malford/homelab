@@ -57,8 +57,11 @@ ceph() { kubectl -n rook-ceph exec deploy/rook-ceph-mgr-a -c mgr -- ceph "$@" --
 !!! note
 
     Swap `mgr-a` for `mgr-b` if `a` is the standby. The `mgr.a` keyring lacks caps
-    for a few commands (`ceph osd df` returns exit 13) — use the Grafana Ceph
-    boards or Prometheus for per-OSD utilisation.
+    for some commands, which fail with exit 13, `EACCES: access denied: does your
+    client key have mgr caps?`. Known cases: `ceph osd df` (use the Grafana Ceph
+    boards or Prometheus for per-OSD utilisation) and `ceph osd purge` (use the
+    `kubectl rook-ceph` plugin from the Mac, which has full toolbox-equivalent
+    access).
 
 - [ ] MDS pods are on **different** nodes:
       `kubectl -n rook-ceph get pods -l app=rook-ceph-mds -o wide`
@@ -119,19 +122,48 @@ closer to an hour for metal0v2/metal1v2).
 ceph -s   # repeat until all PGs are active+clean again
 ```
 
-`removeOSDsIfOutAndSafeToRemove: true` means the operator usually purges the OSD
-itself once it is out and safe. Verify rather than assume, and purge by hand if
-it is still listed:
+!!! warning "Do not purge the OSD yet"
 
-```sh
-ceph osd tree
-ceph osd purge $OSD_ID --yes-i-really-mean-it
-```
+    The CephCluster runs `useAllNodes: true`, so the operator provisions an OSD on
+    **any schedulable node** holding one of the listed devices. While the node is
+    still schedulable, a reconcile recreates the OSD deployment, re-adopts the
+    BlueStore device, and puts the OSD back `in` at full weight — undoing both the
+    `out` and a completed purge. Purge only after the drain has cordoned the node,
+    in step 3.
 
-### 3. Drain and remove the node
+    `removeOSDsIfOutAndSafeToRemove: true` is not a substitute. Observed
+    2026-10-16: with the OSD out for 15 minutes and both `ceph osd safe-to-destroy`
+    and `ceph osd ok-to-stop` returning yes, the operator created **no purge job at
+    all**.
+
+### 3. Drain the node and purge the OSD
 
 ```sh
 kubectl drain $NODE --delete-emptydir-data --ignore-daemonsets --force
+```
+
+The drain cordons the node, which is what finally stops the operator from
+re-provisioning the OSD. Now stop the daemon and purge. `ceph osd out` only
+removes the OSD from data placement — the daemon keeps running, and `purge`
+refuses a live OSD with `EBUSY: osd.N is not 'down'`:
+
+```sh
+kubectl -n rook-ceph scale deploy rook-ceph-osd-$OSD_ID --replicas=0
+ceph osd tree   # repeat until the OSD reads `down`
+ceph osd purge $OSD_ID --yes-i-really-mean-it
+kubectl -n rook-ceph delete deploy rook-ceph-osd-$OSD_ID
+```
+
+!!! note "`purge` needs the plugin, not the shim"
+
+    `ceph osd purge` is one of the commands the `mgr.a` keyring cannot run — it
+    fails with exit 13, `EACCES: access denied: does your client key have mgr
+    caps?`. Run it as `kubectl rook-ceph ceph osd purge ...` from the Mac instead.
+
+Confirm the OSD is gone and stays gone, then remove the node:
+
+```sh
+ceph osd tree           # no entry for $OSD_ID, and the host bucket is empty
 kubectl delete node $NODE
 ```
 
@@ -160,7 +192,7 @@ Wiping the ESP (`wipefs -a /dev/nvme0n1p1`) works too and is equivalent for the
 installer, since `%pre` recreates p1–p3 either way.
 
 A full zap is acceptable **only** on a node still in the old single-VG layout,
-where the OSD has already been purged in step 2.
+where the OSD has already been purged in step 3.
 
 ### 5. Reinstall
 
