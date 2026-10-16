@@ -37,7 +37,7 @@ rook-ceph-cluster:
   # 1.19 moved this out of cephClusterSpec.cephVersion; setting both renders a
   # duplicate YAML key. Dated tag keeps all six nodes on an identical build.
   cephImage:
-    tag: v19.2.5-20260709
+    tag: v19.2.6-20260818
   cephClusterSpec:
     storage:
       useAllNodes: true
