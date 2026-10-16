@@ -1,79 +1,97 @@
-#version=RHEL8
-
-# Do not use graphical install
+{% set disk = hostvars[item]['disk'] %}
+{% set part = '/dev/' + disk + ('p' if disk[-1].isdigit() else '') %}
+#version=RHEL10
 text
-
-# Keyboard layouts
 keyboard --xlayouts='us'
-# System language
 lang en_US.UTF-8
 
-# Partition clearing information
-clearpart --all --drives={{ hostvars[item]['disk'] }}
-# Partitioning
-ignoredisk --only-use={{ hostvars[item]['disk'] }}
+# Partitioning is done entirely in %pre so this body is identical whether the
+# disk is fresh or being rebuilt around a surviving Ceph partition.
+clearpart --none
+ignoredisk --only-use={{ disk }}
+part /boot/efi --onpart={{ part }}1 --fstype=vfat
+part /boot --onpart={{ part }}2 --fstype=ext4
+part pv.01 --onpart={{ part }}3
+volgroup os pv.01
+logvol / --vgname=os --name=root --fstype=ext4 --size=20480 --fsoptions="defaults,noatime"
+logvol /var/lib/rancher --vgname=os --name=rancher --fstype=xfs --size=32768 --fsoptions="defaults,noatime"
+logvol /var/lib/kubelet --vgname=os --name=kubelet --fstype=xfs --size=65536 --fsoptions="defaults,noatime"
+bootloader --boot-drive={{ disk }}
 
-# Boot partitions (minimal)
-partition /boot/efi --fstype=vfat --size=512
-partition /boot --fstype=ext4 --size=512
-
-# LVM physical volume using all remaining space
-partition pv.01 --size=1 --grow
-volgroup system pv.01
-
-# Logical volumes
-logvol / --vgname=system --name=root --fstype=ext4 --size=20480
-logvol /var/lib/rancher --vgname=system --name=rancher --fstype=xfs --size=32768
-logvol /var/lib/kubelet --vgname=system --name=kubelet --fstype=xfs --size=65536
-
-%post
-lvcreate -l 100%FREE -n ceph system
-%end
-
-# Network information
 network --bootproto=static --device={{ hostvars[item]['network_interface'] }} --ip={{ hostvars[item]['ansible_host'] }} --gateway={{ ansible_default_ipv4.gateway }} --nameserver={{ dns_server }} --netmask={{ ansible_default_ipv4.netmask }} --ipv6=auto --hostname={{ hostvars[item]['inventory_hostname'] }} --activate
-
-# Use network installation
-repo --name="Repository" --baseurl=http://{{ ansible_default_ipv4.address }}/os
-url --url="http://{{ ansible_default_ipv4.address }}/os"
-# Disable Setup Agent on first boot
+url --url="{{ install_repo_baseos }}"
+repo --name="AppStream" --baseurl="{{ install_repo_appstream }}"
 firstboot --disable
-# Do not configure the X Window System
 skipx
-# Enable NTP
 services --enabled="chronyd"
-# System timezone
 timezone {{ timezone }} --utc
-
-# Create user (locked by default)
 user --groups=wheel --name=admin
-# Add SSH key
 sshkey --username=root "{{ ssh_public_key }}"
-# Disable root password login
 rootpw --lock
-
-# Disable SELinux
-selinux --disabled
-
-# Disable firewall
+# Permissive rather than disabled: RHEL 10 deprecates fully disabling SELinux,
+# and this logs denials without blocking anything until policies are reviewed.
+selinux --permissive
 firewall --disabled
 
+# Partition p1-p3 are recreated every rebuild; p4 holds the Ceph OSD and is only
+# ever created on a disk that does not already have one, so a reinstall keeps the
+# OSD and avoids a full backfill. Sizes are fixed (not --grow) so p4 keeps its
+# offset across rebuilds.
+%pre --interpreter=/bin/bash --log=/tmp/pre-partition.log
+set -eu
+
+DISK=/dev/{{ disk }}
+PART={{ part }}
+
+EFI_END=513     # 512 MiB ESP starting at 1 MiB
+BOOT_END=1537   # 1 GiB /boot — 512 MiB overflows with three kernels installed
+OS_END=122369   # 118 GiB for the OS volume group
+
+lvm vgscan --mknodes
+
+if lvm lvs --noheadings ceph/osd >/dev/null 2>&1; then
+    # Rebuild: drop only the OS volume group and wipe its partition. The
+    # partition table and p4 are left untouched.
+    lvm vgchange -an os || true
+    lvm vgremove -f os || true
+    wipefs -a "${PART}3"
+else
+    # Fresh disk, or the old single-VG layout — repartition from scratch.
+    lvm vgchange -an || true
+    wipefs -a "$DISK" || true
+    parted -s "$DISK" mklabel gpt
+    parted -s "$DISK" mkpart ESP fat32 1MiB ${EFI_END}MiB
+    parted -s "$DISK" set 1 esp on
+    parted -s "$DISK" mkpart boot ext4 ${EFI_END}MiB ${BOOT_END}MiB
+    parted -s "$DISK" mkpart os ${BOOT_END}MiB ${OS_END}MiB
+    parted -s "$DISK" set 3 lvm on
+    parted -s "$DISK" mkpart ceph ${OS_END}MiB 100%
+    parted -s "$DISK" set 4 lvm on
+    udevadm settle
+    lvm pvcreate -ff -y "${PART}4"
+    lvm vgcreate ceph "${PART}4"
+    lvm lvcreate -l 100%FREE -n osd ceph
+fi
+
+# Leave the ceph group inactive so anaconda sees an in-use PV and nothing else.
+lvm vgchange -an ceph || true
+udevadm settle
+%end
+
 %packages
-@^custom-environment
+@^minimal-environment
 openssh-server
+chrony
+lvm2
+parted
 %end
 
 %post
-# Optimize XFS for SSDs/NVMe
-sed -i 's/defaults/defaults,noatime,nodiratime,discard/g' /etc/fstab
-
-# Create mount options for better performance
-echo "# Performance optimizations" >> /etc/fstab
-echo "/dev/system/rancher /var/lib/rancher xfs defaults,noatime,nodiratime,discard 0 0" >> /etc/fstab
-echo "/dev/system/kubelet /var/lib/kubelet xfs defaults,noatime,nodiratime,discard 0 0" >> /etc/fstab
-
-# Enable periodic TRIM for NVMe health
+# RHEL 10 gates LVM on /etc/lvm/devices/system.devices, which anaconda fills in
+# with only the disks it installed onto. Without this the ceph VG stays
+# invisible after reboot and the OSD never comes back.
+lvmdevices --adddev {{ part }}4 || true
+# fstrim.timer handles discard, so the filesystems above skip the mount option.
 systemctl enable fstrim.timer
 %end
-
 reboot

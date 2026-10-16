@@ -27,15 +27,15 @@
     - "{{ k3s_data_dir }}/agent/pod-manifests"
 
 # `run_once` is per-batch, so under `serial` it fires on every host and each
-# would mint its own token. Anchor to the first master by name instead.
+# would mint its own token. Anchor to `k3s_primary` by name instead.
 - name: Check if k3s token file exists on the first node
-  delegate_to: "{{ groups['masters'][0] }}"
+  delegate_to: "{{ k3s_primary }}"
   ansible.builtin.stat:
     path: "{{ k3s_token_file }}"
   register: k3s_token_file_stat
 
 - name: Generate k3s token file on the first node if not exist yet
-  delegate_to: "{{ groups['masters'][0] }}"
+  delegate_to: "{{ k3s_primary }}"
   when: not k3s_token_file_stat.stat.exists
   ansible.builtin.copy:
     content: "{{ lookup('community.general.random_string', length=32) }}"
@@ -43,7 +43,7 @@
     mode: 0600
 
 - name: Get k3s token from the first node
-  delegate_to: "{{ groups['masters'][0] }}"
+  delegate_to: "{{ k3s_primary }}"
   ansible.builtin.slurp:
     src: "{{ k3s_token_file }}"
   register: k3s_token_base64
@@ -93,7 +93,7 @@
     cmd: >
       /usr/local/bin/k3s kubectl wait --for=condition=Ready
       node/{{ inventory_hostname }} --timeout=300s
-  delegate_to: "{{ groups['masters'][0] }}"
+  delegate_to: "{{ k3s_primary }}"
   changed_when: false
 
 # `state: started` above is satisfied by the old process still holding the
@@ -104,7 +104,7 @@
     cmd: >
       /usr/local/bin/k3s kubectl get node {{ inventory_hostname }}
       -o jsonpath={.status.nodeInfo.kubeletVersion}
-  delegate_to: "{{ groups['masters'][0] }}"
+  delegate_to: "{{ k3s_primary }}"
   changed_when: false
   register: k3s_node_version
   until: k3s_node_version.stdout == k3s_version
@@ -112,7 +112,7 @@
   delay: 10
 
 - name: Get Kubernetes config file
-  delegate_to: "{{ groups['masters'][0] }}"
+  delegate_to: "{{ k3s_primary }}"
   ansible.builtin.slurp:
     src: "{{ k3s_kubeconfig_file }}"
   register: kubeconfig_base64

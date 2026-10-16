@@ -1,4 +1,4 @@
-{% if inventory_hostname == groups['masters'][0] %}
+{% if k3s_cluster_init | bool and inventory_hostname == k3s_primary %}
 cluster-init: true
 {% else %}
 server: https://{{ control_plane_endpoint }}:6443
