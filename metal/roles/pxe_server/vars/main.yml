@@ -1,0 +1,4 @@
+---
+# Written only after a successful extract. The ISO name is part of the path, so
+# bumping iso_url makes the check miss and forces a re-extract.
+boot_image_marker: "{{ role_path }}/files/data/os/.extracted-from-{{ iso_url | basename }}"

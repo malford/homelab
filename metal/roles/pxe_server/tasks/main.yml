@@ -16,10 +16,30 @@
     mode: 0644
   register: iso
 
+# Every release ships a .treeinfo, so gating on that path kept a previously
+# extracted tree in place after an iso_url bump and served the old distro's
+# kernel with the new kickstart. Gate on the ISO name instead.
+- name: Check which ISO the boot image tree came from
+  ansible.builtin.stat:
+    path: "{{ boot_image_marker }}"
+  register: boot_image
+
+- name: Clear a boot image tree extracted from a different ISO
+  ansible.builtin.command:
+    cmd: "find {{ role_path }}/files/data/os -mindepth 1 -not -name .gitignore -delete"
+  when: not boot_image.stat.exists
+  changed_when: true
+
 - name: Extract boot image
   ansible.builtin.command:
     cmd: "xorriso -osirrox on -indev {{ iso.dest }} -extract / {{ role_path }}/files/data/os"
-    creates: "{{ role_path }}/files/data/os/.treeinfo"
+    creates: "{{ boot_image_marker }}"
+
+- name: Record which ISO the boot image tree came from
+  ansible.builtin.copy:
+    content: "{{ iso_url | basename }}\n"
+    dest: "{{ boot_image_marker }}"
+    mode: 0644
 
 - name: Generate dnsmasq config
   ansible.builtin.template:
@@ -45,3 +65,6 @@
     project_src: "{{ role_path }}/files"
     state: present
     build: always
+    # vmlinuz/initrd.img are bind-mounted as files, so a container left running
+    # from a previous boot would keep serving the replaced inodes.
+    recreate: always

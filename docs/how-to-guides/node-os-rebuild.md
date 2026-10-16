@@ -172,6 +172,20 @@ cd metal
 ansible-playbook -i inventories/prod.yml boot.yml --limit "localhost,$NODE"
 ```
 
+!!! note "The first run replaces the whole PXE tree"
+
+    The jump box has served the Fedora 39 tree since early 2024. The first run
+    downloads the AlmaLinux ISO (~1 GB), clears `files/data/os`, re-extracts, and
+    recreates both PXE containers so they pick up the new `vmlinuz`/`initrd.img`.
+    Confirm it actually switched before letting the node boot:
+
+    ```sh
+    ls roles/pxe_server/files/data/os/.extracted-from-*
+    ```
+
+    The old `Fedora-Server-dvd-x86_64-39-1.5.iso` stays in `files/data/iso` and
+    can be deleted to reclaim 2.5 GB.
+
 The node wakes on LAN, PXE boots, installs, and reboots. Then rejoin it:
 
 ```sh
