@@ -43,8 +43,12 @@ rook-ceph-cluster:
       useAllNodes: true
       useAllDevices: false
       devices:
+        # Names are matched per node and misses are ignored, so the old
+        # single-VG layout and the rebuilt `ceph/osd` one can coexist. Drop the
+        # two `system-*` entries once every node has been rebuilt.
         - name: "/dev/mapper/system-ceph--storage"
         - name: "/dev/mapper/system-ceph"
+        - name: "/dev/mapper/ceph-osd"
     mon:
       count: 3
     mgr:
@@ -123,6 +127,17 @@ rook-ceph-cluster:
         metadataServer:
           activeCount: 1
           activeStandby: true
+          # Rook only sets a *preferred* anti-affinity, which let the active and
+          # standby MDS land on one node — wiping it would take CephFS offline.
+          # Scoped to this filesystem so a second one is not blocked.
+          placement:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchLabels:
+                      app: rook-ceph-mds
+                      rook_file_system: standard-rwx
+                  topologyKey: kubernetes.io/hostname
           resources:
             limits:
               memory: "4Gi"
