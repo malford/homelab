@@ -65,6 +65,11 @@ rook-ceph-cluster:
           # Chart default, re-pinned: aes256k needs kernel 7.0+ and these nodes
           # are on 6.11, so rotating CSI keys would break new mounts.
           keyType: aes
+        # Unused — no peers configured, so nothing consumes the token. Rotating
+        # leaves the kernel as the only reason keys are still `aes`.
+        rbdMirrorPeer:
+          keyRotationPolicy: KeyGeneration
+          keyGeneration: 2
     resources:
       mgr:
         limits:
