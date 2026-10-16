@@ -54,6 +54,17 @@ rook-ceph-cluster:
     logCollector:
       enabled: false
     removeOSDsIfOutAndSafeToRemove: true
+    security:
+      cephx:
+        # 19.2.6 flags the legacy `aes` keys as HEALTH_ERR. Rotating daemon keys
+        # mints aes256k and leaves PVCs mounted; rook picks the type itself.
+        daemon:
+          keyRotationPolicy: KeyGeneration
+          keyGeneration: 2
+        csi:
+          # Chart default, re-pinned: aes256k needs kernel 7.0+ and these nodes
+          # are on 6.11, so rotating CSI keys would break new mounts.
+          keyType: aes
     resources:
       mgr:
         limits:
