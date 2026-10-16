@@ -15,6 +15,9 @@ ceph-csi-drivers:
     # would strand both StorageClasses on a driver that never appears.
     rbd:
       name: rook-ceph.rbd.csi.ceph.com
+      # Chart defaults rbd to `none` but cephfs to `volumeSnapshot`. `none`
+      # drops the csi-snapshotter sidecar, so every VolSync backup hangs.
+      snapshotPolicy: volumeSnapshot
     cephfs:
       name: rook-ceph.cephfs.csi.ceph.com
     # nfs is served by csi-driver-nfs; nvmeof is unused.
