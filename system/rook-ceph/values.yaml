@@ -1,14 +1,27 @@
 rook-ceph:
   monitoring:
     enabled: true
-  csi:
-    # Unused, and rook 1.15's csi-snapshotter v8.0.1 only speaks the v1alpha1
-    # group API that snapshot-controller 5.x drops.
-    enableVolumeGroupSnapshot: false
-    # 1.18 defaults this on, which swaps the in-rook CSI driver for a separate
-    # operator: +1 Deployment, +5 CRDs, ~50 RBAC objects. Keep the in-rook
-    # driver so the chart hop stays an operator bump. Migrate on its own commit.
-    rookUseCsiOperator: false
+  # `enableVolumeGroupSnapshot` and `rookUseCsiOperator` both existed here and
+  # are both removed in 1.20 — the CSI operator is now the only option, so the
+  # old opt-out is gone rather than defaulted.
+ceph-csi-drivers:
+  # The chart emits `namespace:` unconditionally and defaults it to "", so an
+  # unset value renders an explicitly empty field rather than omitting it.
+  operatorConfig:
+    namespace: rook-ceph
+  drivers:
+    # StorageClass provisioners and the live CSIDriver objects are immutable and
+    # carry the `rook-ceph.` prefix. The chart defaults are unprefixed, which
+    # would strand both StorageClasses on a driver that never appears.
+    rbd:
+      name: rook-ceph.rbd.csi.ceph.com
+    cephfs:
+      name: rook-ceph.cephfs.csi.ceph.com
+    # nfs is served by csi-driver-nfs; nvmeof is unused.
+    nfs:
+      enabled: false
+    nvmeof:
+      enabled: false
 snapshot-controller:
   # 3.0.6 shipped CRDs in Helm's crds/ dir, which is never pruned. 5.x templates
   # them, so without this a dep change could prune every VolumeSnapshot.

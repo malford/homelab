@@ -32,12 +32,24 @@
       // Rook operator and cluster must move in lockstep, and both live in the
       // same Chart.yaml, so split PRs would skew them and then conflict.
       // Rook forbids skipping minors, so the ceiling is raised one minor per
-      // hop by hand. On 1.19.11; <1.21.0 allows the 1.20.x hop only.
+      // hop by hand. On v1.20.9; <1.21.0 now allows nothing, which is correct —
+      // raise it deliberately when the 1.21 hop is planned.
       "matchPackageNames": [
         "rook-ceph",
         "rook-ceph-cluster"
       ],
       "allowedVersions": "<1.21.0",
+      "groupName": "rook-ceph"
+    },
+    {
+      // 1.20 dropped the in-rook CSI driver, so this chart supplies the Driver
+      // CRs the vendored ceph-csi-operator reconciles. It must track the
+      // operator version rook vendors (v1.0.4), so only patches float here;
+      // a minor needs a rook hop to match it.
+      "matchPackageNames": [
+        "ceph-csi-drivers"
+      ],
+      "allowedVersions": "<1.1.0",
       "groupName": "rook-ceph"
     },
     {

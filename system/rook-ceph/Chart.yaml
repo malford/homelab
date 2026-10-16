@@ -3,10 +3,17 @@ name: rook-ceph
 version: 0.0.0
 dependencies:
   - name: rook-ceph
-    version: 1.19.11
+    version: v1.20.9
     repository: https://charts.rook.io/release
+  # 1.20 deletes the in-rook CSI driver templates and ships ceph-csi-operator
+  # instead, which only builds drivers from Driver CRs this chart supplies.
+  # Without it the hop leaves the cluster with no CSI driver at all. Pinned to
+  # the operator version rook 1.20.9 vendors (v1.0.4).
+  - name: ceph-csi-drivers
+    version: 1.0.4
+    repository: https://ceph.github.io/ceph-csi-operator
   - name: rook-ceph-cluster
-    version: 1.19.11
+    version: v1.20.9
     repository: https://charts.rook.io/release
   # TODO switch to official chart when there is one
   # https://github.com/kubernetes-csi/external-snapshotter/issues/812
