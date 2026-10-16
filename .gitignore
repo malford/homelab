@@ -1,5 +1,9 @@
 .venv/
 book/
+.idea/
+
+# holds live API credentials
+schwab-auth.py
 
 *.iso
 *.log

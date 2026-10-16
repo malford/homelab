@@ -32,7 +32,7 @@
       // Rook operator and cluster must move in lockstep, and both live in the
       // same Chart.yaml, so split PRs would skew them and then conflict.
       // Rook forbids skipping minors, so the ceiling is raised one minor per
-      // hop by hand. Stop at <1.20.0 until k3s reaches 1.31.
+      // hop by hand. On 1.19.11; <1.21.0 allows the 1.20.x hop only.
       "matchPackageNames": [
         "rook-ceph",
         "rook-ceph-cluster"
