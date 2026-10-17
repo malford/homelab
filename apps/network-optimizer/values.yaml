@@ -61,6 +61,40 @@ app-template:
             # Points results back to the main app API
             REVERSE_PROXIED_HOST_NAME: network-optimizer.malford.io
 
+    influxdb:
+      pod:
+        securityContext:
+          runAsUser: 1000
+          runAsGroup: 1000
+          fsGroup: 1000
+      containers:
+        app:
+          image:
+            repository: docker.io/library/influxdb
+            # 2.x line - the app needs the v2 API. 3.x is a different engine.
+            tag: 2.9.1-alpine
+          env:
+            TZ: America/New_York
+            DOCKER_INFLUXDB_INIT_MODE: setup
+            DOCKER_INFLUXDB_INIT_USERNAME: admin
+            DOCKER_INFLUXDB_INIT_ORG: malford
+            DOCKER_INFLUXDB_INIT_BUCKET: init
+            DOCKER_INFLUXDB_INIT_RETENTION: 1w
+          envFrom:
+            - secret: network-optimizer-influxdb
+          probes:
+            liveness: &influxProbe
+              enabled: true
+              custom: true
+              spec:
+                httpGet:
+                  path: /health
+                  port: 8086
+                initialDelaySeconds: 15
+                periodSeconds: 30
+                timeoutSeconds: 10
+            readiness: *influxProbe
+
   service:
     network-optimizer:
       controller: network-optimizer
@@ -73,6 +107,14 @@ app-template:
       ports:
         http:
           port: 3000
+          protocol: HTTP
+    # Cluster-internal only. The Monitoring wizard takes
+    # http://network-optimizer-influxdb:8086 - no ingress.
+    influxdb:
+      controller: influxdb
+      ports:
+        http:
+          port: 8086
           protocol: HTTP
 
   ingress:
@@ -138,3 +180,11 @@ app-template:
         network-optimizer:
           app:
             - path: /app/logs
+    influxdb-data:
+      accessMode: ReadWriteOnce
+      size: 20Gi
+      storageClass: standard-rwo
+      advancedMounts:
+        influxdb:
+          app:
+            - path: /var/lib/influxdb2

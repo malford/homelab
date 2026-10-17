@@ -51,6 +51,18 @@
       length: 64
       special: false
 
+# InfluxDB (network-optimizer)
+# admin_token travels in an Authorization header, so alphanumeric only. Both are
+# baked into influxd.bolt at first boot; regenerating them won't re-init the DB.
+- name: influxdb.admin
+  data:
+    - key: password
+      length: 32
+      special: false
+    - key: admin_token
+      length: 64
+      special: false
+
 # VolSync / restic
 # WARNING: this password encrypts every backup repository. The generator never
 # rotates an existing key, but if the global-secrets namespace is ever wiped a new
