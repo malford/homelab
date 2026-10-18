@@ -5,7 +5,7 @@ app-template:
         app:
           image:
             repository: ghcr.io/unpoller/unpoller
-            tag: v5.6.0
+            tag: v5.6.2
           env:
             # Nothing writes to the NAS InfluxDB after this, which is what
             # makes the phase 2 teardown clean.
