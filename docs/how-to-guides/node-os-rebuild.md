@@ -31,12 +31,23 @@ carry ~72% of it between them, so they go last.
 | 5 | `metal1v2` | Large OSD, plus mgr/mon/mds |
 | 6 | `metal0v2` | Large OSD, and it is `groups['masters'][0]` |
 
-!!! tip "Prove the partition scheme before spending the fleet"
+!!! tip "Prove the partition scheme while the OSD device is still empty"
 
     There is no staging cluster. The only unproven piece is the `%pre` block, so
-    rebuild `metal3v2` **twice**: once to lay down the new layout, then again to
-    confirm `p4` survives and the OSD is re-adopted without a backfill. If the
-    second pass fails, you have lost one small node's data and nothing else.
+    rebuild `metal3v2` **twice** — but do the second pass **before** letting Rook
+    build its OSD, while `ceph/osd` exists and is empty.
+
+    `%pre` branches on whether `ceph/osd` exists, so an empty LV exercises the
+    same destructive-if-wrong path as a full one, at a moment when there is
+    nothing on that device to lose. Building the OSD first costs a backfill in,
+    a second rebuild, and possibly a backfill back out — hours, for no extra
+    signal about *our* code. The one thing it would additionally test is
+    `ceph-volume`'s re-adoption of a populated device, which is Rook's code with
+    a bounded failure mode: a fresh OSD plus a backfill, i.e. exactly what pass 1
+    costs anyway.
+
+    So: pass 1 → pass 2 on the empty LV → confirm the UUIDs below → *then*
+    restart the operator and pay one backfill.
 
 ## Preflight (once, before node 1)
 
@@ -109,18 +120,49 @@ ceph osd tree
 
 Note the OSD id on this node as `OSD_ID`.
 
-### 2. Drain the OSD
+If the node is already on the new layout, record the LVM identity and the
+partition offsets as well:
+
+```sh
+ssh root@$NODE "lvs -o lv_name,vg_name,lv_uuid ceph; vgs -o vg_name,vg_uuid ceph; \
+  pvs -o pv_name,pv_uuid,vg_name; parted -s /dev/nvme0n1 unit s print"
+```
+
+!!! important "This is the only proof that `p4` was preserved"
+
+    A preserved `p4` and one repartitioned to the same fixed offsets look
+    identical in `lsblk`. The falsifiable evidence is the UUIDs: after the
+    rebuild the `p4` PV UUID, the `ceph` VG UUID and the `ceph/osd` LV UUID must
+    be **unchanged**, while the `p3` PV UUID must be **new** because `%pre`
+    rebuilds the OS volume group from scratch. Without this snapshot the pass-2
+    result is unfalsifiable.
+
+### 2. Take the OSD out of service
+
+Which path you take depends on the layout the node is **currently** running, not
+on which pass number you are on. Check:
+
+```sh
+ssh root@$NODE "lvs -o lv_name,vg_name"
+```
+
+| What you see | Path |
+| --- | --- |
+| VG `system`, LV `ceph` (or `ceph-storage`) | **Destroy** — the OSD is inside the OS volume group, so `%pre` repartitions from scratch and it cannot survive |
+| VG `ceph`, LV `osd` | **Preserve** — `%pre` keeps `p4` intact and Rook re-adopts the device |
+
+A node with no OSD at all (a rebuild that has not been given one yet) skips this
+step entirely — go straight to step 3.
+
+#### Destroy path — old layout
 
 ```sh
 ceph osd out $OSD_ID
-```
-
-Wait for recovery to finish — this is the long step (minutes for a small node,
-closer to an hour for metal0v2/metal1v2).
-
-```sh
 ceph -s   # repeat until all PGs are active+clean again
 ```
+
+This is the long step: minutes for a small node, closer to an hour for metal0v2
+or metal1v2.
 
 !!! warning "Do not purge the OSD yet"
 
@@ -136,22 +178,60 @@ ceph -s   # repeat until all PGs are active+clean again
     and `ceph osd ok-to-stop` returning yes, the operator created **no purge job at
     all**.
 
-### 3. Drain the node and purge the OSD
+#### Preserve path — new layout
+
+Do **not** drain the OSD and do **not** purge it. Mark the cluster `noout` so the
+OSD stays `in` while it is down, then stop the daemon:
+
+```sh
+ceph osd set noout
+kubectl -n rook-ceph scale deploy rook-ceph-osd-$OSD_ID --replicas=0
+ceph osd tree   # repeat until the OSD reads `down` but still `in`
+```
+
+!!! danger "Purging defeats the whole point of this path"
+
+    `ceph osd purge` deletes the OSD's auth entity and removes its id from the
+    osdmap. A BlueStore device still carrying that id can then never be
+    re-activated — Rook falls back to provisioning a brand new OSD, and you pay
+    the full backfill you were trying to avoid. The same goes for `ceph osd
+    destroy` and `crush remove`. Leave the OSD's identity entirely alone.
+
+!!! warning "`noout` is required, and it is a real tradeoff"
+
+    `mon_osd_down_out_interval` defaults to **600s**, and a reimage plus rejoin
+    takes longer than that. Without `noout` the OSD is marked `out` mid-rebuild
+    and Ceph starts the backfill anyway.
+
+    The cost is that every PG mapped to this OSD runs on a **single copy** for the
+    ~20–30 minute window, because all four pools are `size=2`. A second host
+    failure in that window loses data. The alternative is a full backfill out and
+    another back in, which takes hours and leaves the cluster degraded for longer
+    overall. Defensible for a homelab; make the call deliberately.
+
+    Clear it as soon as the node is back `up` and `in`:
+
+    ```sh
+    ceph osd unset noout
+    ```
+
+### 3. Remove the node
 
 ```sh
 kubectl drain $NODE --delete-emptydir-data --ignore-daemonsets --force
 ```
 
-The drain cordons the node, which is what finally stops the operator from
-re-provisioning the OSD. Now stop the daemon and purge. `ceph osd out` only
-removes the OSD from data placement — the daemon keeps running, and `purge`
-refuses a live OSD with `EBUSY: osd.N is not 'down'`:
+**Destroy path only** — the drain cordons the node, which is what finally stops
+the operator from re-provisioning the OSD, so purge now. `ceph osd out` does not
+stop the daemon, and `purge` refuses a live OSD with `EBUSY: osd.N is not
+'down'`:
 
 ```sh
 kubectl -n rook-ceph scale deploy rook-ceph-osd-$OSD_ID --replicas=0
 ceph osd tree   # repeat until the OSD reads `down`
 ceph osd purge $OSD_ID --yes-i-really-mean-it
 kubectl -n rook-ceph delete deploy rook-ceph-osd-$OSD_ID
+ceph osd tree   # no entry for $OSD_ID, and the host bucket is empty
 ```
 
 !!! note "`purge` needs the plugin, not the shim"
@@ -160,10 +240,9 @@ kubectl -n rook-ceph delete deploy rook-ceph-osd-$OSD_ID
     fails with exit 13, `EACCES: access denied: does your client key have mgr
     caps?`. Run it as `kubectl rook-ceph ceph osd purge ...` from the Mac instead.
 
-Confirm the OSD is gone and stays gone, then remove the node:
+Both paths then remove the node:
 
 ```sh
-ceph osd tree           # no entry for $OSD_ID, and the host bucket is empty
 kubectl delete node $NODE
 ```
 
@@ -179,7 +258,7 @@ kubectl get nodes -o custom-columns='NODE:.metadata.name,MEMBER:.metadata.annota
 
     k3s is still running on the box, so it re-registers within a few minutes —
     **uncordoned and untainted**. Observed 2026-10-16: metal3v2 was back 4
-    minutes later, which puts `/dev/mapper/system-ceph` back in reach of
+    minutes later, which puts its OSD device back in reach of
     `useAllNodes: true`. Re-apply the cordon before moving on:
 
     ```sh
@@ -296,12 +375,41 @@ kubectl get node $NODE -o custom-columns='NODE:.metadata.name,STATUS:.status.con
 kubectl get nodes -o custom-columns='NODE:.metadata.name,MEMBER:.metadata.annotations.etcd\.k3s\.cattle\.io/node-name'
 ```
 
-- [ ] Disk came back with four partitions and both volume groups:
+!!! note "A reimage rotates the SSH host key"
+
+    The `ssh` checks below fail with `REMOTE HOST IDENTIFICATION HAS CHANGED!`
+    until you drop the old key. Ansible is unaffected — `ansible.cfg` sets
+    `host_key_checking = false`.
+
+    ```sh
+    ssh-keygen -R $NODE && ssh-keygen -R <node ip>
+    ```
+
+- [ ] Disk came back with four partitions and both volume groups, and
+      `/etc/lvm/devices/system.devices` lists **both** `p3` and `p4` — RHEL 10
+      gates LVM on that file, and anaconda only adds the disks it installed to,
+      so a missing `p4` entry means the `%post` `lvmdevices --adddev` did not run
+      and the `ceph` VG is invisible:
 
 ```sh
-ssh root@$NODE lsblk
-ssh root@$NODE vgs
+ssh root@$NODE "lsblk; vgs; lvs; cat /etc/lvm/devices/system.devices"
 ```
+
+- [ ] **Preserve path only** — `p4` really was preserved, not rebuilt to the same
+      offsets. Compare against the snapshot from step 1: the `p4` PV UUID, the
+      `ceph` VG UUID and the `ceph/osd` LV UUID must be **unchanged**, and the
+      `p3` PV UUID must be **new**:
+
+```sh
+ssh root@$NODE "lvs -o lv_name,vg_name,lv_uuid ceph; vgs -o vg_name,vg_uuid ceph; \
+  pvs -o pv_name,pv_uuid,vg_name; parted -s /dev/nvme0n1 unit s print"
+```
+
+!!! tip "`dm-N: the capability attribute has been deprecated` is harmless"
+
+    The kernel logs this from `drivers/md/dm-sysfs.c` whenever anything reads
+    `/sys/block/dm-N/capability`, which udev and LVM rules do at every boot. It
+    appears on the console during the first post-install boot and means nothing.
 
 - [ ] OS is patched and stays patched — this is the actual point of the project:
 
@@ -317,17 +425,61 @@ ceph -s
 ceph osd tree
 ```
 
-- [ ] **Pass 2+ only** — the OSD was *adopted*, not recreated. The node should
-      come back with its previous OSD id and no large backfill. BlueStore keeps
-      its identity on the device, so Rook's provision job can re-adopt an intact
-      `/dev/mapper/ceph-osd`. Check the operator log if the id changed:
+!!! bug "The operator does not notice a rejoined node"
+
+    Observed 2026-10-18 on metal3v2: the node came back `Ready`, untainted and
+    schedulable with `/dev/mapper/ceph-osd` present and listed, and Rook still
+    left it with **no OSD** — `5 osds: 5 up, 5 in`, an empty host bucket at
+    weight 0, and no `rook-ceph-osd-prepare-$NODE` job. The operator had not
+    reconciled the CephCluster in two days. It logged the node *leaving*
+    (`nodedaemon: node "$NODE" no longer exists, deleting its crash collector`)
+    but nothing for the re-add, and the CephCluster's `lastHeartbeatTime` was
+    stale at the same instant.
+
+    Confirm before hunting placement causes — a `lastHeartbeatTime` older than
+    the rebuild means the operator never looked:
+
+    ```sh
+    kubectl -n rook-ceph get pod -l app=rook-ceph-operator
+    kubectl -n rook-ceph get cephcluster rook-ceph \
+      -o jsonpath='{.status.phase}{"  "}{.status.conditions[-1].lastHeartbeatTime}{"\n"}'
+    kubectl -n rook-ceph get jobs | grep osd-prepare
+    ```
+
+    Force a reconcile by restarting the operator. It is Deployment-managed so it
+    self-heals, and it is not in the data path — mons, OSDs and MDS keep serving
+    while it is gone:
+
+    ```sh
+    kubectl -n rook-ceph delete pod -l app=rook-ceph-operator
+    ```
+
+    Do **not** annotate the CephCluster CR to force this instead. ArgoCD manages
+    that resource, so the annotation shows up as drift.
+
+    Blast radius: a full reconcile re-runs `osd-prepare` on **all six** nodes and
+    re-evaluates cephx key rotation (`enabling cephx key rotation because the
+    cluster is not upgrading`). That path ran clean on 2026-10-16 under the
+    current `cephx.csi.keyType: aes` pin, so it should be a no-op — but it is a
+    cluster-wide reconcile, not a scoped one.
+
+    It also recreates the `crashcollector` and `ceph-exporter` deployments that
+    `nodedaemon` deleted when the node went away.
+
+- [ ] **Preserve path only** — the OSD was *adopted*, not recreated: it comes
+      back under its previous id with no large backfill, and the host bucket
+      returns at its old weight. BlueStore keeps identity on the device, so the
+      provision job can re-adopt an intact `/dev/mapper/ceph-osd` even though
+      `/var/lib/rook` is gone:
 
 ```sh
 kubectl -n rook-ceph logs deploy/rook-ceph-operator | grep -i -e osd -e "$NODE"
+ceph osd unset noout
 ```
 
 If it provisioned a fresh OSD instead, the cost is one backfill — the same cost
-as pass 1 — so the fallback is simply to let it rebuild.
+as the destroy path — so the fallback is simply to let it rebuild. Clear `noout`
+either way, as soon as the OSD is back `up` and `in`.
 
 - [ ] CephFS survived the node loss: MDS is `1/1 up` with a hot standby, and the
       two MDS pods are still on different hosts.
