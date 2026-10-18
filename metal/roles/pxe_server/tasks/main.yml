@@ -35,6 +35,15 @@
     cmd: "xorriso -osirrox on -indev {{ iso.dest }} -extract / {{ role_path }}/files/data/os"
     creates: "{{ boot_image_marker }}"
 
+# xorriso preserves the permissions recorded in the ISO, and AlmaLinux ships
+# EFI/BOOT/grubx64.efi as 0700 root. dnsmasq and nginx drop privileges, so TFTP
+# fails with "Permission denied" and the client falls through to disk boot.
+- name: Make the boot image tree readable by the PXE containers
+  ansible.builtin.file:
+    path: "{{ role_path }}/files/data/os"
+    mode: u=rwX,go=rX
+    recurse: true
+
 - name: Record which ISO the boot image tree came from
   ansible.builtin.copy:
     content: "{{ iso_url | basename }}\n"

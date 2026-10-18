@@ -168,31 +168,65 @@ kubectl delete node $NODE
 ```
 
 `kubectl delete node` is what triggers k3s to remove the matching etcd member.
-Confirm the member count dropped to five before continuing:
+Confirm the member suffix rotated before continuing — a rebuilt node rejoins
+under a new one, so the old member must be gone:
 
 ```sh
 kubectl get nodes -o custom-columns='NODE:.metadata.name,MEMBER:.metadata.annotations.etcd\.k3s\.cattle\.io/node-name'
 ```
 
-### 4. Make it PXE boot
+!!! warning "`delete node` does not keep the node out"
 
-!!! danger "Never zap the whole disk on a node already using the new layout"
+    k3s is still running on the box, so it re-registers within a few minutes —
+    **uncordoned and untainted**. Observed 2026-10-16: metal3v2 was back 4
+    minutes later, which puts `/dev/mapper/system-ceph` back in reach of
+    `useAllNodes: true`. Re-apply the cordon before moving on:
 
-    `sgdisk --zap-all` or `wipefs -a /dev/nvme0n1` destroys `p4` and the OSD with
-    it. To fall through to PXE, remove only the UEFI boot entry or the ESP — the
-    `%pre` block handles the rest.
+    ```sh
+    kubectl cordon $NODE
+    ```
+
+### 4. Power it off
+
+On the ThinkCentre M910q, **no disk surgery is needed** — the firmware has two
+independent boot lists, and the one that governs a Wake-on-LAN power-on already
+prefers the network:
+
+| BIOS list | Applies to | Order |
+| --- | --- | --- |
+| Primary Boot Sequence | Power-button / OS-initiated reboot | M.2 Drive 1, then Network 1 |
+| Automatic Boot Sequence | WoL, RTC wake, power restore | **Network 1**, then M.2 Drive 1 |
+
+`boot.yml` wakes the node with a magic packet, so the Automatic sequence applies
+and it PXE boots on its own. All step 4 needs is a clean shutdown:
 
 ```sh
-ssh root@$NODE efibootmgr                 # find the AlmaLinux/Fedora entry number
-ssh root@$NODE efibootmgr -b <n> -B       # delete just that entry
 ssh root@$NODE poweroff
 ```
 
-Wiping the ESP (`wipefs -a /dev/nvme0n1p1`) works too and is equivalent for the
-installer, since `%pre` recreates p1–p3 either way.
+!!! tip "If you power it on by hand, press F12"
 
-A full zap is acceptable **only** on a node still in the old single-VG layout,
-where the OSD has already been purged in step 3.
+    A power-button start uses the *Primary* sequence and boots the disk. Use the
+    F12 one-time boot menu and pick the network device instead. Optionally move
+    `Network 1` first in the Primary sequence too — harmless, since the PXE
+    server only runs while `boot.yml` is running and any other boot just falls
+    through to the disk after a short timeout.
+
+!!! danger "Do not try to force PXE by damaging the disk"
+
+    `sgdisk --zap-all` or `wipefs -a /dev/nvme0n1` destroys `p4` and the OSD with
+    it. `sgdisk` is not even installed — `gdisk` is not in
+    `@^minimal-environment`.
+
+    Wiping just the ESP (`wipefs -a /dev/nvme0n1p1`) is worse than useless.
+    Observed 2026-10-16 on metal3v2: it clears the vfat *signature* but leaves
+    every file in place, so the firmware still loads
+    `\EFI\BOOT\BOOTX64.EFI` and reaches GRUB — deleting the `efibootmgr` entries
+    does not prevent it, because that fallback path needs no NVRAM entry. The
+    only thing it accomplishes is making the `/boot/efi` fstab entry
+    unsatisfiable, so the node boots to **emergency mode** and the `wake` play
+    times out waiting for SSH. If a node is already in that state, power it off
+    and let PXE run; `%pre` rewrites p1–p3 regardless.
 
 ### 5. Reinstall
 
@@ -204,12 +238,12 @@ cd metal
 ansible-playbook -i inventories/prod.yml boot.yml --limit "localhost,$NODE"
 ```
 
-!!! note "The first run replaces the whole PXE tree"
+!!! note "Confirm the PXE tree is the one you think it is"
 
-    The jump box has served the Fedora 39 tree since early 2024. The first run
-    downloads the AlmaLinux ISO (~1 GB), clears `files/data/os`, re-extracts, and
-    recreates both PXE containers so they pick up the new `vmlinuz`/`initrd.img`.
-    Confirm it actually switched before letting the node boot:
+    The jump box served the Fedora 39 tree from early 2024 until the AlmaLinux
+    bump. The run downloads the ISO (~1 GB), clears `files/data/os`, re-extracts,
+    normalises permissions, and recreates both containers so they pick up the new
+    `vmlinuz`/`initrd.img`:
 
     ```sh
     ls roles/pxe_server/files/data/os/.extracted-from-*
@@ -217,6 +251,19 @@ ansible-playbook -i inventories/prod.yml boot.yml --limit "localhost,$NODE"
 
     The old `Fedora-Server-dvd-x86_64-39-1.5.iso` stays in `files/data/iso` and
     can be deleted to reclaim 2.5 GB.
+
+The dnsmasq log is the single best place to watch a boot. It shows the DHCP
+handshake, the bootfile handed out, and every TFTP read:
+
+```sh
+docker logs -f files-dnsmasq-1
+```
+
+A `cannot access /tftp/grubx64.efi: Permission denied` line means the extracted
+tree is root-only again — dnsmasq and nginx both drop privileges. The role
+normalises the mode after extraction, because AlmaLinux records that file as
+`0700` inside the ISO and `xorriso` preserves it. A client that hits this falls
+through to disk boot, which looks exactly like "it never tried PXE".
 
 The node wakes on LAN, PXE boots, installs, and reboots. Then rejoin it:
 
