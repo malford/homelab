@@ -34,6 +34,19 @@
     path: "{{ k3s_token_file }}"
   register: k3s_token_file_stat
 
+# A wiped node has no token file, so an un-overridden `k3s_primary` pointing at
+# the node being rebuilt would mint a fresh token here and hand the whole fleet
+# a secret the cluster does not know. Only a brand new cluster may generate one.
+- name: Fail when the delegation target has no token and this is not a new cluster
+  when:
+    - not k3s_token_file_stat.stat.exists
+    - not k3s_cluster_init | bool
+  ansible.builtin.fail:
+    msg: >-
+      {{ k3s_primary }} has no {{ k3s_token_file }}, so it cannot be the token
+      source. It is probably the node being rebuilt — re-run with
+      `-e k3s_primary=<a node that is Ready>`.
+
 - name: Generate k3s token file on the first node if not exist yet
   delegate_to: "{{ k3s_primary }}"
   when: not k3s_token_file_stat.stat.exists
