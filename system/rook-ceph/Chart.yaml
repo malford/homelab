@@ -10,7 +10,7 @@ dependencies:
   # Without it the hop leaves the cluster with no CSI driver at all. Pinned to
   # the operator version rook 1.20.9 vendors (v1.0.4).
   - name: ceph-csi-drivers
-    version: 1.0.4
+    version: 1.0.5
     repository: https://ceph.github.io/ceph-csi-operator
   - name: rook-ceph-cluster
     version: v1.20.9
