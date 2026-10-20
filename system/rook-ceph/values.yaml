@@ -9,6 +9,12 @@ ceph-csi-drivers:
   # unset value renders an explicitly empty field rather than omitting it.
   operatorConfig:
     namespace: rook-ceph
+    driverSpecDefaults:
+      # Rook writes this configmap with the image versions it expects, but the
+      # chart defaults the reference to "" and omits the field, so the operator
+      # fell back to its compiled-in images and pinned cephcsi a patch behind.
+      imageSet:
+        name: rook-csi-operator-image-set-configmap
   drivers:
     # StorageClass provisioners and the live CSIDriver objects are immutable and
     # carry the `rook-ceph.` prefix. The chart defaults are unprefixed, which
