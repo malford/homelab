@@ -240,30 +240,34 @@ ceph osd tree   # no entry for $OSD_ID, and the host bucket is empty
     fails with exit 13, `EACCES: access denied: does your client key have mgr
     caps?`. Run it as `kubectl rook-ceph ceph osd purge ...` from the Mac instead.
 
-Both paths then remove the node:
+Both paths then remove the node. **Stop k3s on the target first**, then delete:
 
 ```sh
+ssh root@$NODE systemctl stop k3s
 kubectl delete node $NODE
 ```
 
-`kubectl delete node` is what triggers k3s to remove the matching etcd member.
-Confirm the member suffix rotated before continuing — a rebuilt node rejoins
-under a new one, so the old member must be gone:
+Confirm the node is gone and its etcd member went with it — the entry must
+disappear entirely, not come back:
 
 ```sh
 kubectl get nodes -o custom-columns='NODE:.metadata.name,MEMBER:.metadata.annotations.etcd\.k3s\.cattle\.io/node-name'
 ```
 
-!!! warning "`delete node` does not keep the node out"
+!!! danger "Deleting while k3s still runs leaves a dead voter that blocks the rebuild"
 
-    k3s is still running on the box, so it re-registers within a few minutes —
-    **uncordoned and untainted**. Observed 2026-10-16: metal3v2 was back 4
-    minutes later, which puts its OSD device back in reach of
-    `useAllNodes: true`. Re-apply the cordon before moving on:
+    `kubectl delete node` is what triggers k3s to remove the matching etcd
+    member — but a **running** k3s re-registers within ~4 minutes and re-adds
+    its member under the **old** random suffix, **uncordoned and untainted**
+    (observed on metal3v2 2026-10-16, which put its OSD device back in reach of
+    `useAllNodes: true`). Power the node off at that point and the stale member
+    survives the reimage, so the rebuilt node cannot join — k3s crash-loops on
+    `duplicate node name found`. That is exactly what happened to metal2v2 on
+    2026-10-18; see the etcd check below for the signature and the recovery.
 
-    ```sh
-    kubectl cordon $NODE
-    ```
+    Stopping `k3s.service` before the delete makes it stick. If you already
+    deleted with k3s running, re-apply the cordon (`kubectl cordon $NODE`) and
+    delete again after the power-off.
 
 ### 4. Power it off
 
@@ -368,12 +372,57 @@ ansible-playbook -i inventories/prod.yml cluster.yml --limit "$NODE"
 kubectl get node $NODE -o custom-columns='NODE:.metadata.name,STATUS:.status.conditions[-1].type,VERSION:.status.nodeInfo.kubeletVersion'
 ```
 
-- [ ] etcd is back to six members, with a **new** random suffix for this node and
-      no leftover entry for the old one:
+- [ ] etcd is back to six members, and the suffix the cluster lists for this node
+      **matches the one on its disk**. These are two independent facts — the
+      annotation is what the cluster believes, the file is what the new install
+      actually is:
 
 ```sh
 kubectl get nodes -o custom-columns='NODE:.metadata.name,MEMBER:.metadata.annotations.etcd\.k3s\.cattle\.io/node-name'
+ssh root@$NODE "cat /var/lib/rancher/k3s/server/db/etcd/name"
 ```
+
+!!! failure "`duplicate node name found` — the suffixes disagree"
+
+    If the annotation still carries the **pre-rebuild** suffix, the stale member
+    survived (see step 3) and k3s cannot join. On the node:
+
+    ```sh
+    systemctl is-active k3s                      # activating, forever
+    journalctl -u k3s -n 50 --no-pager
+    ```
+
+    ```text
+    level=error msg="Shutdown request received: \"etcd cluster join failed: duplicate
+      node name found, please use a unique name for this node\""
+    k3s.service: Failed with result 'protocol'.
+    ```
+
+    It retries every ~7s. Because k3s dies before apiserver registration, the
+    kubelet never posts — so `cluster.yml` fails its
+    `Wait for the node to rejoin the cluster` task after the full 300s, and the
+    node object is **frozen at its pre-reimage state**.
+
+    !!! warning "A stale node object is not evidence of the host's OS"
+
+        `kubectl get nodes -o wide` will still show the **old** distro and
+        kernel, and conditions like `EtcdIsVoter` / `CiliumIsUp` still read
+        healthy. Every status field is a snapshot from the last kubelet POST.
+        Confirm against the host — `ssh root@$NODE "cat /etc/os-release; uname -r"` —
+        before concluding a reimage failed.
+
+    Recovery is the delete that should have happened in step 3. It sticks now,
+    since a crash-looping k3s cannot re-register:
+
+    ```sh
+    kubectl delete node $NODE
+    kubectl get nodes -w
+    ```
+
+    k3s's etcd controller drops the stale member, the next crash-loop retry joins
+    under the new suffix, and the node goes `Ready` without another `cluster.yml`
+    run. Quorum improves on the way: removing a dead voter takes 6 members /
+    quorum 4 down to 5 members / quorum 3.
 
 !!! note "A reimage rotates the SSH host key"
 
