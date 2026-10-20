@@ -1,6 +1,9 @@
 woodpecker:
   agent:
     replicaCount: 2
+    mapAgentSecret: false
+    extraSecretNamesForEnvFrom:
+      - woodpecker-secret
     env:
       WOODPECKER_BACKEND_K8S_STORAGE_RWX: false
       # Agents will spawn pods to run workflow steps using the
@@ -8,6 +11,9 @@ woodpecker:
       # the agent pod, so we can run many workflows per agent.
       WOODPECKER_MAX_WORKFLOWS: 10
   server:
+    createAgentSecret: false
+    extraSecretNamesForEnvFrom:
+      - woodpecker-secret
     env:
       WOODPECKER_HOST: https://ci.malford.io
       WOODPECKER_WEBHOOK_HOST: http://woodpecker-server.woodpecker
