@@ -4,4 +4,5 @@ version: 0.0.0
 dependencies:
   - name: homarr
     version: 8.36.0
-    repository: https://homarr-labs.github.io/charts/
+    # The HTTP repo is now a docs site with no index.yaml; charts moved to OCI.
+    repository: oci://ghcr.io/homarr-labs/charts
