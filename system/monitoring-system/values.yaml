@@ -115,6 +115,22 @@ kube-prometheus-stack:
           - receiver: "null"
             matchers:
               - alertname = "CephPGImbalance"
+          # CephHealthWarning is bare `ceph_health_status == 1` carrying only
+          # severity and type - no label for which health check fired. So it
+          # cannot be scoped here, and three permanently-active AUTH_INSECURE_*
+          # checks (CSI keys still on the legacy `aes` cipher, blocked on kernel
+          # 7.0+ which the EL10 line never ships) keep it firing forever. Left
+          # alone it trains you to ignore the topic, and the next genuine warning
+          # is then indistinguishable from the noise.
+          # Replaced rather than muted: system/rook-ceph ships
+          # CephHealthWarningUnexpected, which alerts off the per-check
+          # ceph_health_detail metric with the accepted checks allowlisted, so a
+          # new warning still pages and names itself. Rook's muteHealthWarning
+          # was the other option and is blanket - it would hide CephHealthError
+          # too. CephHealthError is untouched.
+          - receiver: "null"
+            matchers:
+              - alertname = "CephHealthWarning"
       receivers:
         # Overriding `receivers` replaces the chart's list rather than merging
         # into it, so the null receiver the routes above depend on has to be

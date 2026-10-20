@@ -1,0 +1,43 @@
+{{- if .Values.alerts.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: rook-ceph-health-scoped
+  namespace: {{ .Values.alerts.namespace }}
+spec:
+  groups:
+    - name: rook-ceph-health-scoped
+      rules:
+        # `ceph_health_detail` is the per-check metric the mgr exporter emits,
+        # one series per known check with a `name` label. That is the scoping
+        # the stock CephHealthWarning lacks.
+        - alert: CephHealthWarningUnexpected
+          expr: ceph_health_detail{severity="HEALTH_WARN", name!~"{{ join "|" .Values.alerts.acceptedHealthWarnings }}"} == 1
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: Ceph HEALTH_WARN - {{ `{{ $labels.name }}` }}
+            description: >-
+              A Ceph health check outside the accepted set is active on cluster
+              {{ `{{ $labels.cluster }}` }}. Unlike the stock alert this names the
+              check; see alerts.acceptedHealthWarnings in system/rook-ceph for
+              what is deliberately ignored. Detail:
+              kubectl -n rook-ceph exec deploy/rook-ceph-mgr-a -c mgr -- ceph health detail
+
+        # Closes the blind spot the rule above leaves: the exporter only carries
+        # series for checks it knows, so a check it has no series for would make
+        # the cluster WARN with nothing above firing.
+        - alert: CephHealthWarningUnexplained
+          expr: (ceph_health_status == 1) unless on(cluster) (count by (cluster) (ceph_health_detail{severity="HEALTH_WARN"} == 1) > 0)
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: Ceph is HEALTH_WARN with no check reporting
+            description: >-
+              Cluster {{ `{{ $labels.cluster }}` }} is HEALTH_WARN but no
+              ceph_health_detail series is active, so CephHealthWarningUnexpected
+              cannot see the cause. Run ceph health detail and add the check to
+              ceph_health_detail's expected set if it is a new one.
+{{- end }}

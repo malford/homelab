@@ -66,11 +66,12 @@ rook-ceph-cluster:
           keyRotationPolicy: KeyGeneration
           keyGeneration: 2
         csi:
-          # Chart default, re-pinned: aes256k needs kernel 7.0+ and these nodes
-          # are on 6.11, so rotating CSI keys would break new mounts.
+          # Chart default, re-pinned: aes256k needs kernel 7.0+ and ceph-csi
+          # 3.17.1+. Nodes are AlmaLinux 10.2 on 6.12 and the EL10 kernel line
+          # never ships aes256k, so rotating CSI keys would break new mounts.
           keyType: aes
-        # Unused — no peers configured, so nothing consumes the token. Rotating
-        # leaves the kernel as the only reason keys are still `aes`.
+        # Unused — no peers configured, so nothing consumes the token. The
+        # kernel and ceph-csi floors are what keep client keys on `aes`.
         rbdMirrorPeer:
           keyRotationPolicy: KeyGeneration
           keyGeneration: 2
@@ -162,3 +163,18 @@ rook-ceph-cluster:
     enabled: true
     isDefault: false
   cephObjectStores: []
+
+alerts:
+  enabled: true
+  # Namespace for the PrometheusRule. Prometheus selects rules cluster-wide
+  # (ruleSelector is empty in system/monitoring-system).
+  namespace: rook-ceph
+  # HEALTH_WARN checks that are known, accepted and permanently active. Rook's
+  # stock CephHealthWarning is bare `ceph_health_status == 1` with no label for
+  # which check fired, so it cannot be scoped and is routed to null in
+  # system/monitoring-system. These rules replace it: anything outside this list
+  # still pages. Remove entries as the cephx keys above are migrated.
+  acceptedHealthWarnings:
+    - AUTH_INSECURE_CLIENT_KEY_TYPE
+    - AUTH_INSECURE_KEYS_ALLOWED
+    - AUTH_INSECURE_KEYS_CREATABLE
