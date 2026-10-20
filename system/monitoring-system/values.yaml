@@ -41,6 +41,10 @@ kube-prometheus-stack:
             resources:
               requests:
                 storage: 60Gi
+      additionalAlertRelabelConfigs:
+        - source_labels: [alertname]
+          regex: CephPGImbalance|CephHealthWarning|CephNodeDiskspaceWarning
+          action: drop
   alertmanager:
     alertmanagerSpec:
       # Mounts at /etc/alertmanager/secrets/deadmansswitch/. The ping URL is a
@@ -97,40 +101,11 @@ kube-prometheus-stack:
           # alerts - it has no description, no runbook, and nothing a human can
           # act on. The chart routes it to null alongside Watchdog; overriding
           # that route above dropped it, which is why it has been notifying.
+          # Muted here rather than dropped like the rook alerts above: it has to
+          # reach Alertmanager to work as an inhibition source.
           - receiver: "null"
             matchers:
               - alertname = "InfoInhibitor"
-          # CephPGImbalance compares each OSD's raw PG count against the
-          # unweighted mean, with no CRUSH weight in the expression. These OSDs
-          # differ 6:1 in size (two ~750G, four 121G), so PG counts that
-          # correctly track weight land 47-122% off that mean and all six fire
-          # permanently. The balancer is active in upmap mode and reports
-          # no_optimization_needed - correct behaviour is what trips the rule.
-          # It also carries no signal of its own: an OSD actually filling up is
-          # already covered by CephOSDNearFull/Full/BackfillFull.
-          # Dropped here rather than at the source, unlike kubeProxy above,
-          # because rook's createPrometheusRules is all-or-nothing across ~60
-          # rules - including CephOSDDown and CephFilesystemDamaged - so there
-          # is no knob for this one alert. Revisit if the OSDs are ever levelled.
-          - receiver: "null"
-            matchers:
-              - alertname = "CephPGImbalance"
-          # CephHealthWarning is bare `ceph_health_status == 1` carrying only
-          # severity and type - no label for which health check fired. So it
-          # cannot be scoped here, and three permanently-active AUTH_INSECURE_*
-          # checks (CSI keys still on the legacy `aes` cipher, blocked on kernel
-          # 7.0+ which the EL10 line never ships) keep it firing forever. Left
-          # alone it trains you to ignore the topic, and the next genuine warning
-          # is then indistinguishable from the noise.
-          # Replaced rather than muted: system/rook-ceph ships
-          # CephHealthWarningUnexpected, which alerts off the per-check
-          # ceph_health_detail metric with the accepted checks allowlisted, so a
-          # new warning still pages and names itself. Rook's muteHealthWarning
-          # was the other option and is blanket - it would hide CephHealthError
-          # too. CephHealthError is untouched.
-          - receiver: "null"
-            matchers:
-              - alertname = "CephHealthWarning"
       receivers:
         # Overriding `receivers` replaces the chart's list rather than merging
         # into it, so the null receiver the routes above depend on has to be
