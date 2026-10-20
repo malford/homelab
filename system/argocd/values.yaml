@@ -17,6 +17,38 @@ argo-cd:
       # upstream flags that pairing as liable to orphan resources on migration.
       # Staying on `label` keeps the upgrade a no-op for existing apps.
       application.resourceTrackingMethod: label
+      # The built-in check maps any HEALTH_WARN to Degraded. The cephx csi keys
+      # stay on `aes` until kernel 7.0+, which the EL10 line never ships, so
+      # that warn is permanent and would leave this app Degraded forever.
+      # Whether a warn matters is decided by the scoped rules in
+      # system/rook-ceph; here only HEALTH_ERR is a deployment failure.
+      resource.customizations.health.ceph.rook.io_CephCluster: |
+        hs = {}
+        if obj.status == nil or obj.status.ceph == nil or obj.status.ceph.health == nil then
+          hs.status = "Progressing"
+          hs.message = "Waiting for CephCluster status"
+          return hs
+        end
+        local health = obj.status.ceph.health
+        local checks = {}
+        if obj.status.ceph.details ~= nil then
+          for name, _ in pairs(obj.status.ceph.details) do
+            table.insert(checks, name)
+          end
+          table.sort(checks)
+        end
+        hs.message = health
+        if #checks > 0 then
+          hs.message = health .. ": " .. table.concat(checks, ", ")
+        end
+        if health == "HEALTH_ERR" then
+          hs.status = "Degraded"
+        elseif health == "HEALTH_OK" or health == "HEALTH_WARN" then
+          hs.status = "Healthy"
+        else
+          hs.status = "Progressing"
+        end
+        return hs
   crds:
     install: true
   server:
