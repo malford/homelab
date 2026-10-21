@@ -19,6 +19,7 @@
 
 - name: Configure automatic upgrades
   hosts: metal
+  max_fail_percentage: 0
   tags: automatic_upgrade
   roles:
     - automatic_upgrade
