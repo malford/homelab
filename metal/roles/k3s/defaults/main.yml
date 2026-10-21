@@ -1,3 +1,4 @@
+# renovate: datasource=github-releases depName=k3s-io/k3s
 k3s_version: v1.36.5+k3s1
 # Host the role delegates cluster-wide lookups to (token, kubeconfig, kubectl
 # waits). Override when rebuilding that host: `-e k3s_primary=metal3v2`.
