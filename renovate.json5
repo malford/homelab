@@ -58,6 +58,47 @@
         "gopkg.in/yaml.v2"
       ],
       "enabled": false
+    },
+    {
+      // docker versioning reads everything after the first hyphen as a platform
+      // marker it must never change, and the trailing git hash differs every
+      // release - so no candidate ever qualifies and the tag is frozen. Match the
+      // hash without capturing it (regex groups must be numeric); the $ anchor
+      // keeps the -amd64/-arm64/-armhf variants out.
+      "matchPackageNames": [
+        "docker.io/plexinc/pms-docker"
+      ],
+      "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)\\.(?<build>\\d+)-[0-9a-f]+$"
+    },
+    {
+      // Same freeze from linuxserver's -lsNN build counter. Capturing it as
+      // revision keeps the immutable pin while letting rebuilds through.
+      "matchPackageNames": [
+        "docker.io/linuxserver/lidarr"
+      ],
+      "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)\\.(?<build>\\d+)-ls(?<revision>\\d+)$"
+    },
+    {
+      // Ansible defaults only take effect when the play is run by hand, so these
+      // must not ride along in the auto-deployed grouped PR.
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "groupName": null
+    }
+  ],
+  "customManagers": [
+    {
+      // k3s and cilium versions live in ansible defaults, which no manager reads,
+      // so both were invisible to renovate. Argo never applies these files - a PR
+      // here is notification only.
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^metal/roles/.+/defaults/main\\.yml$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)(?: registryUrl=(?<registryUrl>\\S+))?\\s+\\w+_version: \"?(?<currentValue>[^\"\\s]+)\"?"
+      ]
     }
   ]
 }
