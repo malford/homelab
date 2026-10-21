@@ -5,8 +5,6 @@ rook-ceph:
   # are both removed in 1.20 — the CSI operator is now the only option, so the
   # old opt-out is gone rather than defaulted.
 ceph-csi-drivers:
-  # The chart emits `namespace:` unconditionally and defaults it to "", so an
-  # unset value renders an explicitly empty field rather than omitting it.
   operatorConfig:
     namespace: rook-ceph
     driverSpecDefaults:
@@ -49,11 +47,6 @@ rook-ceph-cluster:
       useAllNodes: true
       useAllDevices: false
       devices:
-        # Names are matched per node and misses are ignored, so the old
-        # single-VG layout and the rebuilt `ceph/osd` one can coexist. Drop the
-        # two `system-*` entries once every node has been rebuilt.
-        - name: "/dev/mapper/system-ceph--storage"
-        - name: "/dev/mapper/system-ceph"
         - name: "/dev/mapper/ceph-osd"
     mon:
       count: 3
@@ -172,8 +165,6 @@ rook-ceph-cluster:
 
 alerts:
   enabled: true
-  # Namespace for the PrometheusRule. Prometheus selects rules cluster-wide
-  # (ruleSelector is empty in system/monitoring-system).
   namespace: rook-ceph
   # HEALTH_WARN checks that are known, accepted and permanently active. Rook's
   # stock CephHealthWarning is bare `ceph_health_status == 1` with no label for
