@@ -58,6 +58,9 @@ rook-ceph-cluster:
     logCollector:
       enabled: false
     removeOSDsIfOutAndSafeToRemove: true
+    disruptionManagement:
+      managePodBudgets: true
+      osdMaintenanceTimeout: 30
     security:
       cephx:
         # 19.2.6 flags the legacy `aes` keys as HEALTH_ERR. Rotating daemon keys
@@ -98,7 +101,9 @@ rook-ceph-cluster:
     - name: standard-rwo
       spec:
         replicated:
-          size: 2
+          size: 3
+        parameters:
+          min_size: "2"
       storageClass:
         enabled: true
         name: standard-rwo
