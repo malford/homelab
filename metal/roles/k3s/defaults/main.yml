@@ -2,7 +2,7 @@
 k3s_version: v1.36.5+k3s1
 # Control-plane VIP static pod. The 0.x -> 1.x hop is deliberate, not automatic.
 # renovate: datasource=github-releases depName=kube-vip/kube-vip
-kube_vip_version: v0.6.4
+kube_vip_version: v1.3.1
 # Host the role delegates cluster-wide lookups to (token, kubeconfig, kubectl
 # waits). Override when rebuilding that host: `-e k3s_primary=metal3v2`.
 k3s_primary: "{{ groups['masters'][0] }}"
