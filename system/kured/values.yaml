@@ -3,3 +3,6 @@ kured:
     annotateNodes: true
     rebootSentinelCommand: sh -c "! needs-restarting --reboothint"
     timeZone: America/New_York
+    # Chart defaults this true, which suppresses rebootSentinelCommand and
+    # falls back to Debian's /var/run/reboot-required - absent on AlmaLinux.
+    useRebootSentinelHostPath: false
