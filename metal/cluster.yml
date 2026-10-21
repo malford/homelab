@@ -1,5 +1,8 @@
+# Tagged per play so a single concern can be re-run against one host without
+# dragging in the others - notably without restarting k3s.
 - name: Prepare bare metal nodes
   hosts: metal
+  tags: prerequisites
   roles:
     - prerequisites
 
@@ -10,15 +13,18 @@
   hosts: metal
   serial: 1
   max_fail_percentage: 0
+  tags: k3s
   roles:
     - k3s
 
 - name: Configure automatic upgrades
   hosts: metal
+  tags: automatic_upgrade
   roles:
     - automatic_upgrade
 
 - name: Install Kubernetes addons
   hosts: localhost
+  tags: cilium
   roles:
     - cilium
