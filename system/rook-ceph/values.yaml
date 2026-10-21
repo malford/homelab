@@ -5,6 +5,7 @@ rook-ceph:
   # are both removed in 1.20 — the CSI operator is now the only option, so the
   # old opt-out is gone rather than defaulted.
 ceph-csi-drivers:
+  # Chart emits namespace unconditionally, default "" - must be set.
   operatorConfig:
     namespace: rook-ceph
     driverSpecDefaults:
