@@ -12,7 +12,7 @@ app-template:
     main:
       containers:
         plex:
-          image: { repository: docker.io/plexinc/pms-docker, tag: 1.43.4.10903-e5521bd8c }
+          image: { repository: docker.io/plexinc/pms-docker, tag: 1.43.5.11029-6bf8af3f0 }
           securityContext:
             runAsUser: 0
             privileged: true
