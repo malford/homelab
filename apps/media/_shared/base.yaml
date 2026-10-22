@@ -20,6 +20,7 @@ app-template:
       runAsUser: 1029
       runAsGroup: 100
       fsGroup: 100
+      fsGroupChangePolicy: OnRootMismatch
 
   ingress:
     main:
