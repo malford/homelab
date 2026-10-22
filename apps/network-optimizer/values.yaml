@@ -143,19 +143,6 @@ app-template:
           hosts:
             - *appHost
             - *speedtestHost
-    tailscale:
-      className: tailscale
-      hosts:
-        - host: network-optimizer
-          paths:
-            - path: /
-              pathType: Prefix
-              service:
-                identifier: network-optimizer
-                port: http
-      tls:
-        - hosts:
-            - network-optimizer
 
   persistence:
     data:
