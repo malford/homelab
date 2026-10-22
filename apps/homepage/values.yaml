@@ -20,6 +20,7 @@ app-template:
           port: 3000
   ingress:
     nginx:
+      forceRename: homepage-nginx
       className: nginx
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt-prod
@@ -35,16 +36,6 @@ app-template:
         - hosts:
             - *host
           secretName: homepage-tls-certificate
-    tailscale:
-      className: tailscale
-      tls:
-        - hosts:
-            - home
-      defaultBackend:
-        service:
-          name: homepage
-          port:
-            number: 3000
   persistence:
     config:
       type: configMap
