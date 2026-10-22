@@ -10,7 +10,7 @@ app-template:
             TZ: America/New_York
             HOST_NAME: network-optimizer.malford.io
             HOST_IP: ""
-            REVERSE_PROXIED_HOST_NAME: ""
+            REVERSE_PROXIED_HOST_NAME: network-optimizer.malford.io
             OPENSPEEDTEST_HOST: no-speedtest.malford.io
             OPENSPEEDTEST_PORT: "443"
             OPENSPEEDTEST_HTTPS: "true"
