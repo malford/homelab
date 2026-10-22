@@ -25,7 +25,7 @@ app-template:
         init-config:
           image:
             repository: docker.io/library/alpine
-            tag: "3.24.2"
+            tag: "3.24.3"
           command:
             - sh
             - -c
@@ -42,7 +42,7 @@ app-template:
           dependsOn: init-config
           image:
             repository: docker.io/library/alpine
-            tag: "3.24.2"
+            tag: "3.24.3"
           env:
             # Source of truth: a UI self-update is reverted on the next pod start.
             HACS_VERSION: "2.0.5"
