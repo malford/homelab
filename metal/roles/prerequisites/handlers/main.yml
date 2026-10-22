@@ -1,3 +1,6 @@
+- name: Reapply network connection
+  ansible.builtin.command: nmcli device reapply {{ network_interface }}
+
 - name: Restart chronyd
   ansible.builtin.service:
     name: chronyd

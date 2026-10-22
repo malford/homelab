@@ -20,8 +20,31 @@
     mode: "0644"
   notify: Restart chronyd
 
-- name: Apply the chronyd change before asserting on it
+# NetworkManager owns /etc/resolv.conf, so editing that file does not survive a
+# reapply. The connection profile is the durable place - kickstart's
+# `--nameserver` only applies at install time, which leaves rebuilt and running
+# nodes on different resolvers. `ipv6.ignore-auto-dns` drops the RA-learned
+# resolver that would otherwise remain as a silent fallback.
+- name: Read the resolver on the connection profile
+  ansible.builtin.command: nmcli --get-values ipv4.dns,ipv6.ignore-auto-dns connection show {{ network_interface }}
+  register: node_resolver
+  changed_when: false
+
+- name: Pin the resolver on the connection profile
+  ansible.builtin.command: >-
+    nmcli connection modify {{ network_interface }}
+    ipv4.dns {{ dns_server }} ipv6.ignore-auto-dns yes
+  when: node_resolver.stdout_lines != [dns_server, "yes"]
+  notify: Reapply network connection
+
+- name: Apply the resolver and chronyd changes before asserting on them
   ansible.builtin.meta: flush_handlers
+
+# `nmcli connection modify` succeeds whether or not the running interface picks
+# the value up, so read back what NetworkManager actually generated.
+- name: Verify the node resolves through the internal resolver
+  ansible.builtin.command: grep -qx 'nameserver {{ dns_server }}' /etc/resolv.conf
+  changed_when: false
 
 # `systemctl is-active chronyd` is true throughout the failure above, so it
 # proves nothing. NTPSynchronized reads the kernel clock state that chrony only
