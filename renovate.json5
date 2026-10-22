@@ -74,7 +74,7 @@
       // Same freeze from linuxserver's -lsNN build counter. Capturing it as
       // revision keeps the immutable pin while letting rebuilds through.
       "matchPackageNames": [
-        "docker.io/linuxserver/lidarr"
+        "lscr.io/linuxserver/lidarr"
       ],
       "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)\\.(?<build>\\d+)-ls(?<revision>\\d+)$"
     },
