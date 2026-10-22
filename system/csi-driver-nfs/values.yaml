@@ -1,4 +1,3 @@
-# system/nfs-csi-driver/values.yaml
 csi-driver-nfs:
   driver:
     name: nfs.csi.k8s.io
@@ -8,7 +7,7 @@ csi-driver-nfs:
     create: true
     name: nfs-csi
     parameters:
-      server: 192.168.3.20  # Your NFS server IP
+      server: 192.168.3.20
       share: /volume1/clusterStorage
     reclaimPolicy: Retain
     volumeBindingMode: Immediate
@@ -16,8 +15,5 @@ csi-driver-nfs:
       - hard
       - nfsvers=4.1
       - noatime
-      - rsize=1048576
-      - wsize=1048576
-      - async
-      - noatime
-      - nodiratime
+      - rsize=131072
+      - wsize=131072
