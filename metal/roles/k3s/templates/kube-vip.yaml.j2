@@ -33,6 +33,7 @@ spec:
         - kubernetes
       ip: 127.0.0.1
   hostNetwork: true
+  dnsPolicy: ClusterFirstWithHostNet
   volumes:
     - hostPath:
         path: {{ k3s_kubeconfig_file }}
