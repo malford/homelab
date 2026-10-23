@@ -3,13 +3,11 @@
 # nothing here edits the k3s-managed Corefile and nothing is lost on upgrade.
 # https://docs.k3s.io/advanced#coredns-custom-configuration-imports
 #
-# Why this exists: the nodes resolve via 8.8.8.8 (set at install time by
-# metal/roles/pxe_server/templates/kickstart.ks.j2 from `dns_server` in
-# metal/group_vars/all.yml), and CoreDNS inherits that with
-# `forward . /etc/resolv.conf`. Public names resolve; nothing private does.
-# Repointing that upstream is not possible from here - a second `forward .` in
-# the main server block makes CoreDNS refuse to load - so private zones are
-# delegated one block at a time below.
+# Why this exists: CoreDNS inherits the node resolver (the VLAN gateway, from
+# `dns_server` in metal/group_vars/all.yml) via `forward . /etc/resolv.conf`,
+# and that resolver answers nothing for the tailnet. Repointing that upstream is
+# not possible from here - a second `forward .` in the main server block makes
+# CoreDNS refuse to load - so names are delegated one block at a time below.
 
 # Make a name resolve to an in-cluster Service while callers keep using the real
 # hostname, so the Host header, TLS SNI and the certificate all still match.
@@ -25,8 +23,8 @@ stubZones:
 
 # Where stub zones are sent. The UniFi gateway already forwards to NextDNS, so
 # one target covers both the *.local.mmalford.com rewrite (-> 192.168.3.24) and
-# any other name UniFi serves locally. Cross-VLAN - cluster is on .5 - but pods
-# already reach this address for the homepage Unifi widget.
+# any other name UniFi serves locally. Use the cluster VLAN's own gateway
+# interface so this stays on-link.
 #
 # Alternative if the gateway should not be in the path: NextDNS directly over
 # TLS, which carries the profile ID in the SNI rather than relying on a linked
@@ -34,5 +32,5 @@ stubZones:
 #   forwardTo: ["tls://45.90.28.53", "tls://45.90.30.53"]
 #   tlsServername: 489d86.dns.nextdns.io
 forwardTo:
-  - 192.168.3.1
+  - 192.168.5.1
 tlsServername: ""
