@@ -53,6 +53,16 @@
       "groupName": "rook-ceph"
     },
     {
+      // Kanidm forbids skipping minors - a server reads at most one domain level
+      // back, so 1.3 -> 1.5 cannot migrate. On 1.3.3 (DL7); raise the ceiling one
+      // minor per hop by hand. See docs/how-to-guides/kanidm-upgrade.md.
+      "matchPackageNames": [
+        "docker.io/kanidm/server"
+      ],
+      "allowedVersions": "<1.5.0",
+      "groupName": null
+    },
+    {
       // v2 -> v3 is a module path change, not a version bump. See PR #49.
       "matchPackageNames": [
         "gopkg.in/yaml.v2"
