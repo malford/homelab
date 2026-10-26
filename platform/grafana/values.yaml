@@ -30,6 +30,8 @@ grafana:
     userKey: admin-user
     passwordKey: admin-password
   grafana.ini:
+    plugins:
+      preinstall: grafana-clock-panel@3.2.4
     server:
       root_url: https://grafana.malford.io
     auth.anonymous:
