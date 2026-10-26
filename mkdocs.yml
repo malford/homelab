@@ -69,6 +69,7 @@ nav:
     - how-to-guides/home-assistant.md
     - how-to-guides/synology-metrics.md
     - how-to-guides/openclaw.md
+    - how-to-guides/kanidm-upgrade.md
     - how-to-guides/backup-and-restore.md
     - how-to-guides/updating-documentation.md
     - Troubleshooting:
