@@ -3,5 +3,5 @@ name: homarr
 version: 0.0.0
 dependencies:
   - name: homarr
-    version: 8.39.0
+    version: 8.39.1
     repository: oci://ghcr.io/homarr-labs/charts

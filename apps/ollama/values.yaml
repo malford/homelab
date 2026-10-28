@@ -5,7 +5,7 @@ app-template:
         app:
           image:
             repository: docker.io/ollama/ollama
-            tag: 0.40.11
+            tag: 0.40.12
     ui:
       containers:
         app:
