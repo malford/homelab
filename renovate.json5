@@ -54,12 +54,14 @@
     },
     {
       // Kanidm forbids skipping minors - a server reads at most one domain level
-      // back, so 1.4 -> 1.6 cannot migrate. On 1.4.6 (DL8); raise the ceiling one
-      // minor per hop by hand. See docs/how-to-guides/kanidm-upgrade.md.
+      // back, so 1.5 -> 1.7 cannot migrate. On 1.5.0 (DL9); raise the ceiling one
+      // minor per hop by hand. The 1.6 hop needs server.toml to gain
+      // version = "2" in the same commit - never merge it as a bare tag bump.
+      // See docs/how-to-guides/kanidm-upgrade.md.
       "matchPackageNames": [
         "docker.io/kanidm/server"
       ],
-      "allowedVersions": "<1.6.0",
+      "allowedVersions": "<1.7.0",
       "groupName": null
     },
     {

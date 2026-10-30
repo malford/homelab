@@ -36,9 +36,10 @@ SSO downtime.
 
 !!! info "Current position"
 
-    `1.4.6` at DL8 since 2026-10-30 — hop 1 of 8 done, verified by web login,
-    Grafana SSO and Gitea SSO. Next is `1.5.0`, whose `domain upgrade-check` is
-    already clean, so that hop is a tag bump plus the cookie caveat below.
+    `1.5.0` at DL9 since 2026-10-30 — hop 2 of 8 done, verified by web login,
+    Grafana SSO and Gitea SSO. `domain upgrade-check` is already clean for DL10,
+    but the next hop (`1.6.4`) still needs `server.toml` to gain
+    `version = "2"` in the same commit as the tag bump.
 
 Confirm the latest patch in a minor when you reach it. Renovate's ceiling in
 `renovate.json5` is raised one minor per hop by hand, which is what keeps a
@@ -49,7 +50,7 @@ Hops that need more than a tag bump:
 | Hop | Gate |
 | --- | ---- |
 | 1.4 | OAuth2 strict redirect URI enforcement — cleared 2026-10-30, see preflight |
-| 1.5 | Cookie handling changed; clear browser cookies if login misbehaves |
+| 1.5 | Cookie handling changed — cleared 2026-10-30, no cookie reset was needed |
 | 1.6 | `server.toml` must gain `version = "2"`. Commit it with the tag bump |
 | 1.7 | OpenSSL to rustls; OAuth2 client IDs forced lowercase (`dex` already is) |
 | 1.8 | IPv4-in-IPv6 address canonicalisation. We run `trust_x_forward_for = true`, so recheck the client IPs nginx forwards |
