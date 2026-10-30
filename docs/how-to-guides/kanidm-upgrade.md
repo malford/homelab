@@ -34,6 +34,12 @@ SSO downtime.
 `1.3.3` → `1.4.6` → `1.5.0` → `1.6.4` → `1.7.4` → `1.8.6` → `1.9.4` →
 `1.10.5` → `1.11.2`
 
+!!! info "Current position"
+
+    `1.4.6` at DL8 since 2026-10-30 — hop 1 of 8 done, verified by web login,
+    Grafana SSO and Gitea SSO. Next is `1.5.0`, whose `domain upgrade-check` is
+    already clean, so that hop is a tag bump plus the cookie caveat below.
+
 Confirm the latest patch in a minor when you reach it. Renovate's ceiling in
 `renovate.json5` is raised one minor per hop by hand, which is what keeps a
 jump-to-latest PR from ever appearing.
@@ -42,7 +48,7 @@ Hops that need more than a tag bump:
 
 | Hop | Gate |
 | --- | ---- |
-| 1.4 | OAuth2 strict redirect URI enforcement — see preflight |
+| 1.4 | OAuth2 strict redirect URI enforcement — cleared 2026-10-30, see preflight |
 | 1.5 | Cookie handling changed; clear browser cookies if login misbehaves |
 | 1.6 | `server.toml` must gain `version = "2"`. Commit it with the tag bump |
 | 1.7 | OpenSSL to rustls; OAuth2 client IDs forced lowercase (`dex` already is) |
@@ -51,7 +57,13 @@ Hops that need more than a tag bump:
 | 1.10 | Full OpenSSL removal in favour of aws-lc-rs. The `kanidm-selfsigned` cert is `dnsNames: [home.arpa]` with the [issues/1227](https://github.com/kanidm/kanidm/issues/1227) TODO still open, so this is the hop most likely to reject it |
 | 1.11 | Passwords capped at 128 characters |
 
-## Preflight (once)
+## Preflight (done 2026-10-30)
+
+!!! warning "This comes back after a rebootstrap"
+
+    `scripts/hacks` is still unfixed, so re-running it recreates a
+    non-compliant dex client and re-fails the 1.4 gate. Keep this section until
+    `setup_kanidm_oauth_app` registers the redirect URI itself.
 
 The 1.4 gate fails on a stock install, because `scripts/hacks` registers the dex
 client's callback as the landing URL rather than as a validated redirect URI:
@@ -87,6 +99,19 @@ kanidm system oauth2 enable-strict-redirect-uri dex \
     `docker.io/kanidm/tools` container.
 
     CLI sessions are also short-lived, so expect to log in again as you climb.
+    Homebrew's `kanidm` on the Mac tracks latest (1.11.2), so it stays useless
+    until the final hop.
+
+!!! warning "`-H` takes the origin, not a UI path"
+
+    Always `-H https://auth.malford.io`. Pointed at a page such as
+    `/ui/login`, `login` still succeeds and then every other command returns a
+    bare `EmptyResponse`. Avoid the flag entirely with a client config inside
+    the tools container:
+
+    ```sh
+    printf 'uri = "https://auth.malford.io"\n' > ~/.config/kanidm
+    ```
 
 ## Per hop
 
