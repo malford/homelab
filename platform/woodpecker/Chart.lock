@@ -1,6 +1,6 @@
 dependencies:
 - name: woodpecker
   repository: https://woodpecker-ci.org
-  version: 3.7.5
-digest: sha256:55486589474142a8d5bb378c013151fbc1d586c572645c658460ba808821c1ca
-generated: "2026-10-10T19:15:39.450166248Z"
+  version: 3.7.6
+digest: sha256:3600d11e3967d3e14018c629caa14d6b9394af9e8af4e9b00505e8a969ae2c59
+generated: "2026-10-31T13:01:11.984497269Z"
