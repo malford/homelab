@@ -81,7 +81,8 @@ grafana:
     # The UniFi boards you ran on the NAS were the InfluxDB variants. InfluxQL
     # does not translate to PromQL, so these are the author's Prometheus-native
     # equivalents rather than a port: 11315<-10418, 11311<-10414, 11314<-10415,
-    # 11313<-10416. 11310 is new - UP_UNIFI_DEFAULT_SAVE_DPI feeds it.
+    # 11313<-10416, 11312<-10417. 11310 is new - UP_UNIFI_DEFAULT_SAVE_DPI
+    # feeds it.
     # These exports declare a DS_PROMETHEUS input, so every panel references
     # ${DS_PROMETHEUS} until `datasource` rewrites it. Without it the boards
     # provision clean and render nothing. Ceph below needs no key - its export
@@ -98,6 +99,10 @@ grafana:
       unifi-uap-insights:
         gnetId: 11314
         revision: 10
+        datasource: Prometheus
+      unifi-usw-insights:
+        gnetId: 11312
+        revision: 9
         datasource: Prometheus
       unifi-usg-insights:
         gnetId: 11313
