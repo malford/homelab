@@ -51,7 +51,7 @@ backups:
     namespace: gitea
     claim: data-gitea-postgresql-ha-postgresql-0
 
-  # --- media stack configs (namespace shared by all 10 apps) ---
+  # --- media stack configs (namespace shared by all 11 apps) ---
   - app: flaresolverr
     namespace: media
     claim: flaresolverr
@@ -79,6 +79,9 @@ backups:
   - app: sonarr
     namespace: media
     claim: sonarr
+  - app: tautulli
+    namespace: media
+    claim: tautulli
   - app: transmission
     namespace: media
     claim: transmission

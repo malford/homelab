@@ -1,0 +1,42 @@
+app-template:
+  controllers:
+    main:
+      containers:
+        tautulli:
+          image: { repository: ghcr.io/tautulli/tautulli, tag: v2.18.2 }
+          # The image's start.sh runs groupmod/usermod/chown and then gosu's down
+          # to PUID:PGID, so the entrypoint needs root. Same deal as the *arr apps.
+          securityContext:
+            runAsUser: 0
+          env:
+            PUID: 1029
+            PGID: 100
+            TZ: America/New_York
+  service:
+    main:
+      controller: main
+      ports:
+        tautulli:
+          port: 8181
+          protocol: HTTP
+  ingress:
+    main:
+      hosts:
+        - host: &tautulliHost tautulli.malford.io
+          paths:
+            - path: /
+              pathType: Prefix
+              service:
+                identifier: main
+                port: tautulli
+      tls:
+        - secretName: tautulli-tls-certificate
+          hosts:
+            - *tautulliHost
+  persistence:
+    config:
+      advancedMounts:
+        main:
+          tautulli:
+            - path: /config
+              subPath: tautulli
