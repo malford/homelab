@@ -7,6 +7,17 @@ kube-prometheus-stack:
       - name: Loki
         type: loki
         url: http://loki.loki:3100
+  prometheus-node-exporter:
+    # mountstats is off by default; it exposes per-mount NFS read/write bytes,
+    # which is the only way to see the Plex media PVC's throughput - the mount
+    # belongs to the node, so pod network metrics never include it.
+    # Overriding extraArgs replaces the chart's list rather than merging into
+    # it, so the two filesystem excludes it ships with (as of 92.16.1) are
+    # redeclared here. Re-diff them against `helm show values` on chart upgrades.
+    extraArgs:
+      - --collector.filesystem.mount-points-exclude=^/(dev|proc|sys|run/containerd/.+|var/lib/docker/.+|var/lib/kubelet/.+)($|/)
+      - --collector.filesystem.fs-types-exclude=^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs|erofs)$
+      - --collector.mountstats
   # k3s runs the control plane as one binary and exposes no separate metrics
   # endpoints for these three, so the stack's default scrape targets cannot
   # exist here and KubeProxyDown / KubeControllerManagerDown / KubeSchedulerDown
