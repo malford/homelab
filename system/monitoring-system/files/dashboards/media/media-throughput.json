@@ -252,7 +252,7 @@
         {
           "refId": "A",
           "editorMode": "code",
-          "expr": "100 * (1 - memAvailReal{job=\"snmp\"} / memTotalReal{job=\"snmp\"})",
+          "expr": "100 * (memTotalReal{job=\"snmp\"} - memAvailReal{job=\"snmp\"} - memBuffer{job=\"snmp\"} - memCached{job=\"snmp\"}) / memTotalReal{job=\"snmp\"}",
           "legendFormat": "memory",
           "range": true
         }
