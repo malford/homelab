@@ -1,5 +1,9 @@
 cert-manager:
   installCRDs: true
+  # External DNS is blocked at the gateway, so the DNS-01 self check cannot reach
+  # Cloudflare's authoritative NS. Query the LAN resolver instead.
+  dns01RecursiveNameservers: "192.168.5.1:53,192.168.3.1:53"
+  dns01RecursiveNameserversOnly: true
   prometheus:
     enabled: true
     servicemonitor:
