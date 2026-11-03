@@ -1,0 +1,15 @@
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: kube-etcd
+  namespace: {{ .Release.Namespace }}
+spec:
+  jobName: kube-etcd
+  staticConfigs:
+    - targets:
+        - 192.168.5.110:2381
+        - 192.168.5.111:2381
+        - 192.168.5.112:2381
+        - 192.168.5.113:2381
+        - 192.168.5.114:2381
+        - 192.168.5.115:2381

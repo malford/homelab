@@ -25,7 +25,9 @@ kube-prometheus-stack:
   # goes unread, so drop the exporters and their rules rather than silencing the
   # symptom downstream. kubeEtcd is the exception: k3s can expose it with
   # etcd-expose-metrics, but there is no etcd pod for the default ServiceMonitor
-  # to select, so the node IPs are listed explicitly below.
+  # to select and ArgoCD excludes the Endpoints kind the chart would otherwise
+  # use, so the node IPs are scraped by templates/scrapeconfig-etcd.yaml instead.
+  # kubeEtcd stays enabled so the etcd alert rules still render.
   kubeProxy:
     enabled: false
   kubeControllerManager:
@@ -33,13 +35,10 @@ kube-prometheus-stack:
   kubeScheduler:
     enabled: false
   kubeEtcd:
-    endpoints:
-      - 192.168.5.110
-      - 192.168.5.111
-      - 192.168.5.112
-      - 192.168.5.113
-      - 192.168.5.114
-      - 192.168.5.115
+    service:
+      enabled: false
+    serviceMonitor:
+      enabled: false
   prometheus:
     prometheusSpec:
       ruleSelectorNilUsesHelmValues: false
