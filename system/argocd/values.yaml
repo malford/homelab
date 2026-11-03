@@ -49,8 +49,6 @@ argo-cd:
           hs.status = "Progressing"
         end
         return hs
-  crds:
-    install: true
   server:
     ingress:
       enabled: true
