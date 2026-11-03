@@ -6,3 +6,13 @@ kured:
     # Chart defaults this true, which suppresses rebootSentinelCommand and
     # falls back to Debian's /var/run/reboot-required - absent on AlmaLinux.
     useRebootSentinelHostPath: false
+    startTime: "1:00"
+    endTime: "7:00"
+    lockReleaseDelay: 15m
+    drainTimeout: 15m
+    preferNoScheduleTaint: weave.works/kured-node-reboot
+    prometheusUrl: http://monitoring-system-kube-pro-prometheus.monitoring-system:9090
+    alertFilterMatchOnly: true
+    alertFilterRegexp: ^(CephOSDDown|CephOSDHostDown|CephPGsInactive|CephPGUnavailableBlockingIO|CephMonDownQuorumAtRisk|CephHealthError|KubeNodeNotReady)$
+  metrics:
+    create: true
