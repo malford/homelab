@@ -47,7 +47,7 @@ Everything is automated, after you edit the configuration files, you just need t
 ```mermaid
 flowchart TD
   subgraph metal[./metal]
-    pxe[PXE Server] -.-> linux[Fedora Server] --> k3s
+    pxe[PXE Server] -.-> linux[AlmaLinux] --> k3s
   end
 
   subgraph system[./system]

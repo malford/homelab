@@ -1,5 +1,5 @@
 .venv/
-book/
+site/
 .idea/
 
 # holds live API credentials
@@ -7,6 +7,5 @@ schwab-auth.py
 
 *.iso
 *.log
-*.png
 *.tgz
 *kubeconfig.yaml

@@ -20,15 +20,6 @@ It can be used as a highly customizable framework to build your own homelab.
 
 ## Overview
 
-Project status: **ALPHA**
-
-This project is still in the experimental stage, and I don't use anything critical on it.
-Expect breaking changes that may require a complete redeployment.
-A proper upgrade path is planned for the stable release.
-More information can be found in [the roadmap](#roadmap) below.
-
-### Hardware
-
 ### Features
 
 - [x] Common applications: Gitea, Plex, Paperless...
@@ -51,46 +42,6 @@ More information can be found in [the roadmap](#roadmap) below.
 - [ ] Automated offsite backups 🚧
 - [x] Single sign-on
 - [x] Infrastructure testing
-
-Some demo videos and screenshots are shown here.
-They can't capture all the project's features, but they are sufficient to get a concept of it.
-
-| Demo                                                                                                            |
-| :--:                                                                                                            |
-| [![][deploy-demo]](https://asciinema.org/a/xkBRkwC6e9RAzVuMDXH3nGHp7)                                           |
-| Deploy with a single command (after updating the configuration files)                                           |
-| [![][pxe-demo]](https://www.youtube.com/watch?v=y-d7btNNAT8)                                                    |
-| PXE boot                                                                                                        |
-| [![][hubble-demo]][hubble-demo]                                                                                 |
-| Observe network traffic with Hubble, built on top of [Cilium](https://cilium.io) and eBPF                       |
-| [![][homepage-demo]][homepage-demo]                                                                             |
-| Homepage powered by... [Homepage](https://gethomepage.dev)                                                      |
-| [![][grafana-demo]][grafana-demo]                                                                               |
-| Monitoring dashboard powered by [Grafana](https://grafana.com)                                                  |
-| [![][gitea-demo]][gitea-demo]                                                                                   |
-| Git server powered by [Gitea](https://gitea.io/en-us)                                                           |
-| [![][matrix-demo]][matrix-demo]                                                                                 |
-| [Matrix](https://matrix.org/) chat server                                                                       |
-| [![][woodpecker-demo]][woodpecker-demo]                                                                         |
-| Continuous integration with [Woodpecker CI](https://woodpecker-ci.org)                                          |
-| [![][argocd-demo]][argocd-demo]                                                                                 |
-| Continuous deployment with [ArgoCD](https://argoproj.github.io/cd)                                              |
-| [![][alert-demo]][alert-demo]                                                                                   |
-| [ntfy](https://ntfy.sh) displaying received alerts                                                              |
-| [![][ai-demo]][ai-demo]                                                                                         |
-| Self-hosted AI powered by [Ollama](https://ollama.com) (experimental, not very fast because I don't have a GPU) |
-
-[deploy-demo]: https://asciinema.org/a/xkBRkwC6e9RAzVuMDXH3nGHp7.svg
-[pxe-demo]: https://user-images.githubusercontent.com/27996771/157303477-df2e7410-8f02-4648-a86c-71e6b7e89e35.png
-[hubble-demo]: https://github.com/malford/malford-homelab/assets/27996771/9c6677d0-3564-47c0-852b-24b6a554b4a3
-[homepage-demo]: https://github.com/malford/malford-homelab/assets/27996771/d0eaf620-be08-48d8-8420-40bcaa86093b
-[grafana-demo]: https://github.com/malford/malford-homelab/assets/27996771/ad937b26-e9bc-4761-83ae-1c7f512ea97f
-[gitea-demo]: https://github.com/malford/malford-homelab/assets/27996771/c245534f-88d9-4565-bde8-b39f60ccee9e
-[matrix-demo]: https://user-images.githubusercontent.com/27996771/149448510-7163310c-2049-4ccd-901d-f11f605bfc32.png
-[woodpecker-demo]: https://github.com/malford/malford-homelab/assets/27996771/5d887688-d20a-44c8-8f77-0c625527dfe4
-[argocd-demo]: https://github.com/malford/malford-homelab/assets/27996771/527e2529-4fe1-4664-ab8a-b9eb3c492d20
-[alert-demo]: https://github.com/malford/malford-homelab/assets/27996771/c922f755-e911-4ca0-9d4a-6e552d387f18
-[ai-demo]: https://github.com/malford/malford-homelab/assets/27996771/d77ba511-00b7-47c3-9032-55679a099e70
 
 ### Tech stack
 
@@ -136,8 +87,8 @@ They can't capture all the project's features, but they are sufficient to get a 
         <td>Synchronizes exposed Kubernetes Services and Ingresses with DNS providers</td>
     </tr>
     <tr>
-        <td><img width="32" src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Fedora_logo.svg/267px-Fedora_logo.svg.png"></td>
-        <td><a href="https://getfedora.org/en/server">Fedora Server</a></td>
+        <td><img width="32" src="https://avatars.githubusercontent.com/u/55884422?s=200&v=4"></td>
+        <td><a href="https://almalinux.org">AlmaLinux</a></td>
         <td>Base OS for Kubernetes nodes</td>
     </tr>
     <tr>
@@ -224,7 +175,6 @@ They can't capture all the project's features, but they are sufficient to get a 
 
 ## Get Started
 
-- [Try it out locally](https://homelab.malford.io/installation/sandbox) without any hardware (just 4 commands!)
 - [Deploy on real hardware](https://homelab.malford.io/installation/production/prerequisites) for production workload
 
 ## Roadmap

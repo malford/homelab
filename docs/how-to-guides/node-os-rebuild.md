@@ -538,13 +538,6 @@ is fully `active+clean`.
 
 ## After the last node
 
-- [ ] Drop the two legacy device names from `system/rook-ceph/values.yaml`, leaving
-      only `/dev/mapper/ceph-osd`.
-- [ ] Leave `cephx.csi.keyType: aes` pinned. AlmaLinux 10 ships a ~6.12 kernel and
-      `aes256k` needs 7.0+, so rotating CSI keys would still break new mounts and
-      the insecure-key-type `HEALTH_WARN` stays.
-- [ ] Delete `metal/inventories/stag.yml` — it is dead leftover config from the
-      upstream fork.
 - [ ] Consider converting one node to an agent. k3s wants an **odd** number of
       servers for embedded etcd; six gives quorum 4 and tolerates only two
       failures, whereas five servers tolerate two as well and leave the sixth node

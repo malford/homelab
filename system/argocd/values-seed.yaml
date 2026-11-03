@@ -1,5 +1,7 @@
 argo-cd:
   server:
+    # Chart defaults, re-pinned: seed mode runs before the monitoring CRDs
+    # exist, so an upstream flip to `true` would fail the first bootstrap.
     metrics: &metrics
       enabled: false
       serviceMonitor:

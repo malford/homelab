@@ -29,5 +29,5 @@ To view PXE server (includes DHCP, TFTP and HTTP server) logs:
     - TFTP (69)
     - HTTP (80)
 - Check PXE server Docker logs
-- Check if the servers are booting to the correct OS (Fedora Server installer instead of the previously installed OS), if not try to select it manually or remove the previous OS boot entry
+- Check if the servers are booting to the correct OS (AlmaLinux installer instead of the previously installed OS), if not try to select it manually or remove the previous OS boot entry
 - Examine the network boot process with [Wireshark](https://www.wireshark.org) or [Termshark](https://termshark.io)

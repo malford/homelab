@@ -2,7 +2,7 @@
 
 ## Backup secrets
 
-Save the following files to a safe location like a password manager (if you're using the sandbox, you can skip this step):
+Save the following files to a safe location like a password manager:
 
 - `~/.ssh/id_ed25519`
 - `~/.ssh/id_ed25519.pub`

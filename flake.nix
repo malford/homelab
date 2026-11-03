@@ -35,7 +35,6 @@
             jq
             k9s
             kanidm
-            kube3d
             kubectl
             kubernetes-helm
             kustomize
