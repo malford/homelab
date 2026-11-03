@@ -1,14 +1,12 @@
 woodpecker:
   agent:
-    replicaCount: 2
     mapAgentSecret: false
     extraSecretNamesForEnvFrom:
       - woodpecker-secret
     env:
       WOODPECKER_BACKEND_K8S_STORAGE_RWX: false
-      # Agents will spawn pods to run workflow steps using the
-      # Kubernetes backend instead of running them directly on
-      # the agent pod, so we can run many workflows per agent.
+      # Steps run as their own pods on the Kubernetes backend, not on the agent
+      # pod, so one agent can carry many concurrent workflows.
       WOODPECKER_MAX_WORKFLOWS: 10
   server:
     createAgentSecret: false

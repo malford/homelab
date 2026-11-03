@@ -5,8 +5,6 @@ actions:
   existingSecretKey: token
 
   statefulset:
-    replicas: 1
-
     runner:
       tag: "1.0.6"
       config: |
@@ -21,9 +19,6 @@ actions:
           privileged: true
           valid_volumes:
             - "**"
-
-    persistence:
-      size: 1Gi
 
     dind:
       tag: "29.5.2-dind"
