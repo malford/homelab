@@ -15,7 +15,7 @@ app-template:
   defaultPodOptions:
     enableServiceLinks: true
     # The uid/gid that owns the media and config volumes. Apps whose image needs
-    # a different identity (flaresolverr, plex) restate this block.
+    # a different identity (flaresolverr, plex, seerr) override runAsUser.
     securityContext:
       runAsUser: 1029
       runAsGroup: 100

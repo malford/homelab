@@ -3,11 +3,8 @@ app-template:
   # node (1000) and only talks to the *arr/Plex APIs, so it never needs the 1029
   # that owns the media volumes.
   defaultPodOptions:
-    enableServiceLinks: true
     securityContext:
       runAsUser: 1000
-      runAsGroup: 100
-      fsGroup: 100
   controllers:
     main:
       containers:

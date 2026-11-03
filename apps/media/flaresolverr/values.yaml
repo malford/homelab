@@ -1,13 +1,7 @@
 app-template:
-  # Overrides the shared block in apps/media/_shared/base.yaml: this image runs
-  # as 1000, not the 1029 that owns the media volumes. Restated in full because
-  # it is the whole block that differs, not one key.
   defaultPodOptions:
-    enableServiceLinks: true
     securityContext:
       runAsUser: 1000
-      runAsGroup: 100
-      fsGroup: 100
   controllers:
     main:
       containers:
