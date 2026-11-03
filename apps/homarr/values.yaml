@@ -4,26 +4,14 @@ homarr:
   strategyType: Recreate
   env:
     TZ: America/New_York
-    LOG_LEVEL: info
-    AUTH_PROVIDERS: credentials
-  database:
-    type: sqlite
-    migrationEnabled: true
-  envSecrets:
-    dbEncryption:
-      existingSecret: db-encryption
-      key: db-encryption-key
   # Grants the ServiceAccount cluster read access and sets ENABLE_KUBERNETES.
   rbac:
     enabled: true
   persistence:
     homarrDatabase:
       enabled: true
-      name: homarr-database
       storageClassName: standard-rwo
-      accessMode: ReadWriteOnce
       size: 2Gi
-      mountPath: /appdata
   ingress:
     enabled: true
     ingressClassName: nginx
