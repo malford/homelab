@@ -23,6 +23,7 @@ k3s_server_config:
     - traefik
   disable-helm-controller: true
   disable-kube-proxy: true
+  etcd-expose-metrics: true
   disable-network-policy: true
   flannel-backend: none
   secrets-encryption: true
