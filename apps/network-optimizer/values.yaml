@@ -51,7 +51,7 @@ app-template:
             repository: ghcr.io/ozark-connect/speedtest
             tag: 2.10.6
           env:
-            TZ: America/Chicago
+            TZ: America/New_York
             HOST_NAME: network-optimizer.malford.io
             HOST_IP: ""
             OPENSPEEDTEST_HOST: no-speedtest.malford.io
