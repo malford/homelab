@@ -59,7 +59,7 @@ ansible-playbook -i inventories/prod.yml cluster.yml --limit metal6v2
     It is recommended to remove nodes one at a time
 
 If the node hosts a Ceph OSD, drain it first — see
-[Rebuild a node's OS](node-os-rebuild.md#2-drain-the-osd). Removing a node with
+[Rebuild a node's OS](node-os-rebuild.md#2-take-the-osd-out-of-service). Removing a node with
 an `in` OSD leaves pools at a single copy.
 
 Remove it from the inventory:

@@ -2,10 +2,9 @@
 
 This project has been inspired by and forked from [Khue's homelab](https://github.com/khuedoan/homelab). Go there to get started and support their [repo](https://github.com/khuedoan/homelab).
 
-**[Features](#features) • [Get Started](#get-started) • [Documentation](https://homelab.malford.io)**
+**[Features](#features) • [Get Started](#get-started) • [Documentation](docs)**
 
 [![tag](https://img.shields.io/github/v/tag/malford/malford-homelab?style=flat-square&logo=semver&logoColor=white)](https://github.com/malford/malford-homelab/tags)
-[![document](https://img.shields.io/website?label=document&logo=gitbook&logoColor=white&style=flat-square&url=https%3A%2F%2Fhomelab.malford.io)](https://homelab.malford.io)
 [![license](https://img.shields.io/github/license/malford/malford-homelab?style=flat-square&logo=gnu&logoColor=white)](https://www.gnu.org/licenses/gpl-3.0.html)
 [![stars](https://img.shields.io/github/stars/malford/malford-homelab?logo=github&logoColor=white&color=gold&style=flat-square)](https://github.com/malford/malford-homelab)
 
@@ -175,22 +174,24 @@ It can be used as a highly customizable framework to build your own homelab.
 
 ## Get Started
 
-- [Deploy on real hardware](https://homelab.malford.io/installation/production/prerequisites) for production workload
+- [Deploy on real hardware](docs/installation/production/prerequisites.md) for production workload
+
+Documentation lives in [`docs/`](docs) and renders locally with `make docs`.
 
 ## Roadmap
 
-See [roadmap](https://homelab.malford.io/reference/roadmap) and [open issues](https://github.com/malford/malford-homelab/issues) for a list of proposed features and known issues.
+See [roadmap](docs/reference/roadmap.md) and [open issues](https://github.com/malford/malford-homelab/issues) for a list of proposed features and known issues.
 
 ## Contributing
 
 Any contributions you make are greatly appreciated.
 
-Please see [contributing guide](https://homelab.malford.io/reference/contributing) for more information.
+Please see [contributing guide](docs/reference/contributing.md) for more information.
 
 ## License
 
 Distributed under the GPLv3 License.
-See [license page](https://homelab.malford.io/reference/license) or `LICENSE.md` file for more information.
+See [license page](docs/reference/license.md) or `LICENSE.md` file for more information.
 
 ## Acknowledgements
 
