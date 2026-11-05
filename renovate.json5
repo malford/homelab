@@ -65,6 +65,12 @@
       "groupName": null
     },
     {
+      "matchPackageNames": [
+        "k3s-io/k3s"
+      ],
+      "allowedVersions": "<1.37.0"
+    },
+    {
       // v2 -> v3 is a module path change, not a version bump. See PR #49.
       "matchPackageNames": [
         "gopkg.in/yaml.v2"
