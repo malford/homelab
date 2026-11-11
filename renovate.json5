@@ -83,10 +83,13 @@
       // release - so no candidate ever qualifies and the tag is frozen. Match the
       // hash without capturing it (regex groups must be numeric); the $ anchor
       // keeps the -amd64/-arm64/-armhf variants out.
+      // Plex also deletes yanked builds, which strands the pin above every live
+      // tag and silences renovate; rollback PRs surface that instead.
       "matchPackageNames": [
         "docker.io/plexinc/pms-docker"
       ],
-      "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)\\.(?<build>\\d+)-[0-9a-f]+$"
+      "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)\\.(?<build>\\d+)-[0-9a-f]+$",
+      "rollbackPrs": true
     },
     {
       // Same freeze from linuxserver's -lsNN build counter. Capturing it as
