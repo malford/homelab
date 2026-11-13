@@ -110,6 +110,11 @@ backups:
   - app: home-assistant
     namespace: home-assistant
     claim: home-assistant
+  # Matter fabric credentials. Losing these means re-commissioning every device,
+  # which for already-shared devices means re-pairing from Apple Home too.
+  - app: home-assistant-matter
+    namespace: home-assistant
+    claim: home-assistant-matter-data
   # Identity database. scripts/hacks rebuilds the service accounts and the dex
   # OAuth2 app, but real user accounts only exist here.
   - app: kanidm

@@ -79,8 +79,6 @@ app-template:
           env:
             TZ: "America/New_York"
           probes:
-            # HA needs 60-90s on a cold start; the startup probe holds the pod
-            # NotReady until then so the ingress does not 502 through a restart.
             startup:
               enabled: true
               spec:
@@ -91,12 +89,41 @@ app-template:
             liveness:
               enabled: true
 
+    # Matter fabric controller. HA's Matter integration is only a websocket
+    # client - it needs this server to speak Matter to the devices.
+    matter-server:
+      strategy: Recreate
+      containers:
+        main:
+          image:
+            repository: ghcr.io/matter-js/matterjs-server
+            tag: "1.5.5"
+          env:
+            TZ: "America/New_York"
+            # Cilium puts cilium_host/lxc* in the host netns; auto-detection can
+            # pick one and then devices never reach the fabric.
+            PRIMARY_INTERFACE: eno1
+          probes:
+            readiness:
+              enabled: true
+            liveness:
+              enabled: true
+      pod:
+        securityContext:
+          fsGroup: 1000
+
   service:
     app:
+      forceRename: home-assistant
       controller: home-assistant
       ports:
         http:
           port: 8123
+    matter:
+      controller: matter-server
+      ports:
+        ws:
+          port: 5580
 
   ingress:
     app:
@@ -118,6 +145,7 @@ app-template:
 
   persistence:
     data:
+      forceRename: home-assistant
       type: persistentVolumeClaim
       storageClass: standard-rwo
       accessMode: ReadWriteOnce
@@ -130,6 +158,15 @@ app-template:
             - path: /config
           init-hacs:
             - path: /config
+    matter-data:
+      type: persistentVolumeClaim
+      storageClass: standard-rwo
+      accessMode: ReadWriteOnce
+      size: 1Gi
+      advancedMounts:
+        matter-server:
+          main:
+            - path: /data
     seed:
       type: configMap
       name: home-assistant-config
