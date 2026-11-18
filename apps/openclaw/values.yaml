@@ -5,8 +5,6 @@ app-template:
         securityContext:
           runAsUser: 1000
           runAsGroup: 1000
-          fsGroup: 1000
-          fsGroupChangePolicy: OnRootMismatch
       initContainers:
         init-config:
           image:
@@ -21,9 +19,8 @@ app-template:
               if [ ! -f /home/node/.openclaw/openclaw.json ]; then
                 cp /tmp/openclaw-config/openclaw.json /home/node/.openclaw/openclaw.json
               fi &&
-              chmod 600 /home/node/.openclaw/openclaw.json &&
-              chmod 700 /home/node/.openclaw &&
-              chown -R 1000:1000 /home/node/.openclaw
+              chown -R 1000:1000 /home/node/.openclaw &&
+              chmod -R go-rwx,g-s /home/node/.openclaw
       containers:
         main:
           image:
