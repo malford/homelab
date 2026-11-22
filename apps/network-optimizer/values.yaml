@@ -147,7 +147,7 @@ app-template:
   persistence:
     data:
       accessMode: ReadWriteOnce
-      size: 1Gi
+      size: 5Gi
       storageClass: standard-rwo
       advancedMounts:
         network-optimizer:
