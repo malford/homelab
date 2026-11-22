@@ -5,7 +5,7 @@ app-template:
         app:
           image:
             repository: ghcr.io/ozark-connect/network-optimizer
-            tag: 2.11.4
+            tag: 2.11.6
           env:
             TZ: America/New_York
             HOST_NAME: network-optimizer.malford.io
@@ -49,7 +49,7 @@ app-template:
         app:
           image:
             repository: ghcr.io/ozark-connect/speedtest
-            tag: 2.11.4
+            tag: 2.11.6
           env:
             TZ: America/New_York
             HOST_NAME: network-optimizer.malford.io
@@ -72,7 +72,7 @@ app-template:
           image:
             repository: docker.io/library/influxdb
             # 2.x line - the app needs the v2 API. 3.x is a different engine.
-            tag: 2.9.1-alpine
+            tag: 2.10.1-alpine
           env:
             TZ: America/New_York
             DOCKER_INFLUXDB_INIT_MODE: setup
