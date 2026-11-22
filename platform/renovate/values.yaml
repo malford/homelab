@@ -1,6 +1,6 @@
 renovate:
   cronjob:
-    schedule: '0 9 * * *'  # Everyday at 09:00
+    schedule: '0 */6 * * *'  # Every six hours
     # Unset lets the CronJob controller fall back to the host's zone.
     timeZone: America/New_York
     # Each retained pod pins a container layer on its node's 32G image LV.
@@ -11,6 +11,7 @@ renovate:
         "platform": "gitea",
         "endpoint": "https://git.malford.io/api/v1",
         "gitAuthor": "Renovate Bot <bot@renovateapp.com>",
-        "autodiscover": true
+        "autodiscover": true,
+        "exitCodeForErrors": true
       }
   existingSecret: renovate-secret
