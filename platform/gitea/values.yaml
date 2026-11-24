@@ -72,6 +72,10 @@ gitea:
     pgpool:
       numInitChildren: 8
       maxPool: 2
+      # Single replica + maxUnavailable:1 means a broken pod is unevictable
+      # (disruptionsAllowed 0-0=0) and blocks node drains forever.
+      pdb:
+        create: false
       resources:
         limits:
           memory: 512Mi
