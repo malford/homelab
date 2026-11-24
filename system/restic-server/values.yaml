@@ -21,7 +21,7 @@ app-template:
         server:
           image:
             repository: docker.io/restic/rest-server
-            tag: 0.14.0
+            tag: 0.15.0
           env:
             # Any value disables HTTP basic auth. The service is ClusterIP-only and
             # repository contents are AES-256 encrypted by restic, so the repo
