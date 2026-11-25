@@ -3,6 +3,9 @@ all:
     control_plane_endpoint: 192.168.5.100
     load_balancer_ip_pool:
       - 192.168.5.224/27
+    tailnet_router_nodes:
+      - metal4v2
+      - metal5v2
 metal:
   children:
     masters:

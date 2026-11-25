@@ -5,3 +5,11 @@ metadata:
 spec:
   externalIPs: true
   loadBalancerIPs: true
+  nodeSelector:
+    matchExpressions:
+      - key: kubernetes.io/hostname
+        operator: NotIn
+        values:
+          {% for node in tailnet_router_nodes %}
+          - {{ node }}
+          {% endfor %}

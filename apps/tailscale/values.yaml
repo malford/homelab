@@ -3,6 +3,16 @@ app-template:
     createDefaultServiceAccount: false
   defaultPodOptions:
     automountServiceAccountToken: true
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: kubernetes.io/hostname
+                  operator: In
+                  values:
+                    - metal4v2
+                    - metal5v2
   controllers:
     tailscale:
       serviceAccount:

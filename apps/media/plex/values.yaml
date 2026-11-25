@@ -2,6 +2,16 @@ app-template:
   defaultPodOptions:
     securityContext:
       runAsUser: 102
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: kubernetes.io/hostname
+                  operator: NotIn
+                  values:
+                    - metal4v2
+                    - metal5v2
   controllers:
     main:
       containers:
