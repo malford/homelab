@@ -3,7 +3,7 @@ app-template:
     main:
       containers:
         lidarr:
-          image: { repository: lscr.io/linuxserver/lidarr, tag: 3.1.6.5079-ls49 }
+          image: { repository: lscr.io/linuxserver/lidarr, tag: 3.1.6.5079-ls50 }
           securityContext:
             runAsUser: 0
           env:
