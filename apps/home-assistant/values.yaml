@@ -97,7 +97,7 @@ app-template:
         main:
           image:
             repository: ghcr.io/matter-js/matterjs-server
-            tag: "1.6.0"
+            tag: "1.6.1"
           env:
             TZ: "America/New_York"
             # Cilium puts cilium_host/lxc* in the host netns; auto-detection can
